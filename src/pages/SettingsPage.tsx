@@ -27,7 +27,7 @@ export function SettingsPage() {
   const [darkMode, setDarkMode] = useState(false)
 
   return (
-    <div className="flex flex-col gap-6 max-w-3xl">
+    <div className="flex flex-col gap-cn-6 max-w-3xl">
       {/* Breadcrumb */}
       <Breadcrumb.Root>
         <Breadcrumb.Item>
@@ -51,10 +51,10 @@ export function SettingsPage() {
       {/* General Settings */}
       <Card.Root>
         <Card.Content>
-          <div className="flex flex-col gap-5 p-5">
+          <div className="flex flex-col gap-cn-5 p-cn-5">
             <Text variant="heading-subsection">General</Text>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-cn-1">
               <Text variant="body-strong" as="label">Project Name</Text>
               <TextInput
                 value={projectName}
@@ -63,7 +63,7 @@ export function SettingsPage() {
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-cn-1">
               <Text variant="body-strong" as="label">Description</Text>
               <Textarea
                 value={description}
@@ -72,7 +72,7 @@ export function SettingsPage() {
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-cn-1">
               <Text variant="body-strong" as="label">Default Environment</Text>
               <Select
                 options={environmentOptions}
@@ -88,7 +88,7 @@ export function SettingsPage() {
       {/* Notifications */}
       <Card.Root>
         <Card.Content>
-          <div className="flex flex-col gap-5 p-5">
+          <div className="flex flex-col gap-cn-5 p-cn-5">
             <Text variant="heading-subsection">Notifications</Text>
 
             <div className="flex items-center justify-between">
@@ -98,10 +98,7 @@ export function SettingsPage() {
                   Receive email alerts for deployment events and pipeline failures.
                 </Text>
               </div>
-              <Switch
-                checked={notifications}
-                onCheckedChange={setNotifications}
-              />
+              <Switch checked={notifications} onCheckedChange={setNotifications} />
             </div>
 
             <Separator />
@@ -113,10 +110,7 @@ export function SettingsPage() {
                   Automatically retry pipelines that fail due to transient errors.
                 </Text>
               </div>
-              <Switch
-                checked={autoRetry}
-                onCheckedChange={setAutoRetry}
-              />
+              <Switch checked={autoRetry} onCheckedChange={setAutoRetry} />
             </div>
 
             <Separator />
@@ -128,10 +122,7 @@ export function SettingsPage() {
                   Switch the application to dark theme.
                 </Text>
               </div>
-              <Switch
-                checked={darkMode}
-                onCheckedChange={setDarkMode}
-              />
+              <Switch checked={darkMode} onCheckedChange={setDarkMode} />
             </div>
           </div>
         </Card.Content>
@@ -140,7 +131,7 @@ export function SettingsPage() {
       {/* Danger Zone */}
       <Card.Root>
         <Card.Content>
-          <div className="flex flex-col gap-5 p-5">
+          <div className="flex flex-col gap-cn-5 p-cn-5">
             <Text variant="heading-subsection" color="danger">Danger Zone</Text>
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-0.5">
@@ -158,7 +149,7 @@ export function SettingsPage() {
       </Card.Root>
 
       {/* Save Button */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-cn-3">
         <Button variant="outline">Cancel</Button>
         <Button>Save Changes</Button>
       </div>

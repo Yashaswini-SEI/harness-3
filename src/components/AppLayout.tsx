@@ -15,8 +15,8 @@ export function AppLayout() {
       <Sidebar.Root>
         <Sidebar.Header>
           <div className="flex items-center gap-2.5 px-2 py-1">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600">
-              <Text variant="body-strong" color="inherit" className="text-white text-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-cn-brand">
+              <Text variant="body-strong" className="text-cn-background-1 text-sm">
                 H
               </Text>
             </div>
@@ -50,7 +50,7 @@ export function AppLayout() {
         <Sidebar.Rail />
       </Sidebar.Root>
       <Sidebar.Inset>
-        <main className="flex flex-1 flex-col p-6">
+        <main className="flex flex-1 flex-col p-cn-6">
           <Outlet />
         </main>
       </Sidebar.Inset>

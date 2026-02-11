@@ -13,15 +13,15 @@ function StatCard({ title, value, change, changeType, icon }: StatCardProps) {
   return (
     <Card.Root>
       <Card.Content>
-        <div className="flex items-start justify-between p-4">
-          <div className="flex flex-col gap-1">
+        <div className="flex items-start justify-between p-cn-4">
+          <div className="flex flex-col gap-cn-1">
             <Text variant="body-normal" color="foreground-3">{title}</Text>
             <Text variant="heading-section">{value}</Text>
             <StatusBadge variant="outline" theme={changeType} size="sm">
               {change}
             </StatusBadge>
           </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cn-background-3">
             <IconV2 name={icon} size="md" />
           </div>
         </div>
@@ -50,7 +50,7 @@ const recentActivity: ActivityItem[] = [
 
 export function DashboardPage() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-cn-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -59,14 +59,14 @@ export function DashboardPage() {
             Overview of your project metrics and recent activity.
           </Text>
         </div>
-        <Button>
+        <Button variant="outline">
           <IconV2 name="download" size="sm" />
           Export Report
         </Button>
       </div>
 
       {/* Stat Cards Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-cn-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Users"
           value="2,847"
@@ -98,20 +98,20 @@ export function DashboardPage() {
       </div>
 
       {/* Recent Activity & Quick Actions */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-cn-4 lg:grid-cols-3">
         {/* Recent Activity */}
         <div className="lg:col-span-2">
           <Card.Root>
             <Card.Content>
-              <div className="flex flex-col gap-4 p-4">
+              <div className="flex flex-col gap-cn-4 p-cn-4">
                 <div className="flex items-center justify-between">
                   <Text variant="heading-subsection">Recent Activity</Text>
                   <Button variant="outline" size="sm">View All</Button>
                 </div>
-                <div className="flex flex-col divide-y">
+                <div className="flex flex-col divide-y divide-cn-border-3">
                   {recentActivity.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between py-3">
-                      <div className="flex items-center gap-3">
+                    <div key={item.id} className="flex items-center justify-between py-cn-3">
+                      <div className="flex items-center gap-cn-3">
                         <StatusBadge variant="status" theme={item.status} size="sm" />
                         <div className="flex flex-col">
                           <Text variant="body-normal">
@@ -134,22 +134,22 @@ export function DashboardPage() {
         <div>
           <Card.Root>
             <Card.Content>
-              <div className="flex flex-col gap-4 p-4">
+              <div className="flex flex-col gap-cn-4 p-cn-4">
                 <Text variant="heading-subsection">Quick Actions</Text>
-                <div className="flex flex-col gap-2">
-                  <Button variant="outline" className="justify-start gap-2">
+                <div className="flex flex-col gap-cn-2">
+                  <Button variant="outline" className="justify-start gap-cn-2">
                     <IconV2 name="deploy" size="sm" />
                     New Deployment
                   </Button>
-                  <Button variant="outline" className="justify-start gap-2">
+                  <Button variant="outline" className="justify-start gap-cn-2">
                     <IconV2 name="executions" size="sm" />
                     Create Pipeline
                   </Button>
-                  <Button variant="outline" className="justify-start gap-2">
+                  <Button variant="outline" className="justify-start gap-cn-2">
                     <IconV2 name="user" size="sm" />
                     Invite Team Member
                   </Button>
-                  <Button variant="outline" className="justify-start gap-2">
+                  <Button variant="outline" className="justify-start gap-cn-2">
                     <IconV2 name="settings" size="sm" />
                     Project Settings
                   </Button>

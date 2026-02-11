@@ -53,7 +53,7 @@ export function UsersPage() {
   }, [search])
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-cn-6">
       {/* Breadcrumb */}
       <Breadcrumb.Root>
         <Breadcrumb.Item>
@@ -80,8 +80,8 @@ export function UsersPage() {
         </Button>
       </div>
 
-      {/* Search & Filters */}
-      <div className="flex items-center gap-3">
+      {/* Search & Count */}
+      <div className="flex items-center gap-cn-3">
         <div className="w-80">
           <SearchInput
             placeholder="Search users..."
@@ -138,7 +138,7 @@ export function UsersPage() {
           {filteredUsers.length === 0 && (
             <Table.Row>
               <Table.Cell colSpan={6}>
-                <div className="flex flex-col items-center justify-center py-12 gap-2">
+                <div className="flex flex-col items-center justify-center py-12 gap-cn-2">
                   <IconV2 name="area-search" size="xl" />
                   <Text variant="body-normal" color="foreground-3">No users found matching your search.</Text>
                 </div>
