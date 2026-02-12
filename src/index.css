@@ -3,3 +3,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Direct-reference color utilities.
+ *
+ * The Harness design-system Tailwind preset generates cn-* color utilities
+ * with lch(from var(...) ...) relative-color syntax, which requires very
+ * recent browser support. These thin wrappers use var() directly so they
+ * work in all modern browsers.
+ */
+@layer utilities {
+  /* Backgrounds */
+  .bg-surface-0 { background-color: var(--cn-bg-0); }
+  .bg-surface-1 { background-color: var(--cn-bg-1); }
+  .bg-surface-2 { background-color: var(--cn-bg-2); }
+  .bg-surface-3 { background-color: var(--cn-bg-3); }
+
+  /* Text */
+  .text-primary   { color: var(--cn-text-1); }
+  .text-secondary { color: var(--cn-text-2); }
+  .text-tertiary  { color: var(--cn-text-3); }
+  .text-quaternary { color: var(--cn-text-4); }
+
+  /* Borders */
+  .border-strong  { border-color: var(--cn-border-1); }
+  .border-medium  { border-color: var(--cn-border-2); }
+  .border-subtle  { border-color: var(--cn-border-3); }
+}
