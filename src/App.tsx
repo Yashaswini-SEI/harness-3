@@ -1,163 +1,218 @@
 import { Button, IconV2, SearchInput, StatusBadge, Text, Checkbox } from '@harnessio/ui/components'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { SideNav } from './components/SideNav'
 
 function App() {
   const [search, setSearch] = useState('')
+  const [activeNav, setActiveNav] = useState('')
 
   return (
-    <div className="min-h-screen bg-surface-0 p-8">
-      <div className="mx-auto max-w-3xl space-y-8">
-        {/* ── Section 1: Harness Typography ── */}
-        <section className="space-y-2">
-          <h2 className="font-heading-subsection text-primary">Harness Typography</h2>
-          <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2">
-            <p className="font-heading-hero text-primary">font-heading-hero</p>
-            <p className="font-heading-section text-primary">font-heading-section</p>
-            <p className="font-heading-subsection text-primary">font-heading-subsection</p>
-            <p className="font-heading-base text-primary">font-heading-base</p>
-            <p className="font-heading-small text-primary">font-heading-small</p>
-            <hr className="border-subtle" />
-            <p className="font-body-normal text-secondary">font-body-normal</p>
-            <p className="font-body-strong text-primary">font-body-strong</p>
-            <p className="font-body-code text-secondary">font-body-code</p>
-            <hr className="border-subtle" />
-            <p className="font-caption-normal text-tertiary">font-caption-normal</p>
-            <p className="font-caption-strong text-secondary">font-caption-strong</p>
-            <p className="font-caption-light text-tertiary">font-caption-light</p>
-            <p className="font-caption-code text-tertiary">font-caption-code</p>
-          </div>
-        </section>
+    <div className="space-y-8">
+      {/* Header */}
+      <header className="space-y-1">
+        <Text as="h1" variant="heading-hero" color="foreground-1">Component Gallery</Text>
+        <Text as="p" variant="body-normal" color="foreground-2">
+          Harness Design System 3.0 — composed components built from primitives
+        </Text>
+      </header>
 
-        {/* ── Section 2: Spacing (cn- scale) ── */}
-        <section className="space-y-2">
-          <h2 className="font-heading-subsection text-primary">Spacing (cn- scale)</h2>
-          <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 flex flex-wrap items-end gap-cn-sm">
+      {/* Quick links to sub-pages */}
+      <nav className="flex gap-3">
+        <Link to="/tables">
+          <Button variant="outline" size="sm">
+            <IconV2 name="grip-dots" size="sm" />
+            Tables
+          </Button>
+        </Link>
+      </nav>
+
+      {/* ── SideNav Component ── */}
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <Text as="h2" variant="heading-subsection" color="foreground-1">SideNav</Text>
+          <Text as="p" variant="body-normal" color="foreground-3">
+            Application sidebar navigation with pinned items, recent group, and expandable "More" drawer.
+            Click "More" to open the category popover.
+          </Text>
+        </div>
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-6 overflow-visible" style={{ minHeight: 640 }}>
+          <div className="flex gap-8">
+            {/* Light variant */}
+            <div className="space-y-2">
+              <Text variant="caption-strong" color="foreground-2">Default</Text>
+              <div className="rounded-lg border border-subtle overflow-visible relative" style={{ minHeight: 600 }}>
+                <SideNav onItemClick={(id) => setActiveNav(id)} />
+              </div>
+            </div>
+          </div>
+          {activeNav && (
+            <Text as="p" variant="caption-normal" color="foreground-3" className="mt-4">
+              Last clicked: <Text variant="caption-strong" color="foreground-1">{activeNav}</Text>
+            </Text>
+          )}
+        </div>
+      </section>
+
+      {/* ── Section: Primitives Reference ── */}
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <Text as="h2" variant="heading-subsection" color="foreground-1">Primitives Reference</Text>
+          <Text as="p" variant="body-normal" color="foreground-3">
+            The base building blocks used to compose higher-level components.
+          </Text>
+        </div>
+
+        {/* Typography — Heading Variants */}
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-3">
+          <Text variant="caption-strong" color="foreground-2">Heading Variants</Text>
+          <div className="space-y-2">
+            <Text as="p" variant="heading-hero" color="foreground-1">heading-hero</Text>
+            <Text as="p" variant="heading-section" color="foreground-1">heading-section</Text>
+            <Text as="p" variant="heading-subsection" color="foreground-1">heading-subsection</Text>
+            <Text as="p" variant="heading-base" color="foreground-1">heading-base</Text>
+            <Text as="p" variant="heading-small" color="foreground-1">heading-small</Text>
+          </div>
+        </div>
+
+        {/* Typography — Body Variants */}
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-3">
+          <Text variant="caption-strong" color="foreground-2">Body Variants</Text>
+          <div className="space-y-2">
+            <Text as="p" variant="body-normal" color="foreground-2">body-normal</Text>
+            <Text as="p" variant="body-single-line-normal" color="foreground-2">body-single-line-normal</Text>
+            <Text as="p" variant="body-strong" color="foreground-1">body-strong</Text>
+            <Text as="p" variant="body-single-line-strong" color="foreground-1">body-single-line-strong</Text>
+            <Text as="p" variant="body-code" color="foreground-2">body-code</Text>
+            <Text as="p" variant="body-single-line-code" color="foreground-2">body-single-line-code</Text>
+          </div>
+        </div>
+
+        {/* Typography — Caption Variants */}
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-3">
+          <Text variant="caption-strong" color="foreground-2">Caption Variants</Text>
+          <div className="space-y-2">
+            <Text as="p" variant="caption-normal" color="foreground-3">caption-normal</Text>
+            <Text as="p" variant="caption-single-line-normal" color="foreground-3">caption-single-line-normal</Text>
+            <Text as="p" variant="caption-strong" color="foreground-2">caption-strong</Text>
+            <Text as="p" variant="caption-light" color="foreground-3">caption-light</Text>
+            <Text as="p" variant="caption-single-line-light" color="foreground-3">caption-single-line-light</Text>
+            <Text as="p" variant="caption-code" color="foreground-3">caption-code</Text>
+          </div>
+        </div>
+
+        {/* Typography — Text Colors */}
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-3">
+          <Text variant="caption-strong" color="foreground-2">Text Colors</Text>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <Text variant="body-normal" color="foreground-1">foreground-1</Text>
+            <Text variant="body-normal" color="foreground-2">foreground-2</Text>
+            <Text variant="body-normal" color="foreground-3">foreground-3</Text>
+            <Text variant="body-normal" color="foreground-4">foreground-4</Text>
+            <Text variant="body-normal" color="success">success</Text>
+            <Text variant="body-normal" color="danger">danger</Text>
+            <Text variant="body-normal" color="warning">warning</Text>
+            <Text variant="body-normal" color="brand">brand</Text>
+            <Text variant="body-normal" color="disabled">disabled</Text>
+          </div>
+        </div>
+
+        {/* Spacing */}
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4">
+          <Text as="p" variant="caption-strong" color="foreground-2" className="mb-2">Spacing (cn- scale)</Text>
+          <div className="flex flex-wrap items-end gap-cn-sm">
             {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
               <div key={size} className="flex flex-col items-center gap-1">
                 <div className={`p-cn-${size} bg-surface-2 border border-medium rounded-cn-1`}>
                   <div className="h-4 w-4 bg-[#006DEA] rounded" />
                 </div>
-                <span className="font-caption-normal text-tertiary">p-cn-{size}</span>
+                <Text variant="caption-normal" color="foreground-3">p-cn-{size}</Text>
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* ── Section 3: Colors & Borders ── */}
-        <section className="space-y-2">
-          <h2 className="font-heading-subsection text-primary">Colors &amp; Borders</h2>
-          <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-4">
-            <div>
-              <p className="font-caption-strong text-secondary mb-2">Surface colors</p>
-              <div className="flex gap-3">
-                <div className="h-10 w-10 rounded-cn-1 bg-surface-0 border border-medium" title="bg-surface-0" />
-                <div className="h-10 w-10 rounded-cn-1 bg-surface-1 border border-medium" title="bg-surface-1" />
-                <div className="h-10 w-10 rounded-cn-1 bg-surface-2 border border-medium" title="bg-surface-2" />
-                <div className="h-10 w-10 rounded-cn-1 bg-surface-3 border border-medium" title="bg-surface-3" />
-              </div>
-            </div>
-            <div>
-              <p className="font-caption-strong text-secondary mb-2">Text colors</p>
-              <div className="flex gap-4">
-                <span className="font-body-normal text-primary">text-primary</span>
-                <span className="font-body-normal text-secondary">text-secondary</span>
-                <span className="font-body-normal text-tertiary">text-tertiary</span>
-                <span className="font-body-normal text-quaternary">text-quaternary</span>
-              </div>
-            </div>
-            <div>
-              <p className="font-caption-strong text-secondary mb-2">Semantic text</p>
-              <div className="flex gap-4">
-                <span className="font-body-normal text-cn-brand">text-cn-brand</span>
-                <span className="font-body-normal text-cn-success">text-cn-success</span>
-                <span className="font-body-normal text-cn-warning">text-cn-warning</span>
-                <span className="font-body-normal text-cn-danger">text-cn-danger</span>
-              </div>
-            </div>
-            <div>
-              <p className="font-caption-strong text-secondary mb-2">Borders</p>
-              <div className="flex gap-3">
-                <div className="h-8 w-24 rounded-cn-1 border border-strong" />
-                <div className="h-8 w-24 rounded-cn-1 border border-medium" />
-                <div className="h-8 w-24 rounded-cn-1 border border-subtle" />
-              </div>
+        {/* Colors */}
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-4">
+          <Text as="p" variant="caption-strong" color="foreground-2" className="mb-2">Colors &amp; Borders</Text>
+          <div>
+            <Text as="p" variant="caption-normal" color="foreground-3" className="mb-1">Surface</Text>
+            <div className="flex gap-3">
+              <div className="h-10 w-10 rounded-cn-1 bg-surface-0 border border-medium" title="bg-surface-0" />
+              <div className="h-10 w-10 rounded-cn-1 bg-surface-1 border border-medium" title="bg-surface-1" />
+              <div className="h-10 w-10 rounded-cn-1 bg-surface-2 border border-medium" title="bg-surface-2" />
+              <div className="h-10 w-10 rounded-cn-1 bg-surface-3 border border-medium" title="bg-surface-3" />
             </div>
           </div>
-        </section>
-
-        {/* ── Section 4: Harness UI Components ── */}
-        <section className="space-y-2">
-          <h2 className="font-heading-subsection text-primary">Harness UI Components</h2>
-          <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-4">
-            {/* Text component */}
-            <div className="space-y-1">
-              <Text variant="body-normal">Text variant=&quot;body-normal&quot;</Text>
-              <br />
-              <Text variant="body-strong">Text variant=&quot;body-strong&quot;</Text>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex flex-wrap items-center gap-3">
-              <Button size="sm">Primary SM</Button>
-              <Button size="md">Primary MD</Button>
-              <Button variant="outline" size="sm">Outline SM</Button>
-              <Button variant="outline" size="md">Outline MD</Button>
-              <Button variant="ghost" size="sm">Ghost SM</Button>
-            </div>
-
-            {/* Button with icon */}
-            <div className="flex items-center gap-3">
-              <Button size="sm">
-                <IconV2 name="plus" size="sm" />
-                With Icon
-              </Button>
-              <Button variant="outline" size="sm" iconOnly ignoreIconOnlyTooltip>
-                <IconV2 name="settings" size="sm" />
-              </Button>
-            </div>
-
-            {/* SearchInput */}
-            <div className="max-w-md">
-              <SearchInput
-                placeholder="Search something..."
-                searchValue={search}
-                onChange={(value) => setSearch(value)}
-              />
-            </div>
-
-            {/* StatusBadge */}
-            <div className="flex items-center gap-3">
-              <StatusBadge variant="outline" theme="success" size="sm">Published</StatusBadge>
-              <StatusBadge variant="outline" theme="info" size="sm">Draft</StatusBadge>
-              <StatusBadge variant="outline" theme="warning" size="sm">Pending</StatusBadge>
-              <StatusBadge variant="outline" theme="danger" size="sm">Error</StatusBadge>
-            </div>
-
-            {/* Checkbox */}
-            <div className="flex items-center gap-2">
-              <Checkbox id="check-demo" />
-              <label htmlFor="check-demo" className="font-body-normal text-primary">Checkbox label</label>
+          <div>
+            <Text as="p" variant="caption-normal" color="foreground-3" className="mb-1">Text</Text>
+            <div className="flex gap-4">
+              <Text variant="body-normal" color="foreground-1">foreground-1</Text>
+              <Text variant="body-normal" color="foreground-2">foreground-2</Text>
+              <Text variant="body-normal" color="foreground-3">foreground-3</Text>
+              <Text variant="body-normal" color="foreground-4">foreground-4</Text>
             </div>
           </div>
-        </section>
-
-        {/* ── Section 5: Arbitrary Values ── */}
-        <section className="space-y-2">
-          <h2 className="font-heading-subsection text-primary">Arbitrary Values</h2>
-          <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-3">
-            <div className="flex gap-3 items-end">
-              <div className="h-[26px] w-[80px] rounded bg-[#051a33]" />
-              <span className="font-caption-normal text-tertiary">h-[26px] w-[80px] bg-[#051a33]</span>
+          <div>
+            <Text as="p" variant="caption-normal" color="foreground-3" className="mb-1">Semantic</Text>
+            <div className="flex gap-4">
+              <Text variant="body-normal" color="brand">brand</Text>
+              <Text variant="body-normal" color="success">success</Text>
+              <Text variant="body-normal" color="warning">warning</Text>
+              <Text variant="body-normal" color="danger">danger</Text>
             </div>
-            <div className="flex gap-3 items-end">
-              <div className="h-[40px] w-[120px] rounded bg-[#006DEA]" />
-              <span className="font-caption-normal text-tertiary">h-[40px] w-[120px] bg-[#006DEA]</span>
-            </div>
-            <p className="text-[13px] text-secondary">text-[13px] — This should render at 13px</p>
-            <p className="text-[28px] font-medium text-primary">text-[28px] — Title at 28px</p>
           </div>
-        </section>
-      </div>
+        </div>
+
+        {/* UI Components */}
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-4">
+          <Text as="p" variant="caption-strong" color="foreground-2" className="mb-2">UI Components</Text>
+
+          <div className="space-y-1">
+            <Text variant="body-normal">Text variant=&quot;body-normal&quot;</Text>
+            <br />
+            <Text variant="body-strong">Text variant=&quot;body-strong&quot;</Text>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="sm">Primary SM</Button>
+            <Button size="md">Primary MD</Button>
+            <Button variant="outline" size="sm">Outline SM</Button>
+            <Button variant="outline" size="md">Outline MD</Button>
+            <Button variant="ghost" size="sm">Ghost SM</Button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button size="sm">
+              <IconV2 name="plus" size="sm" />
+              With Icon
+            </Button>
+            <Button variant="outline" size="sm" iconOnly ignoreIconOnlyTooltip>
+              <IconV2 name="settings" size="sm" />
+            </Button>
+          </div>
+
+          <div className="max-w-md">
+            <SearchInput
+              placeholder="Search something..."
+              searchValue={search}
+              onChange={(value) => setSearch(value)}
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <StatusBadge variant="outline" theme="success" size="sm">Published</StatusBadge>
+            <StatusBadge variant="outline" theme="info" size="sm">Draft</StatusBadge>
+            <StatusBadge variant="outline" theme="warning" size="sm">Pending</StatusBadge>
+            <StatusBadge variant="outline" theme="danger" size="sm">Error</StatusBadge>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox id="check-demo" />
+            <label htmlFor="check-demo"><Text variant="body-normal" color="foreground-1">Checkbox label</Text></label>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
