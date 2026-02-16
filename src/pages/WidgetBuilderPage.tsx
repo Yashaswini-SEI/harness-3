@@ -13,6 +13,7 @@ import {
   NumberInput,
   Textarea,
   TextInput,
+  DropdownMenu,
 } from '@harnessio/ui/components'
 
 // ── Available variable suggestions ──
@@ -22,6 +23,22 @@ const VARIABLE_SUGGESTIONS = [
   'variable.account.id',
   'variable.account.acc',
   'variable.account.status',
+]
+
+// ── Datasource options ──
+const DATASOURCE_OPTIONS: { label: string; value: string; description: string }[] = [
+  { label: 'Account', value: 'account', description: 'Root entity representing a Harness account' },
+  { label: 'Artifact', value: 'artifact', description: 'Specific version or tag of an image, representing a deployable artifact' },
+  { label: 'AWS KMS Connector', value: 'aws-kms-connector', description: 'AWS Key Management Service secret manager connector' },
+  { label: 'AWS Secrets Manager Connector', value: 'aws-secrets-manager', description: 'AWS Secrets Manager secret manager connector' },
+  { label: 'Azure Key Vault Connector', value: 'azure-key-vault', description: 'Azure Key Vault secret manager connector' },
+  { label: 'Billing Metrics Config', value: 'billing-metrics-config', description: 'Configuration for billing metrics collection' },
+  { label: 'Daily Open Issues', value: 'daily-open-issues', description: 'Daily snapshot of open issues across projects' },
+  { label: 'Deployment', value: 'deployment', description: 'A single deployment execution record' },
+  { label: 'Environment', value: 'environment', description: 'Target environment for service deployments' },
+  { label: 'GCP Connector', value: 'gcp-connector', description: 'Google Cloud Platform integration connector' },
+  { label: 'Pipeline', value: 'pipeline', description: 'CI/CD pipeline definition and execution data' },
+  { label: 'Service', value: 'service', description: 'Microservice or application component' },
 ]
 
 // ── Sample table data ──
@@ -66,6 +83,7 @@ export function WidgetBuilderPage() {
   const [criteriaAdded, setCriteriaAdded] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [datasource, setDatasource] = useState<string | undefined>(undefined)
   const [queryText, setQueryText] = useState(
     `find entity sei:sonarqube_metrics\n  | filter metric in ["coverage", "branch_coverage", "line_coverage"] and branch\n      is null\n  | select {\n      metric,\n      avg(value_numeric) as $average_across_projects,\n      count() as $account`
   )
@@ -143,7 +161,7 @@ export function WidgetBuilderPage() {
   }, [showSuggestions, filteredSuggestions, suggestionIndex, insertSuggestion])
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-cn-0">
       {/* Sidebar nav */}
       <nav className="flex w-[56px] shrink-0 flex-col items-center justify-between py-4" style={{ backgroundColor: '#051A33' }}>
         <div className="flex flex-col items-center gap-4">
@@ -191,7 +209,7 @@ export function WidgetBuilderPage() {
       </nav>
 
       {/* Page content */}
-      <div className="flex flex-1 flex-col gap-5 p-8">
+      <div className="flex flex-1 flex-col gap-5 bg-cn-0 p-8">
       {/* Breadcrumb */}
       <Breadcrumb.Root size="sm">
         <Breadcrumb.List>
@@ -280,7 +298,7 @@ export function WidgetBuilderPage() {
               </Tabs.List>
             </Tabs.Root>
           </div>
-          <div className="overflow-hidden rounded-md border border-[#E7E8E9]">
+          <div className="overflow-hidden rounded-md border border-borders-2">
             {criteriaAdded ? (
               <>
                 <Table.Root variant="default" size="normal">
@@ -300,7 +318,7 @@ export function WidgetBuilderPage() {
                   </Table.Body>
                 </Table.Root>
 
-              <div className="border-t border-[#E7E8E9] px-4 py-2.5">
+              <div className="border-t border-borders-2 px-4 py-2.5">
                 <Pagination
                   totalItems={criteriaRows.length}
                   pageSize={pageSize}
@@ -339,7 +357,7 @@ export function WidgetBuilderPage() {
                   </Table.Body>
                 </Table.Root>
 
-              <div className="border-t border-[#E7E8E9] px-4 py-2.5">
+              <div className="border-t border-borders-2 px-4 py-2.5">
                 <Pagination
                   totalItems={defaultRows.length}
                   pageSize={pageSize}
@@ -365,13 +383,23 @@ export function WidgetBuilderPage() {
             </Tabs.List>
             <Tabs.Content value="builder">
               <div className="flex flex-col gap-5 pt-4">
-                {/* Data Source */}
+                {/* Datasource */}
                 <div className="flex flex-col gap-1.5">
-                  <Text variant="body-strong" color="foreground-1">Data Source</Text>
+                  <Text variant="body-strong" color="foreground-1">Datasource</Text>
                   <Select
-                    value="daily-open-issues"
-                    options={[{ label: 'Daily Open Issues', value: 'daily-open-issues' }]}
-                    onChange={() => {}}
+                    value={datasource}
+                    placeholder="Select a datasource"
+                    options={DATASOURCE_OPTIONS}
+                    allowSearch
+                    contentWidth="triggerWidth"
+                    onChange={setDatasource}
+                    optionRenderer={(option) => (
+                      <DropdownMenu.Item
+                        key={option.value}
+                        title={option.label as string}
+                        description={(option as typeof DATASOURCE_OPTIONS[number]).description}
+                      />
+                    )}
                   />
                 </div>
 
