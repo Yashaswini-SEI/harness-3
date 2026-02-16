@@ -72,21 +72,21 @@ export function WidgetBuilderPage() {
       </div>
 
       {/* Metadata row */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <Text variant="caption-normal" color="foreground-3">Status</Text>
+      <div className="flex items-center gap-10">
+        <div className="flex flex-col gap-1">
+          <Text variant="body-normal" color="foreground-3">Status</Text>
           <StatusBadge variant="outline" theme="info" size="sm">Draft</StatusBadge>
         </div>
-        <div className="flex items-center gap-2">
-          <Text variant="caption-normal" color="foreground-3">Created:</Text>
-          <Text variant="caption-normal" color="foreground-1">–</Text>
+        <div className="flex flex-col gap-1">
+          <Text variant="body-normal" color="foreground-3">Created:</Text>
+          <Text variant="body-normal" color="foreground-1">–</Text>
         </div>
-        <div className="flex items-center gap-2">
-          <Text variant="caption-normal" color="foreground-3">Updated:</Text>
-          <Text variant="caption-normal" color="foreground-1">–</Text>
+        <div className="flex flex-col gap-1">
+          <Text variant="body-normal" color="foreground-3">Updated:</Text>
+          <Text variant="body-normal" color="foreground-1">–</Text>
         </div>
-        <div className="flex items-center gap-2">
-          <Text variant="caption-normal" color="foreground-3">Tags</Text>
+        <div className="flex flex-col gap-1">
+          <Text variant="body-normal" color="foreground-3">Tags</Text>
           <Tag variant="outline" theme="gray" size="sm" value="Product hierarchy" />
         </div>
       </div>
