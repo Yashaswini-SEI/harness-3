@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import {
   Text,
   Button,
@@ -12,7 +12,18 @@ import {
   Tabs,
   ToggleGroup,
   NumberInput,
+  Textarea,
+  TextInput,
 } from '@harnessio/ui/components'
+
+// ── Available variable suggestions ──
+const VARIABLE_SUGGESTIONS = [
+  'account.companyName',
+  'account.name',
+  'variable.account.id',
+  'variable.account.acc',
+  'variable.account.status',
+]
 
 // ── Sample table data ──
 const rows = Array.from({ length: 8 }, (_, i) => ({
@@ -31,6 +42,81 @@ export function WidgetBuilderPage() {
   const [activeTab, setActiveTab] = useState('builder')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [queryText, setQueryText] = useState(
+    `find entity sei:sonarqube_metrics\n  | filter metric in ["coverage", "branch_coverage", "line_coverage"] and branch\n      is null\n  | select {\n      metric,\n      avg(value_numeric) as $average_across_projects,\n      count() as $account`
+  )
+  const [variables, setVariables] = useState([
+    { name: 'account.rev', defaultValue: '0' },
+    { name: 'custom.account.size', defaultValue: '0' },
+    { name: 'custom.account.age', defaultValue: '0' },
+  ])
+
+  // Autocomplete state
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [suggestionFilter, setSuggestionFilter] = useState('')
+  const [suggestionIndex, setSuggestionIndex] = useState(0)
+  const [tokenStart, setTokenStart] = useState(0)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const filteredSuggestions = VARIABLE_SUGGESTIONS.filter((s) =>
+    s.toLowerCase().includes(suggestionFilter.toLowerCase())
+  )
+
+  const handleQueryChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value
+    const cursorPos = e.target.selectionStart ?? value.length
+    setQueryText(value)
+
+    // Look backwards from cursor for an unclosed `${`
+    const before = value.slice(0, cursorPos)
+    const dollarIdx = before.lastIndexOf('${')
+    if (dollarIdx !== -1 && !before.slice(dollarIdx).includes('}')) {
+      const partial = before.slice(dollarIdx + 2)
+      setSuggestionFilter(partial)
+      setSuggestionIndex(0)
+      setTokenStart(dollarIdx)
+      setShowSuggestions(true)
+    } else {
+      setShowSuggestions(false)
+    }
+  }, [])
+
+  const insertSuggestion = useCallback((variableName: string) => {
+    const before = queryText.slice(0, tokenStart)
+    const after = queryText.slice(
+      tokenStart + 2 + suggestionFilter.length
+    )
+    const newText = `${before}\${${variableName}}${after}`
+    setQueryText(newText)
+    setShowSuggestions(false)
+
+    // Restore focus and cursor position
+    requestAnimationFrame(() => {
+      const ta = textareaRef.current
+      if (ta) {
+        ta.focus()
+        const pos = tokenStart + variableName.length + 3 // ${ + name + }
+        ta.setSelectionRange(pos, pos)
+      }
+    })
+  }, [queryText, tokenStart, suggestionFilter])
+
+  const handleQueryKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!showSuggestions || filteredSuggestions.length === 0) return
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setSuggestionIndex((i) => Math.min(i + 1, filteredSuggestions.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setSuggestionIndex((i) => Math.max(i - 1, 0))
+    } else if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault()
+      insertSuggestion(filteredSuggestions[suggestionIndex])
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false)
+    }
+  }, [showSuggestions, filteredSuggestions, suggestionIndex, insertSuggestion])
 
   return (
     <div className="flex flex-col gap-5">
@@ -261,8 +347,132 @@ export function WidgetBuilderPage() {
               </div>
             </Tabs.Content>
             <Tabs.Content value="query">
-              <div className="pt-4">
-                <Text variant="body-normal" color="foreground-3">Query editor coming soon.</Text>
+              <div className="flex flex-col gap-4 pt-4">
+                {/* Code editor section */}
+                <div className="flex flex-col gap-1">
+                  <div className="flex justify-end">
+                    <Button variant="ghost" size="sm">
+                      <IconV2 name="code" size="sm" />
+                      Format
+                    </Button>
+                  </div>
+                  <div className="relative">
+                    <Textarea
+                      ref={textareaRef}
+                      value={queryText}
+                      onChange={handleQueryChange}
+                      onKeyDown={handleQueryKeyDown}
+                      onBlur={() => {
+                        // Delay to allow click on suggestion
+                        setTimeout(() => setShowSuggestions(false), 150)
+                      }}
+                      className="font-mono text-sm"
+                      rows={8}
+                    />
+                    {showSuggestions && filteredSuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 z-10 mt-1 overflow-hidden rounded-md border border-borders-2 bg-cn-1 shadow-lg">
+                        {filteredSuggestions.map((name, i) => (
+                          <button
+                            key={name}
+                            type="button"
+                            className={`z-10 flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm ${
+                              i === suggestionIndex ? 'bg-cn-hover' : 'hover:bg-cn-hover'
+                            }`}
+                            onMouseDown={(e) => {
+                              e.preventDefault()
+                              insertSuggestion(name)
+                            }}
+                            onMouseEnter={() => setSuggestionIndex(i)}
+                          >
+                            <span className="flex items-center gap-2">
+                              <IconV2 name="variables" size="sm" />
+                              <span className="text-foreground-1">{name}</span>
+                            </span>
+                            <span className="text-foreground-3">${name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Text variant="body-normal" color="foreground-3">
+                    {'Use ${variableName} syntax in your query'}
+                  </Text>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex items-center justify-between">
+                  <Button variant="outline" size="sm">
+                    <IconV2 name="play" size="sm" />
+                    Run query
+                  </Button>
+                  <Button variant="link" size="sm">Reset to last applied</Button>
+                </div>
+
+                {/* Separator */}
+                <hr className="border-borders-2" />
+
+                {/* Variables section */}
+                <Text variant="heading-subsection" color="foreground-1">Variables</Text>
+                <div className="flex flex-col gap-2">
+                  {variables.map((variable, index) => (
+                    <div key={index} className="flex items-end gap-2">
+                      <div className="flex-1">
+                        {index === 0 && (
+                          <Text variant="body-normal" color="foreground-1" className="mb-1 block">Name</Text>
+                        )}
+                        <TextInput
+                          value={variable.name}
+                          onChange={(e) => {
+                            const next = [...variables]
+                            next[index] = { ...next[index], name: e.target.value }
+                            setVariables(next)
+                          }}
+                        />
+                      </div>
+                      <Text variant="body-normal" color="foreground-3" className="pb-2">=</Text>
+                      <div className="flex-1">
+                        {index === 0 && (
+                          <Text variant="body-normal" color="foreground-1" className="mb-1 block">Default Value</Text>
+                        )}
+                        <TextInput
+                          value={variable.defaultValue}
+                          onChange={(e) => {
+                            const next = [...variables]
+                            next[index] = { ...next[index], defaultValue: e.target.value }
+                            setVariables(next)
+                          }}
+                        />
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        iconOnly
+                        ignoreIconOnlyTooltip
+                        onClick={() => setVariables(variables.filter((_, i) => i !== index))}
+                      >
+                        <IconV2 name="trash" size="sm" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setVariables([...variables, { name: '', defaultValue: '' }])}
+                  >
+                    <IconV2 name="plus" size="sm" />
+                    New Variable
+                  </Button>
+                  <Text variant="body-normal" color="foreground-3">
+                    {'Also add by typing ${variableName} above.'}
+                  </Text>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button size="sm" disabled>Save Variables</Button>
+                </div>
               </div>
             </Tabs.Content>
           </Tabs.Root>
