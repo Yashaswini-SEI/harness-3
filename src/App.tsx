@@ -2,10 +2,12 @@ import { Button, IconV2, SearchInput, StatusBadge, Text, Checkbox } from '@harne
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SideNav } from './components/SideNav'
+import { Nav2, type Nav2Section } from './components/Nav2'
 
 function App() {
   const [search, setSearch] = useState('')
   const [activeNav, setActiveNav] = useState('')
+  const [nav2Active, setNav2Active] = useState<Nav2Section>('insights')
 
   return (
     <div className="space-y-8">
@@ -63,6 +65,29 @@ function App() {
               Last clicked: <Text variant="caption-strong" color="foreground-1">{activeNav}</Text>
             </Text>
           )}
+        </div>
+      </section>
+
+      {/* ── Nav 2.0 Component ── */}
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <Text as="h2" variant="heading-subsection" color="foreground-1">Nav 2.0</Text>
+          <Text as="p" variant="body-normal" color="foreground-3">
+            Icon-only sidebar navigation used across application pages. Click icons to change the active section.
+          </Text>
+        </div>
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-6">
+          <div className="flex gap-8">
+            <div className="space-y-2">
+              <Text variant="caption-strong" color="foreground-2">Default</Text>
+              <div className="rounded-lg overflow-hidden" style={{ height: 600 }}>
+                <Nav2 activeSection={nav2Active} onSectionChange={setNav2Active} />
+              </div>
+            </div>
+          </div>
+          <Text as="p" variant="caption-normal" color="foreground-3" className="mt-4">
+            Active section: <Text variant="caption-strong" color="foreground-1">{nav2Active}</Text>
+          </Text>
         </div>
       </section>
 
