@@ -93,20 +93,17 @@ export function WidgetBuilderPage() {
 
       {/* Controls row */}
       <div className="flex items-center justify-between">
-        {/* Time range toggles */}
-        <ToggleGroup.Root
-          type="single"
-          value={timeRange}
-          onChange={(val: string) => { if (val) setTimeRange(val) }}
-          size="sm"
-        >
-          <ToggleGroup.Item value="7D" text="7D" />
-          <ToggleGroup.Item value="1M" text="1M" />
-          <ToggleGroup.Item value="3M" text="3M" />
-          <ToggleGroup.Item value="6M" text="6M" />
-          <ToggleGroup.Item value="12M" text="12M" />
-          <ToggleGroup.Item value="custom" text="Custom" prefixIcon="calendar" />
-        </ToggleGroup.Root>
+        {/* Time range tabs */}
+        <Tabs.Root value={timeRange} onValueChange={setTimeRange}>
+          <Tabs.List variant="outlined">
+            <Tabs.Trigger value="7D">7D</Tabs.Trigger>
+            <Tabs.Trigger value="1M">1M</Tabs.Trigger>
+            <Tabs.Trigger value="3M">3M</Tabs.Trigger>
+            <Tabs.Trigger value="6M">6M</Tabs.Trigger>
+            <Tabs.Trigger value="12M">12M</Tabs.Trigger>
+            <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
+          </Tabs.List>
+        </Tabs.Root>
 
         {/* Chart type toggles */}
         <ToggleGroup.Root
