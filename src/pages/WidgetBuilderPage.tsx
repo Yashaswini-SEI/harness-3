@@ -280,27 +280,27 @@ export function WidgetBuilderPage() {
               </Tabs.List>
             </Tabs.Root>
           </div>
-          {criteriaAdded ? (
-            <>
-              <Table.Root variant="default" size="normal">
-                <Table.Header>
-                  <Table.Row>
-                    <Table.Head>Project</Table.Head>
-                    <Table.Head>Issue Key Count</Table.Head>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {criteriaRows.map((row) => (
-                    <Table.Row key={row.project}>
-                      <Table.Cell>{row.project}</Table.Cell>
-                      <Table.Cell>{row.issueKeyCount}</Table.Cell>
+          <div className="overflow-hidden rounded-md border border-[#E7E8E9]">
+            {criteriaAdded ? (
+              <>
+                <Table.Root variant="default" size="normal">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.Head>Project</Table.Head>
+                      <Table.Head>Issue Key Count</Table.Head>
                     </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
+                  </Table.Header>
+                  <Table.Body>
+                    {criteriaRows.map((row) => (
+                      <Table.Row key={row.project}>
+                        <Table.Cell>{row.project}</Table.Cell>
+                        <Table.Cell>{row.issueKeyCount}</Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table.Root>
 
-              {/* Pagination */}
-              <div className="mt-2">
+              <div className="border-t border-[#E7E8E9] px-4 py-2.5">
                 <Pagination
                   totalItems={criteriaRows.length}
                   pageSize={pageSize}
@@ -308,38 +308,38 @@ export function WidgetBuilderPage() {
                   goToPage={setCurrentPage}
                   onPageSizeChange={setPageSize}
                   pageSizeOptions={[10, 20, 50]}
+                  className="!mt-0"
                 />
               </div>
-            </>
-          ) : (
-            <>
-              <Table.Root variant="default" size="normal">
-                <Table.Header>
-                  <Table.Row>
-                    <Table.Head>Check Date</Table.Head>
-                    <Table.Head>Issue Key</Table.Head>
-                    <Table.Head>Integration Id</Table.Head>
-                    <Table.Head>Status Start Time</Table.Head>
-                    <Table.Head>Status End Time</Table.Head>
-                    <Table.Head>Project</Table.Head>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {defaultRows.map((row) => (
-                    <Table.Row key={row.id}>
-                      <Table.Cell>{row.checkDate}</Table.Cell>
-                      <Table.Cell>{row.issueKey}</Table.Cell>
-                      <Table.Cell>{row.integrationId}</Table.Cell>
-                      <Table.Cell>{row.statusStartTime}</Table.Cell>
-                      <Table.Cell>{row.statusEndTime}</Table.Cell>
-                      <Table.Cell>{row.project}</Table.Cell>
+              </>
+            ) : (
+              <>
+                <Table.Root variant="default" size="normal">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.Head>Check Date</Table.Head>
+                      <Table.Head>Issue Key</Table.Head>
+                      <Table.Head>Integration Id</Table.Head>
+                      <Table.Head>Status Start Time</Table.Head>
+                      <Table.Head>Status End Time</Table.Head>
+                      <Table.Head>Project</Table.Head>
                     </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
+                  </Table.Header>
+                  <Table.Body>
+                    {defaultRows.map((row) => (
+                      <Table.Row key={row.id}>
+                        <Table.Cell>{row.checkDate}</Table.Cell>
+                        <Table.Cell>{row.issueKey}</Table.Cell>
+                        <Table.Cell>{row.integrationId}</Table.Cell>
+                        <Table.Cell>{row.statusStartTime}</Table.Cell>
+                        <Table.Cell>{row.statusEndTime}</Table.Cell>
+                        <Table.Cell>{row.project}</Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table.Root>
 
-              {/* Pagination */}
-              <div className="mt-2">
+              <div className="border-t border-[#E7E8E9] px-4 py-2.5">
                 <Pagination
                   totalItems={defaultRows.length}
                   pageSize={pageSize}
@@ -347,10 +347,12 @@ export function WidgetBuilderPage() {
                   goToPage={setCurrentPage}
                   onPageSizeChange={setPageSize}
                   pageSizeOptions={[10, 20, 50]}
+                  className="!mt-0"
                 />
               </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
         </div>
 
         {/* Right: Builder panel */}
