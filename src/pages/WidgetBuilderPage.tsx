@@ -502,31 +502,18 @@ export function WidgetBuilderPage() {
               </ResponsiveContainer>
             </div>
           )}
-          {/* View mode control — split / table-only / chart-only */}
+          {/* View mode control — horizontal rule with centered tabs overlay */}
           {(chartType === 'line' || chartType === 'bar') && (
-            <div className="flex items-center justify-center py-2">
-              <div className="inline-flex items-center gap-0.5 rounded-full border border-borders-2 bg-cn-2 p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setViewMode('split')}
-                  className={`rounded-full p-1.5 ${viewMode === 'split' ? 'bg-cn-0 shadow-sm border border-borders-2' : 'text-foreground-3 hover:text-foreground-1'}`}
-                >
-                  <img src={splitIcon} alt="Split view" className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('table')}
-                  className={`rounded-full p-1.5 ${viewMode === 'table' ? 'bg-cn-0 shadow-sm border border-borders-2' : 'text-foreground-3 hover:text-foreground-1'}`}
-                >
-                  <img src={tableIcon} alt="Table only" className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('chart')}
-                  className={`rounded-full p-1.5 ${viewMode === 'chart' ? 'bg-cn-0 shadow-sm border border-borders-2' : 'text-foreground-3 hover:text-foreground-1'}`}
-                >
-                  <img src={chartIcon} alt="Chart only" className="h-4 w-4" />
-                </button>
+            <div className="relative flex items-center justify-center">
+              <hr className="absolute inset-x-0 border-borders-2" />
+              <div className="relative z-10">
+                <Tabs.Root value={viewMode} onValueChange={(v) => setViewMode(v as 'split' | 'table' | 'chart')}>
+                  <Tabs.List variant="outlined">
+                    <Tabs.Trigger value="split"><img src={splitIcon} alt="Split view" className="h-4 w-4" /></Tabs.Trigger>
+                    <Tabs.Trigger value="table"><img src={tableIcon} alt="Table only" className="h-4 w-4" /></Tabs.Trigger>
+                    <Tabs.Trigger value="chart"><img src={chartIcon} alt="Chart only" className="h-4 w-4" /></Tabs.Trigger>
+                  </Tabs.List>
+                </Tabs.Root>
               </div>
             </div>
           )}
