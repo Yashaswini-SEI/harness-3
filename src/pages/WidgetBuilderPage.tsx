@@ -15,6 +15,9 @@ import {
   TextInput,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
+import splitIcon from '../assets/icon-split.svg'
+import tableIcon from '../assets/icon-table.svg'
+import chartIcon from '../assets/icon-chart.svg'
 import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 
 // ── Available variable suggestions ──
@@ -180,6 +183,7 @@ export function WidgetBuilderPage() {
 
   const [timeRange, setTimeRange] = useState('12M')
   const [chartType, setChartType] = useState('table')
+  const [viewMode, setViewMode] = useState<'split' | 'table' | 'chart'>('split')
   const [activeTab, setActiveTab] = useState('builder')
   const [criteriaAdded, setCriteriaAdded] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -401,8 +405,8 @@ export function WidgetBuilderPage() {
               </Tabs.List>
             </Tabs.Root>
           </div>
-          {chartType === 'line' && (
-            <div className="mb-4 rounded-md border border-borders-2 p-6">
+          {chartType === 'line' && viewMode !== 'table' && (
+            <div className="p-6">
               <svg width="0" height="0">
                 <defs>
                   <filter id="line-shadow">
@@ -450,8 +454,8 @@ export function WidgetBuilderPage() {
               </ResponsiveContainer>
             </div>
           )}
-          {chartType === 'bar' && (
-            <div className="mb-4 rounded-md border border-borders-2 p-6">
+          {chartType === 'bar' && viewMode !== 'table' && (
+            <div className="p-6">
               <svg width="0" height="0">
                 <defs>
                   <filter id="bar-shadow">
@@ -498,7 +502,35 @@ export function WidgetBuilderPage() {
               </ResponsiveContainer>
             </div>
           )}
-          <div className="overflow-hidden rounded-md border border-borders-2">
+          {/* View mode control — split / table-only / chart-only */}
+          {(chartType === 'line' || chartType === 'bar') && (
+            <div className="flex items-center justify-center py-2">
+              <div className="inline-flex items-center gap-0.5 rounded-full border border-borders-2 bg-cn-2 p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('split')}
+                  className={`rounded-full p-1.5 ${viewMode === 'split' ? 'bg-cn-0 shadow-sm border border-borders-2' : 'text-foreground-3 hover:text-foreground-1'}`}
+                >
+                  <img src={splitIcon} alt="Split view" className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('table')}
+                  className={`rounded-full p-1.5 ${viewMode === 'table' ? 'bg-cn-0 shadow-sm border border-borders-2' : 'text-foreground-3 hover:text-foreground-1'}`}
+                >
+                  <img src={tableIcon} alt="Table only" className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('chart')}
+                  className={`rounded-full p-1.5 ${viewMode === 'chart' ? 'bg-cn-0 shadow-sm border border-borders-2' : 'text-foreground-3 hover:text-foreground-1'}`}
+                >
+                  <img src={chartIcon} alt="Chart only" className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+          {viewMode !== 'chart' && <div className="overflow-hidden rounded-md border border-borders-2">
             {criteriaInteracted ? (
               <>
                 <Table.Root variant="default" size="normal">
@@ -570,7 +602,7 @@ export function WidgetBuilderPage() {
               </div>
               </>
             )}
-          </div>
+          </div>}
         </div>
 
         {/* Right: Builder panel */}
