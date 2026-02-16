@@ -13,7 +13,6 @@ import {
   NumberInput,
   Textarea,
   TextInput,
-  DropdownMenu,
 } from '@harnessio/ui/components'
 
 // ── Available variable suggestions ──
@@ -26,32 +25,122 @@ const VARIABLE_SUGGESTIONS = [
 ]
 
 // ── Datasource options ──
-const DATASOURCE_OPTIONS: { label: string; value: string; description: string }[] = [
-  { label: 'Account', value: 'account', description: 'Root entity representing a Harness account' },
-  { label: 'Artifact', value: 'artifact', description: 'Specific version or tag of an image, representing a deployable artifact' },
-  { label: 'AWS KMS Connector', value: 'aws-kms-connector', description: 'AWS Key Management Service secret manager connector' },
-  { label: 'AWS Secrets Manager Connector', value: 'aws-secrets-manager', description: 'AWS Secrets Manager secret manager connector' },
-  { label: 'Azure Key Vault Connector', value: 'azure-key-vault', description: 'Azure Key Vault secret manager connector' },
-  { label: 'Billing Metrics Config', value: 'billing-metrics-config', description: 'Configuration for billing metrics collection' },
-  { label: 'Daily Open Issues', value: 'daily-open-issues', description: 'Daily snapshot of open issues across projects' },
-  { label: 'Deployment', value: 'deployment', description: 'A single deployment execution record' },
-  { label: 'Environment', value: 'environment', description: 'Target environment for service deployments' },
-  { label: 'GCP Connector', value: 'gcp-connector', description: 'Google Cloud Platform integration connector' },
-  { label: 'Pipeline', value: 'pipeline', description: 'CI/CD pipeline definition and execution data' },
-  { label: 'Service', value: 'service', description: 'Microservice or application component' },
+const DATASOURCE_METADATA: { name: string; value: string; description: string }[] = [
+  { name: 'Account', value: 'account', description: 'Root entity representing a Harness account' },
+  { name: 'Artifact', value: 'artifact', description: 'Specific version or tag of an image, representing a deployable artifact' },
+  { name: 'AWS KMS Connector', value: 'aws-kms-connector', description: 'AWS Key Management Service secret manager connector' },
+  { name: 'AWS Secrets Manager Connector', value: 'aws-secrets-manager', description: 'AWS Secrets Manager secret manager connector' },
+  { name: 'Azure Key Vault Connector', value: 'azure-key-vault', description: 'Azure Key Vault secret manager connector' },
+  { name: 'Billing Metrics Config', value: 'billing-metrics-config', description: 'Configuration for billing metrics collection' },
+  { name: 'Daily Open Issues', value: 'daily-open-issues', description: 'Daily snapshot of open issues across projects' },
+  { name: 'Deployment', value: 'deployment', description: 'A single deployment execution record' },
+  { name: 'Environment', value: 'environment', description: 'Target environment for service deployments' },
+  { name: 'GCP Connector', value: 'gcp-connector', description: 'Google Cloud Platform integration connector' },
+  { name: 'Issues by Project', value: 'issues-by-project', description: 'Aggregated issue counts grouped by project over a given time range' },
+  { name: 'Pipeline', value: 'pipeline', description: 'CI/CD pipeline definition and execution data' },
+  { name: 'Service', value: 'service', description: 'Microservice or application component' },
 ]
 
-// ── Sample table data ──
-const defaultRows = [
-  { id: 0, checkDate: 'Jan 30, 2026, 7:00 PM', issueKey: 'AAP-10', integrationId: '91', statusStartTime: 'Jan 30, 2026, 7:00 PM', statusEndTime: 'Jan 31, 2026, 9:15 AM', project: 'AAP' },
-  { id: 1, checkDate: 'Jan 29, 2026, 3:42 PM', issueKey: 'FME-384', integrationId: '91', statusStartTime: 'Jan 28, 2026, 11:30 AM', statusEndTime: 'Jan 29, 2026, 3:42 PM', project: 'FME' },
-  { id: 2, checkDate: 'Jan 29, 2026, 1:18 PM', issueKey: 'CDE-1027', integrationId: '84', statusStartTime: 'Jan 27, 2026, 9:00 AM', statusEndTime: 'Jan 29, 2026, 1:18 PM', project: 'CDE' },
-  { id: 3, checkDate: 'Jan 28, 2026, 10:05 AM', issueKey: 'DEVOPS-562', integrationId: '91', statusStartTime: 'Jan 26, 2026, 2:00 PM', statusEndTime: 'Jan 28, 2026, 10:05 AM', project: 'DEVOPS' },
-  { id: 4, checkDate: 'Jan 28, 2026, 8:30 AM', issueKey: 'BT-2190', integrationId: '72', statusStartTime: 'Jan 25, 2026, 4:45 PM', statusEndTime: 'Jan 28, 2026, 8:30 AM', project: 'BT' },
-  { id: 5, checkDate: 'Jan 27, 2026, 5:22 PM', issueKey: 'ENGTAI-88', integrationId: '91', statusStartTime: 'Jan 27, 2026, 10:00 AM', statusEndTime: 'Jan 27, 2026, 5:22 PM', project: 'ENGTAI' },
-  { id: 6, checkDate: 'Jan 27, 2026, 2:10 PM', issueKey: 'COE-415', integrationId: '84', statusStartTime: 'Jan 24, 2026, 8:00 AM', statusEndTime: 'Jan 27, 2026, 2:10 PM', project: 'COE' },
-  { id: 7, checkDate: 'Jan 26, 2026, 11:47 AM', issueKey: 'FLAM-73', integrationId: '72', statusStartTime: 'Jan 23, 2026, 3:30 PM', statusEndTime: 'Jan 26, 2026, 11:47 AM', project: 'FLAM' },
-]
+// ── Table datasets keyed by datasource ──
+type TableDataset = { headers: string[]; rows: Record<string, string>[] }
+
+const DATASOURCE_TABLES: Record<string, TableDataset> = {
+  'daily-open-issues': {
+    headers: ['Check Date', 'Issue Key', 'Integration Id', 'Status Start Time', 'Status End Time', 'Project'],
+    rows: [
+      { 'Check Date': 'Jan 30, 2026, 7:00 PM', 'Issue Key': 'AAP-10', 'Integration Id': '91', 'Status Start Time': 'Jan 30, 2026, 7:00 PM', 'Status End Time': 'Jan 31, 2026, 9:15 AM', Project: 'AAP' },
+      { 'Check Date': 'Jan 29, 2026, 3:42 PM', 'Issue Key': 'FME-384', 'Integration Id': '91', 'Status Start Time': 'Jan 28, 2026, 11:30 AM', 'Status End Time': 'Jan 29, 2026, 3:42 PM', Project: 'FME' },
+      { 'Check Date': 'Jan 29, 2026, 1:18 PM', 'Issue Key': 'CDE-1027', 'Integration Id': '84', 'Status Start Time': 'Jan 27, 2026, 9:00 AM', 'Status End Time': 'Jan 29, 2026, 1:18 PM', Project: 'CDE' },
+      { 'Check Date': 'Jan 28, 2026, 10:05 AM', 'Issue Key': 'DEVOPS-562', 'Integration Id': '91', 'Status Start Time': 'Jan 26, 2026, 2:00 PM', 'Status End Time': 'Jan 28, 2026, 10:05 AM', Project: 'DEVOPS' },
+      { 'Check Date': 'Jan 28, 2026, 8:30 AM', 'Issue Key': 'BT-2190', 'Integration Id': '72', 'Status Start Time': 'Jan 25, 2026, 4:45 PM', 'Status End Time': 'Jan 28, 2026, 8:30 AM', Project: 'BT' },
+      { 'Check Date': 'Jan 27, 2026, 5:22 PM', 'Issue Key': 'ENGTAI-88', 'Integration Id': '91', 'Status Start Time': 'Jan 27, 2026, 10:00 AM', 'Status End Time': 'Jan 27, 2026, 5:22 PM', Project: 'ENGTAI' },
+      { 'Check Date': 'Jan 27, 2026, 2:10 PM', 'Issue Key': 'COE-415', 'Integration Id': '84', 'Status Start Time': 'Jan 24, 2026, 8:00 AM', 'Status End Time': 'Jan 27, 2026, 2:10 PM', Project: 'COE' },
+      { 'Check Date': 'Jan 26, 2026, 11:47 AM', 'Issue Key': 'FLAM-73', 'Integration Id': '72', 'Status Start Time': 'Jan 23, 2026, 3:30 PM', 'Status End Time': 'Jan 26, 2026, 11:47 AM', Project: 'FLAM' },
+    ],
+  },
+  account: {
+    headers: ['Account Name', 'Company', 'Status', 'Created', 'Licenses'],
+    rows: [
+      { 'Account Name': 'harness-prod', Company: 'Harness Inc.', Status: 'Active', Created: 'Mar 12, 2024', Licenses: '250' },
+      { 'Account Name': 'harness-staging', Company: 'Harness Inc.', Status: 'Active', Created: 'Mar 12, 2024', Licenses: '50' },
+      { 'Account Name': 'acme-corp', Company: 'Acme Corp', Status: 'Active', Created: 'Jun 01, 2024', Licenses: '120' },
+      { 'Account Name': 'globex-main', Company: 'Globex Corp', Status: 'Suspended', Created: 'Sep 15, 2024', Licenses: '80' },
+      { 'Account Name': 'initech-dev', Company: 'Initech', Status: 'Active', Created: 'Nov 20, 2024', Licenses: '45' },
+      { 'Account Name': 'wayne-ent', Company: 'Wayne Enterprises', Status: 'Active', Created: 'Jan 05, 2025', Licenses: '300' },
+    ],
+  },
+  deployment: {
+    headers: ['Deployment Id', 'Service', 'Environment', 'Status', 'Started', 'Duration'],
+    rows: [
+      { 'Deployment Id': 'DEP-4821', Service: 'payment-svc', Environment: 'prod-us-east', Status: 'Success', Started: 'Feb 15, 2026, 3:12 PM', Duration: '4m 22s' },
+      { 'Deployment Id': 'DEP-4820', Service: 'auth-svc', Environment: 'prod-us-east', Status: 'Success', Started: 'Feb 15, 2026, 2:45 PM', Duration: '3m 10s' },
+      { 'Deployment Id': 'DEP-4819', Service: 'frontend-app', Environment: 'staging', Status: 'Failed', Started: 'Feb 15, 2026, 1:30 PM', Duration: '1m 55s' },
+      { 'Deployment Id': 'DEP-4818', Service: 'analytics-worker', Environment: 'prod-eu-west', Status: 'Success', Started: 'Feb 14, 2026, 11:20 AM', Duration: '6m 05s' },
+      { 'Deployment Id': 'DEP-4817', Service: 'notification-svc', Environment: 'prod-us-east', Status: 'Rolled Back', Started: 'Feb 14, 2026, 9:00 AM', Duration: '2m 48s' },
+      { 'Deployment Id': 'DEP-4816', Service: 'payment-svc', Environment: 'staging', Status: 'Success', Started: 'Feb 13, 2026, 5:15 PM', Duration: '4m 01s' },
+      { 'Deployment Id': 'DEP-4815', Service: 'user-svc', Environment: 'prod-us-east', Status: 'Success', Started: 'Feb 13, 2026, 2:30 PM', Duration: '3m 33s' },
+    ],
+  },
+  pipeline: {
+    headers: ['Pipeline', 'Trigger', 'Status', 'Started', 'Duration', 'Stages'],
+    rows: [
+      { Pipeline: 'deploy-prod', Trigger: 'Manual', Status: 'Success', Started: 'Feb 16, 2026, 9:00 AM', Duration: '12m 34s', Stages: '5/5' },
+      { Pipeline: 'ci-main', Trigger: 'Push to main', Status: 'Running', Started: 'Feb 16, 2026, 8:45 AM', Duration: '—', Stages: '3/4' },
+      { Pipeline: 'nightly-tests', Trigger: 'Cron', Status: 'Failed', Started: 'Feb 16, 2026, 2:00 AM', Duration: '45m 12s', Stages: '7/10' },
+      { Pipeline: 'deploy-staging', Trigger: 'PR Merge', Status: 'Success', Started: 'Feb 15, 2026, 4:30 PM', Duration: '8m 20s', Stages: '4/4' },
+      { Pipeline: 'security-scan', Trigger: 'Cron', Status: 'Success', Started: 'Feb 15, 2026, 1:00 AM', Duration: '22m 05s', Stages: '3/3' },
+      { Pipeline: 'ci-feature-xyz', Trigger: 'Push', Status: 'Success', Started: 'Feb 14, 2026, 3:15 PM', Duration: '6m 48s', Stages: '4/4' },
+    ],
+  },
+  artifact: {
+    headers: ['Artifact', 'Version', 'Registry', 'Size', 'Pushed', 'Pulled'],
+    rows: [
+      { Artifact: 'payment-svc', Version: 'v2.14.0', Registry: 'docker-hub', Size: '245 MB', Pushed: 'Feb 15, 2026', Pulled: '1,204' },
+      { Artifact: 'auth-svc', Version: 'v3.2.1', Registry: 'gcr.io', Size: '182 MB', Pushed: 'Feb 15, 2026', Pulled: '892' },
+      { Artifact: 'frontend-app', Version: 'v5.0.0-rc.2', Registry: 'ecr', Size: '78 MB', Pushed: 'Feb 14, 2026', Pulled: '341' },
+      { Artifact: 'analytics-worker', Version: 'v1.8.3', Registry: 'docker-hub', Size: '310 MB', Pushed: 'Feb 13, 2026', Pulled: '567' },
+      { Artifact: 'notification-svc', Version: 'v2.1.0', Registry: 'gcr.io', Size: '156 MB', Pushed: 'Feb 12, 2026', Pulled: '723' },
+    ],
+  },
+  service: {
+    headers: ['Service Name', 'Type', 'Environment', 'Instances', 'Health', 'Last Deployed'],
+    rows: [
+      { 'Service Name': 'payment-svc', Type: 'Kubernetes', Environment: 'prod', Instances: '6', Health: 'Healthy', 'Last Deployed': 'Feb 15, 2026' },
+      { 'Service Name': 'auth-svc', Type: 'Kubernetes', Environment: 'prod', Instances: '4', Health: 'Healthy', 'Last Deployed': 'Feb 15, 2026' },
+      { 'Service Name': 'frontend-app', Type: 'ECS', Environment: 'staging', Instances: '2', Health: 'Degraded', 'Last Deployed': 'Feb 14, 2026' },
+      { 'Service Name': 'analytics-worker', Type: 'Kubernetes', Environment: 'prod', Instances: '3', Health: 'Healthy', 'Last Deployed': 'Feb 13, 2026' },
+      { 'Service Name': 'notification-svc', Type: 'Lambda', Environment: 'prod', Instances: '—', Health: 'Healthy', 'Last Deployed': 'Feb 12, 2026' },
+      { 'Service Name': 'user-svc', Type: 'Kubernetes', Environment: 'prod', Instances: '4', Health: 'Healthy', 'Last Deployed': 'Feb 10, 2026' },
+      { 'Service Name': 'search-indexer', Type: 'Kubernetes', Environment: 'prod', Instances: '2', Health: 'Healthy', 'Last Deployed': 'Feb 08, 2026' },
+    ],
+  },
+  environment: {
+    headers: ['Environment', 'Type', 'Region', 'Services', 'Status', 'Last Updated'],
+    rows: [
+      { Environment: 'prod-us-east', Type: 'Production', Region: 'us-east-1', Services: '12', Status: 'Healthy', 'Last Updated': 'Feb 16, 2026' },
+      { Environment: 'prod-eu-west', Type: 'Production', Region: 'eu-west-1', Services: '8', Status: 'Healthy', 'Last Updated': 'Feb 16, 2026' },
+      { Environment: 'staging', Type: 'Pre-Production', Region: 'us-east-1', Services: '14', Status: 'Degraded', 'Last Updated': 'Feb 15, 2026' },
+      { Environment: 'qa', Type: 'QA', Region: 'us-west-2', Services: '10', Status: 'Healthy', 'Last Updated': 'Feb 14, 2026' },
+      { Environment: 'dev', Type: 'Development', Region: 'us-west-2', Services: '15', Status: 'Healthy', 'Last Updated': 'Feb 16, 2026' },
+    ],
+  },
+  'issues-by-project': {
+    headers: ['Project', 'Open Issues', 'Closed Issues', 'Avg Resolution (days)', 'Last Activity'],
+    rows: [
+      { Project: 'AAP', 'Open Issues': '42', 'Closed Issues': '1,205', 'Avg Resolution (days)': '3.2', 'Last Activity': 'Feb 16, 2026' },
+      { Project: 'FME', 'Open Issues': '118', 'Closed Issues': '4,832', 'Avg Resolution (days)': '5.1', 'Last Activity': 'Feb 16, 2026' },
+      { Project: 'CDE', 'Open Issues': '67', 'Closed Issues': '2,341', 'Avg Resolution (days)': '4.8', 'Last Activity': 'Feb 15, 2026' },
+      { Project: 'DEVOPS', 'Open Issues': '23', 'Closed Issues': '987', 'Avg Resolution (days)': '2.1', 'Last Activity': 'Feb 16, 2026' },
+      { Project: 'BT', 'Open Issues': '89', 'Closed Issues': '3,456', 'Avg Resolution (days)': '6.3', 'Last Activity': 'Feb 14, 2026' },
+      { Project: 'ENGTAI', 'Open Issues': '15', 'Closed Issues': '521', 'Avg Resolution (days)': '1.8', 'Last Activity': 'Feb 16, 2026' },
+      { Project: 'COE', 'Open Issues': '31', 'Closed Issues': '1,102', 'Avg Resolution (days)': '4.0', 'Last Activity': 'Feb 13, 2026' },
+      { Project: 'FLAM', 'Open Issues': '54', 'Closed Issues': '2,018', 'Avg Resolution (days)': '3.7', 'Last Activity': 'Feb 15, 2026' },
+    ],
+  },
+}
+
+// Default fallback dataset
+const DEFAULT_DATASET = DATASOURCE_TABLES['daily-open-issues']
 
 const criteriaRows = [
   { project: 'ASP', issueKeyCount: '247,084' },
@@ -84,6 +173,7 @@ export function WidgetBuilderPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [datasource, setDatasource] = useState<string | undefined>(undefined)
+  const activeDataset = (datasource && DATASOURCE_TABLES[datasource]) || DEFAULT_DATASET
   const [queryText, setQueryText] = useState(
     `find entity sei:sonarqube_metrics\n  | filter metric in ["coverage", "branch_coverage", "line_coverage"] and branch\n      is null\n  | select {\n      metric,\n      avg(value_numeric) as $average_across_projects,\n      count() as $account`
   )
@@ -335,23 +425,17 @@ export function WidgetBuilderPage() {
                 <Table.Root variant="default" size="normal">
                   <Table.Header>
                     <Table.Row>
-                      <Table.Head>Check Date</Table.Head>
-                      <Table.Head>Issue Key</Table.Head>
-                      <Table.Head>Integration Id</Table.Head>
-                      <Table.Head>Status Start Time</Table.Head>
-                      <Table.Head>Status End Time</Table.Head>
-                      <Table.Head>Project</Table.Head>
+                      {activeDataset.headers.map((h) => (
+                        <Table.Head key={h}>{h}</Table.Head>
+                      ))}
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
-                    {defaultRows.map((row) => (
-                      <Table.Row key={row.id}>
-                        <Table.Cell>{row.checkDate}</Table.Cell>
-                        <Table.Cell>{row.issueKey}</Table.Cell>
-                        <Table.Cell>{row.integrationId}</Table.Cell>
-                        <Table.Cell>{row.statusStartTime}</Table.Cell>
-                        <Table.Cell>{row.statusEndTime}</Table.Cell>
-                        <Table.Cell>{row.project}</Table.Cell>
+                    {activeDataset.rows.map((row, i) => (
+                      <Table.Row key={i}>
+                        {activeDataset.headers.map((h) => (
+                          <Table.Cell key={h}>{row[h]}</Table.Cell>
+                        ))}
                       </Table.Row>
                     ))}
                   </Table.Body>
@@ -359,7 +443,7 @@ export function WidgetBuilderPage() {
 
               <div className="border-t border-borders-2 px-4 py-2.5">
                 <Pagination
-                  totalItems={defaultRows.length}
+                  totalItems={activeDataset.rows.length}
                   pageSize={pageSize}
                   currentPage={currentPage}
                   goToPage={setCurrentPage}
@@ -377,9 +461,9 @@ export function WidgetBuilderPage() {
         <div className="w-1/3 min-w-0 border-l border-subtle pl-5">
           {/* Builder / Query tabs */}
           <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
-            <Tabs.List variant="outlined">
-              <Tabs.Trigger value="builder">Builder</Tabs.Trigger>
-              <Tabs.Trigger value="query">Query</Tabs.Trigger>
+            <Tabs.List variant="outlined" className="w-full">
+              <Tabs.Trigger value="builder" className="flex-1 justify-center">Builder</Tabs.Trigger>
+              <Tabs.Trigger value="query" className="flex-1 justify-center">Query</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="builder">
               <div className="flex flex-col gap-5 pt-4">
@@ -389,17 +473,21 @@ export function WidgetBuilderPage() {
                   <Select
                     value={datasource}
                     placeholder="Select a datasource"
-                    options={DATASOURCE_OPTIONS}
+                    options={DATASOURCE_METADATA.map((ds) => ({
+                      label: (
+                        <div className="flex flex-col gap-0.5">
+                          <span>{ds.name}</span>
+                          <span className="ds-desc">
+                            <Text variant="caption-normal" color="foreground-3">{ds.description}</Text>
+                          </span>
+                        </div>
+                      ),
+                      value: ds.value,
+                    }))}
                     allowSearch
                     contentWidth="triggerWidth"
+                    triggerClassName="[&_.ds-desc]:hidden"
                     onChange={setDatasource}
-                    optionRenderer={(option) => (
-                      <DropdownMenu.Item
-                        key={option.value}
-                        title={option.label as string}
-                        description={(option as typeof DATASOURCE_OPTIONS[number]).description}
-                      />
-                    )}
                   />
                 </div>
 
