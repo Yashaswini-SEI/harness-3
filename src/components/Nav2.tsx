@@ -5,8 +5,10 @@ import orgTreeIcon from '../assets/icon-org-tree.svg'
 import teamsIcon from '../assets/icon-teams.svg'
 import accountMgmtIcon from '../assets/icon-account-mgmt.svg'
 import settingsIcon from '../assets/icon-settings.svg'
+import projectIcon from '../assets/icon-project.svg'
 
 export type Nav2Section =
+  | 'project'
   | 'insights'
   | 'canvas'
   | 'org-tree'
@@ -79,7 +81,14 @@ export function Nav2({ activeSection, onSectionChange, onThemeToggle, dark }: Na
           {/* Logo */}
           <img src={logoIcon} alt="Harness" className="my-3 h-[26px] w-[26px]" />
           {/* Green accent line */}
-          <hr className="w-[50px] my-3 border-[#42AB45]" />
+          <hr className="w-[50px] my-3 border-[1.5px] border-[#42AB45]" />
+          {/* Project */}
+          <button
+            className="flex h-10 w-9 my-3 items-center justify-center rounded-[6px] border border-[#6C6D87] bg-[#121725]"
+            onClick={() => onSectionChange?.('project')}
+          >
+            <img src={projectIcon} alt="Project" className="h-5 w-5" />
+          </button>
           {/* Top nav group */}
           {topGroup.map((item) => (
             <NavItem
@@ -126,7 +135,7 @@ export function Nav2({ activeSection, onSectionChange, onThemeToggle, dark }: Na
             </button>
           )}
           {/* Avatar */}
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#6C63FF]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-cn-full bg-[#6C63FF]">
             <span className="text-xs font-semibold text-white">JH</span>
           </div>
         </div>

@@ -252,11 +252,11 @@ export function WidgetBuilderPage() {
   }, [showSuggestions, filteredSuggestions, suggestionIndex, insertSuggestion])
 
   return (
-    <div className="flex min-h-screen bg-cn-0">
+    <div className="flex min-h-screen bg-cn-3">
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       {/* Page content */}
-      <div className="flex flex-1 flex-col gap-5 bg-cn-0 p-8">
+      <div className="flex flex-1 flex-col gap-5 bg-cn-3 p-8">
       {/* Breadcrumb */}
       <Breadcrumb.Root size="sm">
         <Breadcrumb.List>
