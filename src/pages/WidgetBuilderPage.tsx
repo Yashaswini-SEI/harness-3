@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   Text,
   Button,
@@ -15,6 +15,7 @@ import {
   TextInput,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
+import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 
 // ── Available variable suggestions ──
 const VARIABLE_SUGGESTIONS = [
@@ -143,18 +144,28 @@ const DATASOURCE_TABLES: Record<string, TableDataset> = {
 // Default fallback dataset
 const DEFAULT_DATASET = DATASOURCE_TABLES['daily-open-issues']
 
-const criteriaRows = [
-  { project: 'ASP', issueKeyCount: '247,084' },
-  { project: 'BT', issueKeyCount: '3,182,451' },
-  { project: 'CDE', issueKeyCount: '545,508' },
-  { project: 'COE', issueKeyCount: '7,035' },
-  { project: 'DEVOPS', issueKeyCount: '2,901,210' },
-  { project: 'ENGTAI', issueKeyCount: '43,320,752' },
-  { project: 'DS', issueKeyCount: '3,104' },
-  { project: 'EXP', issueKeyCount: '751,102' },
-  { project: 'FLAM', issueKeyCount: '146,328' },
-  { project: 'FME', issueKeyCount: '8,569,736' },
-]
+// Simple deterministic hash for generating simulated aggregated data
+function simHash(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
+  return Math.abs(h)
+}
+
+// Scale factors per time range so switching tabs visibly changes data magnitude
+const TIME_RANGE_SCALE: Record<string, number> = {
+  '7D': 0.019,
+  '1M': 0.083,
+  '3M': 0.25,
+  '6M': 0.5,
+  '12M': 1,
+  custom: 1,
+}
+
+const formatYAxis = (value: number) => {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)}M`
+  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`
+  return String(value)
+}
 
 export function WidgetBuilderPage() {
   const [dark, setDark] = useState(() =>
@@ -175,6 +186,10 @@ export function WidgetBuilderPage() {
   const [pageSize, setPageSize] = useState(10)
   const [datasource, setDatasource] = useState<string | undefined>(undefined)
   const activeDataset = (datasource && DATASOURCE_TABLES[datasource]) || DEFAULT_DATASET
+  const [criteriaColumn, setCriteriaColumn] = useState('Project')
+  const [criteria2Column, setCriteria2Column] = useState<string | undefined>(undefined)
+  const [criteriaInteracted, setCriteriaInteracted] = useState(false)
+  const columnOptions = activeDataset.headers.map(h => ({ label: h, value: h }))
   const [queryText, setQueryText] = useState(
     `find entity sei:sonarqube_metrics\n  | filter metric in ["coverage", "branch_coverage", "line_coverage"] and branch\n      is null\n  | select {\n      metric,\n      avg(value_numeric) as $average_across_projects,\n      count() as $account`
   )
@@ -194,6 +209,47 @@ export function WidgetBuilderPage() {
   const filteredSuggestions = VARIABLE_SUGGESTIONS.filter((s) =>
     s.toLowerCase().includes(suggestionFilter.toLowerCase())
   )
+
+  // Reset criteria when datasource changes
+  useEffect(() => {
+    if (datasource === undefined) return
+    const ds = DATASOURCE_TABLES[datasource] || DEFAULT_DATASET
+    setCriteriaColumn(ds.headers[0] || 'Project')
+    setCriteria2Column(undefined)
+    setCriteriaAdded(false)
+    setCriteriaInteracted(false)
+  }, [datasource])
+
+  // Generate aggregated criteria data dynamically, scaled by time range
+  const scale = TIME_RANGE_SCALE[timeRange] ?? 1
+  const criteriaData = useMemo(() => {
+    const seen = new Set<string>()
+    const results: { name: string; count: number; count2?: number }[] = []
+    for (const row of activeDataset.rows) {
+      const val = row[criteriaColumn]
+      if (val && !seen.has(val)) {
+        seen.add(val)
+        const base = (simHash(val + criteriaColumn) % 50_000_000) + 1_000
+        results.push({
+          name: val,
+          count: Math.round(base * scale),
+        })
+      }
+    }
+    results.sort((a, b) => a.name.localeCompare(b.name))
+    if (criteriaAdded && criteria2Column) {
+      for (const r of results) {
+        const base2 = (simHash(r.name + '_' + criteria2Column) % 50_000_000) + 1_000
+        r.count2 = Math.round(base2 * scale)
+      }
+    }
+    return results
+  }, [criteriaColumn, criteria2Column, criteriaAdded, activeDataset, scale])
+
+  const chartData = criteriaData.map(d => ({
+    name: d.name,
+    value: d.count,
+  }))
 
   const handleQueryChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
@@ -345,21 +401,122 @@ export function WidgetBuilderPage() {
               </Tabs.List>
             </Tabs.Root>
           </div>
+          {chartType === 'line' && (
+            <div className="mb-4 rounded-md border border-borders-2 p-6">
+              <svg width="0" height="0">
+                <defs>
+                  <filter id="line-shadow">
+                    <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor="rgba(41, 173, 255, 0.25)" floodOpacity="1" />
+                  </filter>
+                </defs>
+              </svg>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={{ stroke: '#E5E7EB' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tickFormatter={formatYAxis}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
+                  />
+                  <Tooltip
+                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                  />
+                  <Legend
+                    iconType="square"
+                    iconSize={10}
+                    wrapperStyle={{ fontSize: 13, paddingTop: 12 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    name="Count"
+                    stroke="var(--cn-comp-data-viz-01-blue, #2DA6FF)"
+                    strokeWidth={2}
+                    dot={{ r: 4, fill: 'var(--cn-comp-data-viz-01-blue, #2DA6FF)', strokeWidth: 0 }}
+                    activeDot={{ r: 6, fill: 'var(--cn-comp-data-viz-01-blue, #2DA6FF)', strokeWidth: 2, stroke: '#fff' }}
+                    style={{ filter: 'url(#line-shadow)' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+          {chartType === 'bar' && (
+            <div className="mb-4 rounded-md border border-borders-2 p-6">
+              <svg width="0" height="0">
+                <defs>
+                  <filter id="bar-shadow">
+                    <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor="rgba(41, 173, 255, 0.25)" floodOpacity="1" />
+                  </filter>
+                </defs>
+              </svg>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={{ stroke: '#E5E7EB' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tickFormatter={formatYAxis}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
+                  />
+                  <Tooltip
+                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                    cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
+                  />
+                  <Legend
+                    iconType="square"
+                    iconSize={10}
+                    wrapperStyle={{ fontSize: 13, paddingTop: 12 }}
+                  />
+                  <Bar
+                    dataKey="value"
+                    name="Count"
+                    fill="var(--cn-comp-data-viz-01-blue, #2DA6FF)"
+                    radius={[4, 4, 0, 0]}
+                    barSize={32}
+                    style={{ filter: 'url(#bar-shadow)' }}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
           <div className="overflow-hidden rounded-md border border-borders-2">
-            {criteriaAdded ? (
+            {criteriaInteracted ? (
               <>
                 <Table.Root variant="default" size="normal">
                   <Table.Header>
                     <Table.Row>
-                      <Table.Head>Project</Table.Head>
-                      <Table.Head>Issue Key Count</Table.Head>
+                      <Table.Head>{criteriaColumn}</Table.Head>
+                      <Table.Head>Count</Table.Head>
+                      {criteriaAdded && criteria2Column && (
+                        <Table.Head>{criteria2Column} Count</Table.Head>
+                      )}
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
-                    {criteriaRows.map((row) => (
-                      <Table.Row key={row.project}>
-                        <Table.Cell>{row.project}</Table.Cell>
-                        <Table.Cell>{row.issueKeyCount}</Table.Cell>
+                    {criteriaData.map((row) => (
+                      <Table.Row key={row.name}>
+                        <Table.Cell>{row.name}</Table.Cell>
+                        <Table.Cell>{row.count.toLocaleString()}</Table.Cell>
+                        {criteriaAdded && criteria2Column && (
+                          <Table.Cell>{(row.count2 ?? 0).toLocaleString()}</Table.Cell>
+                        )}
                       </Table.Row>
                     ))}
                   </Table.Body>
@@ -367,7 +524,7 @@ export function WidgetBuilderPage() {
 
               <div className="border-t border-borders-2 px-4 py-2.5">
                 <Pagination
-                  totalItems={criteriaRows.length}
+                  totalItems={criteriaData.length}
                   pageSize={pageSize}
                   currentPage={currentPage}
                   goToPage={setCurrentPage}
@@ -461,9 +618,14 @@ export function WidgetBuilderPage() {
                   <div className="flex flex-col gap-1.5">
                     <Text variant="caption-normal" color="foreground-3">Column</Text>
                     <Select
-                      value="project"
-                      options={[{ label: 'Project', value: 'project' }]}
-                      onChange={() => {}}
+                      value={criteriaColumn}
+                      options={columnOptions}
+                      onChange={(val) => {
+                        if (val) {
+                          setCriteriaColumn(val)
+                          setCriteriaInteracted(true)
+                        }
+                      }}
                     />
                   </div>
 
@@ -477,7 +639,12 @@ export function WidgetBuilderPage() {
                   </div>
 
                   {!criteriaAdded && (
-                    <Button variant="ghost" size="sm" className="self-start" onClick={() => setCriteriaAdded(true)}>
+                    <Button variant="ghost" size="sm" className="self-start" onClick={() => {
+                      setCriteriaAdded(true)
+                      setCriteriaInteracted(true)
+                      const otherHeaders = activeDataset.headers.filter(h => h !== criteriaColumn)
+                      setCriteria2Column(otherHeaders[0] || activeDataset.headers[0])
+                    }}>
                       <IconV2 name="plus" size="sm" />
                       <Text color="brand" variant="body-normal">Select Criteria</Text>
                     </Button>
@@ -489,7 +656,7 @@ export function WidgetBuilderPage() {
                   <div className="flex flex-col gap-3 rounded border border-subtle p-3">
                     <div className="flex items-center justify-between">
                       <Text variant="body-strong" color="foreground-1">Selection Criteria</Text>
-                      <Button variant="ghost" size="sm" onClick={() => setCriteriaAdded(false)}>
+                      <Button variant="ghost" size="sm" onClick={() => { setCriteriaAdded(false); setCriteria2Column(undefined) }}>
                         <IconV2 name="trash" size="sm" />
                         Remove
                       </Button>
@@ -498,9 +665,9 @@ export function WidgetBuilderPage() {
                     <div className="flex flex-col gap-1.5">
                       <Text variant="caption-normal" color="foreground-3">Column</Text>
                       <Select
-                        value="issue-keys"
-                        options={[{ label: 'Issue keys', value: 'issue-keys' }]}
-                        onChange={() => {}}
+                        value={criteria2Column}
+                        options={columnOptions}
+                        onChange={(val) => { if (val) setCriteria2Column(val) }}
                       />
                     </div>
 
