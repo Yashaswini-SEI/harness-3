@@ -119,7 +119,7 @@ export function WidgetBuilderPage() {
   }, [showSuggestions, filteredSuggestions, suggestionIndex, insertSuggestion])
 
   return (
-    <div className="flex min-h-screen bg-surface-0">
+    <div className="flex min-h-screen bg-white">
       {/* Sidebar nav */}
       <nav className="flex w-[56px] shrink-0 flex-col items-center justify-between py-4" style={{ backgroundColor: '#051A33' }}>
         <div className="flex flex-col items-center gap-4">
@@ -219,43 +219,42 @@ export function WidgetBuilderPage() {
         </div>
       </div>
 
-      {/* Controls row */}
-      <div className="flex items-center justify-between">
-        {/* Time range tabs */}
-        <Tabs.Root value={timeRange} onValueChange={setTimeRange}>
-          <Tabs.List variant="outlined">
-            <Tabs.Trigger value="7D">7D</Tabs.Trigger>
-            <Tabs.Trigger value="1M">1M</Tabs.Trigger>
-            <Tabs.Trigger value="3M">3M</Tabs.Trigger>
-            <Tabs.Trigger value="6M">6M</Tabs.Trigger>
-            <Tabs.Trigger value="12M">12M</Tabs.Trigger>
-            <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
-          </Tabs.List>
-        </Tabs.Root>
-
-        {/* Chart type toggles */}
-        <ToggleGroup.Root
-          type="single"
-          value={chartType}
-          onChange={(val: string) => { if (val) setChartType(val) }}
-          size="sm"
-        >
-          <ToggleGroup.Item value="table" prefixIcon="view-grid" />
-          <ToggleGroup.Item value="bar" prefixIcon="stats-up-square" />
-          <ToggleGroup.Item value="line" prefixIcon="graph-up" />
-          <ToggleGroup.Item value="stacked" prefixIcon="align-bottom" />
-          <ToggleGroup.Item value="column" prefixIcon="bar-chart" />
-          <ToggleGroup.Item value="flag" prefixIcon="page" />
-          <ToggleGroup.Item value="hash" prefixIcon="hashtag" />
-          <ToggleGroup.Item value="scatter" prefixIcon="percentage-square" />
-          <ToggleGroup.Item value="settings" prefixIcon="settings" />
-        </ToggleGroup.Root>
-      </div>
-
       {/* Main content area */}
       <div className="flex gap-0">
         {/* Left: Table */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pr-5">
+          {/* Controls bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-4">
+            {/* Time range tabs */}
+            <Tabs.Root value={timeRange} onValueChange={setTimeRange}>
+              <Tabs.List variant="outlined">
+                <Tabs.Trigger value="7D">7D</Tabs.Trigger>
+                <Tabs.Trigger value="1M">1M</Tabs.Trigger>
+                <Tabs.Trigger value="3M">3M</Tabs.Trigger>
+                <Tabs.Trigger value="6M">6M</Tabs.Trigger>
+                <Tabs.Trigger value="12M">12M</Tabs.Trigger>
+                <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
+              </Tabs.List>
+            </Tabs.Root>
+
+            {/* Chart type toggles */}
+            <ToggleGroup.Root
+              type="single"
+              value={chartType}
+              onChange={(val: string) => { if (val) setChartType(val) }}
+              size="sm"
+            >
+              <ToggleGroup.Item value="table" prefixIcon="view-grid" />
+              <ToggleGroup.Item value="bar" prefixIcon="stats-up-square" />
+              <ToggleGroup.Item value="line" prefixIcon="graph-up" />
+              <ToggleGroup.Item value="stacked" prefixIcon="align-bottom" />
+              <ToggleGroup.Item value="column" prefixIcon="bar-chart" />
+              <ToggleGroup.Item value="flag" prefixIcon="page" />
+              <ToggleGroup.Item value="hash" prefixIcon="hashtag" />
+              <ToggleGroup.Item value="scatter" prefixIcon="percentage-square" />
+              <ToggleGroup.Item value="settings" prefixIcon="settings" />
+            </ToggleGroup.Root>
+          </div>
           <Table.Root variant="default" size="normal">
             <Table.Header>
               <Table.Row>
