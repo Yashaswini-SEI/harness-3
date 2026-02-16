@@ -25,6 +25,18 @@ function App() {
             Tables
           </Button>
         </Link>
+        <Link to="/insights">
+          <Button variant="outline" size="sm">
+            <IconV2 name="dashboard" size="sm" />
+            Insights
+          </Button>
+        </Link>
+        <Link to="/widget-builder">
+          <Button variant="outline" size="sm">
+            <IconV2 name="settings" size="sm" />
+            Widget Builder
+          </Button>
+        </Link>
       </nav>
 
       {/* ── SideNav Component ── */}
