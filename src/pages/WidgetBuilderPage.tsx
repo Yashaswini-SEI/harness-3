@@ -441,8 +441,8 @@ export function WidgetBuilderPage() {
                     name="Count"
                     stroke="var(--cn-comp-data-viz-01-blue, #2DA6FF)"
                     strokeWidth={2}
-                    dot={{ r: 4, fill: 'var(--cn-comp-data-viz-01-blue, #2DA6FF)', strokeWidth: 0 }}
-                    activeDot={{ r: 6, fill: 'var(--cn-comp-data-viz-01-blue, #2DA6FF)', strokeWidth: 2, stroke: '#fff' }}
+                    dot={false}
+                    activeDot={false}
                     style={{ filter: 'url(#line-shadow)' }}
                     animationDuration={150}
                   />
