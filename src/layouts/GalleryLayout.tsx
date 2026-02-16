@@ -15,7 +15,7 @@ export function GalleryLayout() {
 
   return (
     <div className="min-h-screen bg-surface-0 p-8">
-      <div className="mx-auto max-w-5xl space-y-8">
+      <div className="space-y-8">
         <div className="flex justify-end">
           <Button variant="outline" size="sm" onClick={() => setDark(!dark)}>
             <IconV2 name={dark ? 'sun-light' : 'half-moon'} size="sm" />

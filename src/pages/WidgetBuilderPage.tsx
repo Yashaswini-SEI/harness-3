@@ -119,7 +119,49 @@ export function WidgetBuilderPage() {
   }, [showSuggestions, filteredSuggestions, suggestionIndex, insertSuggestion])
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex min-h-screen bg-surface-0">
+      {/* Sidebar nav */}
+      <nav className="flex w-[56px] shrink-0 flex-col items-center justify-between py-4" style={{ backgroundColor: '#051A33' }}>
+        <div className="flex flex-col items-center gap-4">
+          {/* Logo */}
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#42AB45]">
+            <IconV2 name="nav-arrow-right" size="sm" className="text-white" />
+          </div>
+          <hr className="w-6 border-white/20" />
+          {/* Nav icons */}
+          {[
+            { icon: 'box', active: true },
+            { icon: 'lightbulb' },
+            { icon: 'grid-4' },
+            { icon: 'settings' },
+            { icon: 'link-chain' },
+            { icon: 'grid-dots' },
+            { icon: 'connectors' },
+          ].map(({ icon, active }) => (
+            <button
+              key={icon}
+              className={`flex h-8 w-8 items-center justify-center rounded-md ${
+                active ? 'bg-white/15' : 'hover:bg-white/10'
+              }`}
+            >
+              <IconV2 name={icon as never} size="sm" className={active ? 'text-white' : 'text-white/60'} />
+            </button>
+          ))}
+          <hr className="w-6 border-white/20" />
+          <button className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-white/10">
+            <IconV2 name="scissor" size="sm" className="text-white/60" />
+          </button>
+        </div>
+        <div className="flex flex-col items-center gap-3">
+          <button className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-white/10">
+            <IconV2 name="chat-bubble" size="sm" className="text-white/60" />
+          </button>
+          <div className="h-6 w-6 rounded-full bg-[#6C63FF]" />
+        </div>
+      </nav>
+
+      {/* Page content */}
+      <div className="flex flex-1 flex-col gap-5 p-8">
       {/* Breadcrumb */}
       <Breadcrumb.Root size="sm">
         <Breadcrumb.List>
@@ -253,7 +295,7 @@ export function WidgetBuilderPage() {
         </div>
 
         {/* Right: Builder panel */}
-        <div className="w-[280px] shrink-0 border-l border-subtle pl-5">
+        <div className="w-1/3 min-w-0 border-l border-subtle pl-5">
           {/* Builder / Query tabs */}
           <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
             <Tabs.List variant="outlined">
@@ -477,6 +519,7 @@ export function WidgetBuilderPage() {
             </Tabs.Content>
           </Tabs.Root>
         </div>
+      </div>
       </div>
     </div>
   )
