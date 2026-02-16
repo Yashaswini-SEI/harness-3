@@ -609,18 +609,28 @@ export function WidgetBuilderPage() {
                     </Button>
                   </div>
                   <div className="relative">
-                    <Textarea
-                      ref={textareaRef}
-                      value={queryText}
-                      onChange={handleQueryChange}
-                      onKeyDown={handleQueryKeyDown}
-                      onBlur={() => {
-                        // Delay to allow click on suggestion
-                        setTimeout(() => setShowSuggestions(false), 150)
-                      }}
-                      className="font-mono text-sm"
-                      rows={8}
-                    />
+                    <div className="flex overflow-hidden rounded-md border border-borders-2 bg-cn-0">
+                      <div
+                        className="shrink-0 select-none bg-cn-2 px-2 pt-[9px] text-right font-mono text-sm leading-[20px] text-foreground-3"
+                        aria-hidden
+                      >
+                        {queryText.split('\n').map((_, i) => (
+                          <div key={i}>{i + 1}</div>
+                        ))}
+                      </div>
+                      <Textarea
+                        ref={textareaRef}
+                        value={queryText}
+                        onChange={handleQueryChange}
+                        onKeyDown={handleQueryKeyDown}
+                        onBlur={() => {
+                          // Delay to allow click on suggestion
+                          setTimeout(() => setShowSuggestions(false), 150)
+                        }}
+                        className="min-w-0 flex-1 font-mono text-sm !rounded-none !border-0 !ring-0 !shadow-none !bg-cn-0"
+                        rows={8}
+                      />
+                    </div>
                     {showSuggestions && filteredSuggestions.length > 0 && (
                       <div className="absolute left-0 right-0 z-10 mt-1 overflow-hidden rounded-md border border-borders-2 bg-cn-1 shadow-lg">
                         {filteredSuggestions.map((name, i) => (
