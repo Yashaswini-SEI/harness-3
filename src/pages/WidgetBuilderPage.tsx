@@ -444,6 +444,7 @@ export function WidgetBuilderPage() {
                     dot={{ r: 4, fill: 'var(--cn-comp-data-viz-01-blue, #2DA6FF)', strokeWidth: 0 }}
                     activeDot={{ r: 6, fill: 'var(--cn-comp-data-viz-01-blue, #2DA6FF)', strokeWidth: 2, stroke: '#fff' }}
                     style={{ filter: 'url(#line-shadow)' }}
+                    animationDuration={150}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -491,6 +492,7 @@ export function WidgetBuilderPage() {
                     radius={[4, 4, 0, 0]}
                     barSize={32}
                     style={{ filter: 'url(#bar-shadow)' }}
+                    animationDuration={150}
                   />
                 </BarChart>
               </ResponsiveContainer>
