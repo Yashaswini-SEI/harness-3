@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Text,
   Button,
@@ -25,6 +25,26 @@ import thumb5 from '../assets/dashboard-thumbnails/5-light.svg'
 import thumb6 from '../assets/dashboard-thumbnails/6-light.svg'
 
 const S = ExecutionState.SUCCESS
+
+function OrgFolder({
+  element, value, duration, level = 1, children,
+}: {
+  element: string; value: string; duration: string; level?: number; children: React.ReactNode;
+}) {
+  return (
+    <div className="group/gear relative">
+      <Folder className="org-child" element={element} value={value} status={S} level={level} duration={duration}>
+        {children}
+      </Folder>
+      <button
+        className="absolute right-1 top-1 z-10 rounded p-0.5 opacity-0 transition-opacity hover:bg-cn-2 group-hover/gear:opacity-100"
+        onClick={(e) => { e.stopPropagation(); }}
+      >
+        <IconV2 name="settings" size="xs" className="text-foreground-3" />
+      </button>
+    </div>
+  );
+}
 
 // ── Insight cards data ──
 const harnessInsights = [
@@ -90,7 +110,12 @@ export function InsightsPage() {
       <style>{`
         .org-tree .size-5.flex-none.items-center.justify-center > * { visibility: hidden; }
         .org-tree span.text-cn-1 > span.text-cn-3 { display: none !important; }
-        .org-tree span.text-cn-2.flex-none.select-none { display: none !important; }
+        .org-tree .org-leaf span.text-cn-2.flex-none.select-none { display: none !important; }
+        .org-tree .org-top span.text-cn-2.flex-none.select-none { display: none !important; }
+        .org-tree .org-child span.text-cn-2.flex-none.select-none {
+          font-size: 12px; line-height: 18px; border: 1px solid var(--cn-borders-2, #d0d5dd);
+          border-radius: 6px; padding: 0 6px; color: var(--cn-foreground-3, #6b6f79);
+        }
         .org-tree .org-top .size-5.flex-none.items-center.justify-center {
           background: url("${iconOrg}") center / 16px 16px no-repeat;
         }
@@ -151,58 +176,58 @@ export function InsightsPage() {
                 <File className="org-leaf" value="harness-fme-empty" status={S} level={1}>{' '}</File>
               </Folder>
               <Folder className="org-top" element="Harness SEI" value="harness-sei" status={S} level={0}>
-                <Folder className="org-child" element="Arvind Srinivasulu  302" value="arvind" status={S} level={1}>
+                <OrgFolder element="Arvind Srinivasulu" value="arvind" duration="302">
                   <File className="org-leaf" value="alex" status={S} level={2}>Alex N Markov</File>
                   <File className="org-leaf" value="abdul" status={S} level={2}>Abdul Asheem</File>
-                </Folder>
-                <Folder className="org-child" element="Minash Ranjan  128" value="minash" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Minash Ranjan" value="minash" duration="128">
                   <File className="org-leaf" value="minash-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Sachin Walunj  62" value="sachin" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Sachin Walunj" value="sachin" duration="62">
                   <File className="org-leaf" value="sachin-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Adam England  53" value="adam" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Adam England" value="adam" duration="53">
                   <File className="org-leaf" value="adam-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Charu Swaroop  124" value="charu" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Charu Swaroop" value="charu" duration="124">
                   <File className="org-leaf" value="charu-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Parvez Husein  18" value="parvez" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Parvez Husein" value="parvez" duration="18">
                   <File className="org-leaf" value="parvez-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Frank Lino  6" value="frank" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Frank Lino" value="frank" duration="6">
                   <File className="org-leaf" value="frank-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Prasad Vazhakkattil  5" value="prasad" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Prasad Vazhakkattil" value="prasad" duration="5">
                   <File className="org-leaf" value="prasad-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Shan Calhoun  5" value="shan" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Shan Calhoun" value="shan" duration="5">
                   <File className="org-leaf" value="shan-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Bob Coyle  7" value="bob" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Bob Coyle" value="bob" duration="7">
                   <File className="org-leaf" value="bob-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Promila Sagar  24" value="promila" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Promila Sagar" value="promila" duration="24">
                   <File className="org-leaf" value="promila-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Jash Jeyasingh  96" value="jash" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Jash Jeyasingh" value="jash" duration="96">
                   <File className="org-leaf" value="jash-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Ajay Kumar Singh  67" value="ajay" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Ajay Kumar Singh" value="ajay" duration="67">
                   <File className="org-leaf" value="ajay-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Greg Bender  8" value="greg" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Greg Bender" value="greg" duration="8">
                   <File className="org-leaf" value="greg-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Sahil Malhotra  12" value="sahil" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Sahil Malhotra" value="sahil" duration="12">
                   <File className="org-leaf" value="sahil-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Ivan de la Garza  4" value="ivan" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Ivan de la Garza" value="ivan" duration="4">
                   <File className="org-leaf" value="ivan-empty" status={S} level={2}>{' '}</File>
-                </Folder>
-                <Folder className="org-child" element="Reggie Hawkins  3" value="reggie" status={S} level={1}>
+                </OrgFolder>
+                <OrgFolder element="Reggie Hawkins" value="reggie" duration="3">
                   <File className="org-leaf" value="reggie-empty" status={S} level={2}>{' '}</File>
-                </Folder>
+                </OrgFolder>
               </Folder>
               <Folder className="org-top" element="Harness CI/CD" value="harness-cicd" status={S} level={0}>
                 <File className="org-leaf" value="harness-cicd-empty" status={S} level={1}>{' '}</File>
