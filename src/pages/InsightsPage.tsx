@@ -98,6 +98,8 @@ export function InsightsPage() {
           background: url("${iconOrgTree}") center / 16px 16px no-repeat;
         }
         .org-tree .org-leaf .size-5.flex-none.items-center.justify-center { display: none !important; }
+        .org-tree .px-cn-lg { padding-left: 0 !important; padding-right: 0 !important; }
+        .org-tree .text-cn-size-2 { font-size: 14px !important; }
       `}</style>
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
