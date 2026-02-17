@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SideNav } from './components/SideNav'
 import { Nav2, type Nav2Section } from './components/Nav2'
+import { Breadcrumb2 } from './components/Breadcrumb2'
 
 function App() {
   const [search, setSearch] = useState('')
@@ -88,6 +89,41 @@ function App() {
           <Text as="p" variant="caption-normal" color="foreground-3" className="mt-4">
             Active section: <Text variant="caption-strong" color="foreground-1">{nav2Active}</Text>
           </Text>
+        </div>
+      </section>
+
+      {/* ── Breadcrumb 2.0 Component ── */}
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <Text as="h2" variant="heading-subsection" color="foreground-1">Breadcrumb 2.0</Text>
+          <Text as="p" variant="body-normal" color="foreground-3">
+            Link-styled breadcrumb with arrow separators. Items with an href render as links; the last item can omit href to appear as plain text (current page).
+          </Text>
+        </div>
+        <div className="rounded-cn-2 border border-subtle bg-surface-1 p-6 space-y-6">
+          <div className="space-y-2">
+            <Text variant="caption-strong" color="foreground-2">All links</Text>
+            <Breadcrumb2 items={[
+              { label: 'Account: Harness.io', href: '#' },
+              { label: 'Organization: Harness Analytics', href: '#' },
+              { label: 'Project: Split FME Analytics', href: '#' },
+            ]} />
+          </div>
+          <div className="space-y-2">
+            <Text variant="caption-strong" color="foreground-2">Current page (no href on last item)</Text>
+            <Breadcrumb2 items={[
+              { label: 'Account: Harness.io', href: '#' },
+              { label: 'Organization: Harness Analytics', href: '#' },
+              { label: 'Widget Builder' },
+            ]} />
+          </div>
+          <div className="space-y-2">
+            <Text variant="caption-strong" color="foreground-2">Two levels</Text>
+            <Breadcrumb2 items={[
+              { label: 'Home', href: '#' },
+              { label: 'Settings', href: '#' },
+            ]} />
+          </div>
         </div>
       </section>
 

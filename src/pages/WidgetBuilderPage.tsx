@@ -3,7 +3,6 @@ import {
   Text,
   Button,
   IconV2,
-  Breadcrumb,
   StatusBadge,
   Tag,
   Table,
@@ -11,14 +10,19 @@ import {
   Select,
   Tabs,
   NumberInput,
-  Textarea,
   TextInput,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
+import { Breadcrumb2 } from '../components/Breadcrumb2'
 import splitIcon from '../assets/icon-split.svg'
 import tableIcon from '../assets/icon-table.svg'
 import chartIcon from '../assets/icon-chart.svg'
-import { ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import table2Icon from '../assets/icon-table-2.svg'
+import scatterIcon from '../assets/icon-scatter.svg'
+import areaChartIcon from '../assets/icon-area-chart.svg'
+import donutIcon from '../assets/icon-donut.svg'
+import metricIcon from '../assets/icon-metric.svg'
+import { ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ScatterChart, Scatter, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 
 // ── Available variable suggestions ──
 const VARIABLE_SUGGESTIONS = [
@@ -198,6 +202,7 @@ export function WidgetBuilderPage() {
   const [criteria2Column, setCriteria2Column] = useState<string | undefined>(undefined)
   const [criteriaInteracted, setCriteriaInteracted] = useState(false)
   const [sorted, setSorted] = useState(false)
+  const [querySeed, setQuerySeed] = useState(0)
   const columnOptions = activeDataset.headers.map(h => ({ label: h, value: h }))
   const [queryText, setQueryText] = useState(
     `find entity sei:sonarqube_metrics\n  | filter metric in ["coverage", "branch_coverage", "line_coverage"] and branch\n      is null\n  | select {\n      metric,\n      avg(value_numeric) as $average_across_projects,\n      count() as $account`
@@ -214,6 +219,14 @@ export function WidgetBuilderPage() {
   const [suggestionIndex, setSuggestionIndex] = useState(0)
   const [tokenStart, setTokenStart] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Variable name input autocomplete state
+  const [varSuggestIndex, setVarSuggestIndex] = useState<number | null>(null)
+  const [varSuggestSelected, setVarSuggestSelected] = useState(0)
+
+  const varSuggestFiltered = varSuggestIndex !== null
+    ? VARIABLE_SUGGESTIONS.filter(s => s.toLowerCase().includes((variables[varSuggestIndex]?.name ?? '').toLowerCase()))
+    : []
 
   const filteredSuggestions = VARIABLE_SUGGESTIONS.filter((s) =>
     s.toLowerCase().includes(suggestionFilter.toLowerCase())
@@ -238,7 +251,7 @@ export function WidgetBuilderPage() {
       const val = row[criteriaColumn]
       if (val && !seen.has(val)) {
         seen.add(val)
-        const base = (simHash(val + criteriaColumn) % 50_000_000) + 1_000
+        const base = (simHash(val + criteriaColumn + '::' + querySeed) % 50_000_000) + 1_000
         results.push({
           name: val,
           count: Math.round(base * scale),
@@ -248,12 +261,12 @@ export function WidgetBuilderPage() {
     results.sort((a, b) => a.name.localeCompare(b.name))
     if (criteriaAdded && criteria2Column) {
       for (const r of results) {
-        const base2 = (simHash(r.name + '_' + criteria2Column) % 50_000_000) + 1_000
+        const base2 = (simHash(r.name + '_' + criteria2Column + '::' + querySeed) % 50_000_000) + 1_000
         r.count2 = Math.round(base2 * scale)
       }
     }
     return results
-  }, [criteriaColumn, criteria2Column, criteriaAdded, activeDataset, scale])
+  }, [criteriaColumn, criteria2Column, criteriaAdded, activeDataset, scale, querySeed])
 
   const chartData = (sorted
     ? [...criteriaData].sort((a, b) => b.count - a.count)
@@ -262,6 +275,14 @@ export function WidgetBuilderPage() {
     name: d.name,
     value: d.count,
   }))
+
+  const scatterData = useMemo(() =>
+    chartData.map((d, i) => ({
+      x: i + 1,
+      y: d.value,
+      name: d.name,
+    })),
+  [chartData])
 
   const handleQueryChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
@@ -351,19 +372,11 @@ export function WidgetBuilderPage() {
       {/* Page content */}
       <div className="flex flex-1 flex-col gap-5 bg-cn-3 p-8">
       {/* Breadcrumb */}
-      <Breadcrumb.Root size="sm">
-        <Breadcrumb.List>
-          <Breadcrumb.Item>
-            <Breadcrumb.Link href="#">Account: Harness.io</Breadcrumb.Link>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>
-            <Breadcrumb.Link href="#">Organization: Harness Analytics</Breadcrumb.Link>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>
-            <Breadcrumb.Link href="#">Project: Split FME Analytics</Breadcrumb.Link>
-          </Breadcrumb.Item>
-        </Breadcrumb.List>
-      </Breadcrumb.Root>
+      <Breadcrumb2 items={[
+        { label: 'Account: Harness.io', href: '#' },
+        { label: 'Organization: Harness Analytics', href: '#' },
+        { label: 'Project: Split FME Analytics', href: '#' },
+      ]} />
 
       {/* Header row */}
       <div className="flex items-start justify-between">
@@ -428,13 +441,14 @@ export function WidgetBuilderPage() {
             {/* Chart type tabs */}
             <Tabs.Root value={chartType} onValueChange={setChartType}>
               <Tabs.List variant="outlined">
-                <Tabs.Trigger value="table" icon="table-rows" />
+                <Tabs.Trigger value="table"><img src={table2Icon} alt="Table" className="h-4 w-4" /></Tabs.Trigger>
                 <Tabs.Trigger value="line" icon="line-chart" />
-                <Tabs.Trigger value="donut" icon="pie-chart" />
+                <Tabs.Trigger value="area"><img src={areaChartIcon} alt="Area chart" className="h-4 w-4" /></Tabs.Trigger>
                 <Tabs.Trigger value="bar" icon="bar-vertical" />
                 <Tabs.Trigger value="horizontal-bar" icon="bar-horizontal" />
-                <Tabs.Trigger value="metric" icon="stats-up-square" />
-                <Tabs.Trigger value="data" icon="database-stats" />
+                <Tabs.Trigger value="scatter"><img src={scatterIcon} alt="Scatter plot" className="h-4 w-4" /></Tabs.Trigger>
+                <Tabs.Trigger value="donut"><img src={donutIcon} alt="Donut chart" className="h-4 w-4" /></Tabs.Trigger>
+                <Tabs.Trigger value="metric"><img src={metricIcon} alt="Metric" className="h-4 w-4" /></Tabs.Trigger>
               </Tabs.List>
             </Tabs.Root>
           </div>
@@ -537,8 +551,8 @@ export function WidgetBuilderPage() {
               </ResponsiveContainer>
             </div>
           )}
-          {chartType === 'donut' && (
-            <div className="p-6">
+          {chartType === 'donut' && viewMode !== 'table' && (
+            <div className="p-6 overflow-visible">
               <svg width="0" height="0">
                 <defs>
                   {['#2DA6FF', '#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'].map((color, i) => (
@@ -548,8 +562,8 @@ export function WidgetBuilderPage() {
                   ))}
                 </defs>
               </svg>
-              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
-                <PieChart>
+              <ResponsiveContainer width="100%" height={chartHeight * 1.5} style={{ overflow: 'visible' }}>
+                <PieChart style={{ overflow: 'visible' }}>
                   <Pie
                     data={chartData}
                     dataKey="value"
@@ -630,8 +644,113 @@ export function WidgetBuilderPage() {
               </ResponsiveContainer>
             </div>
           )}
+          {chartType === 'area' && viewMode !== 'table' && (
+            <div className="p-6">
+              <svg width="0" height="0">
+                <defs>
+                  <linearGradient id="area-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2DA6FF" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#2DA6FF" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
+                <AreaChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={{ stroke: '#E5E7EB' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tickFormatter={formatYAxis}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
+                  />
+                  <Tooltip
+                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                  />
+                  <Legend
+                    iconType="square"
+                    iconSize={10}
+                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
+                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    name="Count"
+                    stroke="#2DA6FF"
+                    strokeWidth={2}
+                    fill="url(#area-gradient)"
+                    dot={false}
+                    activeDot={{ r: 4, fill: '#2DA6FF' }}
+                    animationDuration={150}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+          {chartType === 'scatter' && viewMode !== 'table' && (
+            <div className="p-6">
+              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
+                <ScatterChart margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="8 6" stroke="var(--cn-border-2, #E5E7EB)" />
+                  <XAxis
+                    type="number"
+                    dataKey="x"
+                    name="Index"
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={{ stroke: '#E5E7EB' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="number"
+                    dataKey="y"
+                    name="Count"
+                    tickFormatter={formatYAxis}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
+                  />
+                  <Tooltip
+                    formatter={(value: number) => value.toLocaleString()}
+                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                    cursor={{ strokeDasharray: '4 4' }}
+                  />
+                  <Legend
+                    iconType="square"
+                    iconSize={10}
+                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
+                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
+                  />
+                  <Scatter
+                    name="Count"
+                    data={scatterData}
+                    fill="#8B5CF6"
+                    animationDuration={150}
+                  />
+                </ScatterChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+          {chartType === 'metric' && (
+            <div className="flex items-center justify-center p-6" style={{ height: chartHeight * 1.5 }}>
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-foreground-1" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 64, fontWeight: 600, lineHeight: 1 }}>
+                  {chartData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
+                </span>
+                <span className="text-sm text-foreground-3">Total Count</span>
+              </div>
+            </div>
+          )}
           {/* View mode control — horizontal rule with centered tabs overlay */}
-          {(chartType === 'line' || chartType === 'bar' || chartType === 'horizontal-bar') && (
+          {(chartType === 'line' || chartType === 'bar' || chartType === 'horizontal-bar' || chartType === 'donut' || chartType === 'area' || chartType === 'scatter') && (
             <div className="relative flex items-center justify-center mb-6">
               {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
               <div className="absolute inset-x-0 -top-1.5 bottom-0 cursor-row-resize" onMouseDown={onResizeStart} />
@@ -750,7 +869,6 @@ export function WidgetBuilderPage() {
                       value: ds.value,
                     }))}
                     allowSearch
-                    contentWidth="triggerWidth"
                     triggerClassName="[&_.ds-desc]:hidden"
                     onChange={setDatasource}
                   />
@@ -893,8 +1011,8 @@ export function WidgetBuilderPage() {
                       Format
                     </Button>
                   </div>
-                  <div className="relative">
-                    <div className="flex overflow-hidden rounded-md border border-borders-2 bg-cn-0">
+                  <div className="relative mb-cn-sm">
+                    <div className="flex w-full overflow-hidden rounded-md border border-borders-2 bg-cn-0">
                       <div
                         className="shrink-0 select-none bg-cn-2 px-2 pt-[9px] text-right font-mono text-sm leading-[20px] text-foreground-3"
                         aria-hidden
@@ -903,7 +1021,7 @@ export function WidgetBuilderPage() {
                           <div key={i}>{i + 1}</div>
                         ))}
                       </div>
-                      <Textarea
+                      <textarea
                         ref={textareaRef}
                         value={queryText}
                         onChange={handleQueryChange}
@@ -912,32 +1030,40 @@ export function WidgetBuilderPage() {
                           // Delay to allow click on suggestion
                           setTimeout(() => setShowSuggestions(false), 150)
                         }}
-                        className="min-w-0 flex-1 font-mono text-sm !rounded-none !border-0 !ring-0 !shadow-none !bg-cn-0"
+                        className="min-w-0 flex-1 w-full resize-none bg-cn-0 p-2 pt-[9px] font-mono text-sm leading-[20px] text-foreground-1 outline-none"
                         rows={8}
                       />
                     </div>
                     {showSuggestions && filteredSuggestions.length > 0 && (
                       <div className="absolute left-0 right-0 z-10 mt-1 overflow-hidden rounded-md border border-borders-2 bg-cn-1 shadow-lg">
-                        {filteredSuggestions.map((name, i) => (
-                          <button
-                            key={name}
-                            type="button"
-                            className={`z-10 flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm ${
-                              i === suggestionIndex ? 'bg-cn-hover' : 'hover:bg-cn-hover'
-                            }`}
-                            onMouseDown={(e) => {
-                              e.preventDefault()
-                              insertSuggestion(name)
-                            }}
-                            onMouseEnter={() => setSuggestionIndex(i)}
-                          >
-                            <span className="flex items-center gap-2">
-                              <IconV2 name="variables" size="sm" />
-                              <span className="text-foreground-1">{name}</span>
-                            </span>
-                            <span className="text-foreground-3">${name}</span>
-                          </button>
-                        ))}
+                        {filteredSuggestions.map((name, i) => {
+                          const iconColor = i % 2 === 0 ? '#8B5CF6' : '#2DA6FF'
+                          const parts = name.split(/(account)/g)
+                          return (
+                            <button
+                              key={name}
+                              type="button"
+                              className={`z-10 flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm ${
+                                i === suggestionIndex ? 'bg-cn-hover' : 'hover:bg-cn-hover'
+                              }`}
+                              onMouseDown={(e) => {
+                                e.preventDefault()
+                                insertSuggestion(name)
+                              }}
+                              onMouseEnter={() => setSuggestionIndex(i)}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span style={{ color: iconColor }}><IconV2 name="variables" size="sm" /></span>
+                                <span className="text-foreground-1">
+                                  {parts.map((part, j) =>
+                                    part === 'account' ? <span key={j} className="font-semibold">{part}</span> : <span key={j}>{part}</span>
+                                  )}
+                                </span>
+                              </span>
+                              <span style={{ fontFamily: "'JetBrains Mono', monospace", color: '#9CA3AF' }}>${'{'}${name}{'}'}</span>
+                            </button>
+                          )
+                        })}
                       </div>
                     )}
                   </div>
@@ -948,7 +1074,7 @@ export function WidgetBuilderPage() {
 
                 {/* Action buttons */}
                 <div className="flex items-center justify-between">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => { setQuerySeed(s => s + 1); setCriteriaInteracted(true) }}>
                     <IconV2 name="play" size="sm" />
                     Run query
                   </Button>
@@ -963,7 +1089,7 @@ export function WidgetBuilderPage() {
                 <div className="flex flex-col gap-2">
                   {variables.map((variable, index) => (
                     <div key={index} className="flex items-end gap-2">
-                      <div className="flex-1">
+                      <div className="relative flex-1">
                         {index === 0 && (
                           <Text variant="body-normal" color="foreground-1" className="mb-1 block">Name</Text>
                         )}
@@ -973,8 +1099,60 @@ export function WidgetBuilderPage() {
                             const next = [...variables]
                             next[index] = { ...next[index], name: e.target.value }
                             setVariables(next)
+                            setVarSuggestIndex(index)
+                            setVarSuggestSelected(0)
+                          }}
+                          onFocus={() => { setVarSuggestIndex(index); setVarSuggestSelected(0) }}
+                          onBlur={() => setTimeout(() => setVarSuggestIndex(null), 150)}
+                          onKeyDown={(e) => {
+                            if (varSuggestIndex !== index || varSuggestFiltered.length === 0) return
+                            if (e.key === 'ArrowDown') { e.preventDefault(); setVarSuggestSelected(i => Math.min(i + 1, varSuggestFiltered.length - 1)) }
+                            else if (e.key === 'ArrowUp') { e.preventDefault(); setVarSuggestSelected(i => Math.max(i - 1, 0)) }
+                            else if (e.key === 'Enter' || e.key === 'Tab') {
+                              e.preventDefault()
+                              const next = [...variables]
+                              next[index] = { ...next[index], name: varSuggestFiltered[varSuggestSelected] }
+                              setVariables(next)
+                              setVarSuggestIndex(null)
+                            }
+                            else if (e.key === 'Escape') setVarSuggestIndex(null)
                           }}
                         />
+                        {varSuggestIndex === index && varSuggestFiltered.length > 0 && (
+                          <div className="absolute left-0 right-0 z-10 mt-1 overflow-hidden rounded-md border border-borders-2 bg-cn-1 shadow-lg">
+                            {varSuggestFiltered.map((name, i) => {
+                              const iconColor = i % 2 === 0 ? '#8B5CF6' : '#2DA6FF'
+                              const parts = name.split(/(account)/g)
+                              return (
+                                <button
+                                  key={name}
+                                  type="button"
+                                  className={`z-10 flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm ${
+                                    i === varSuggestSelected ? 'bg-cn-hover' : 'hover:bg-cn-hover'
+                                  }`}
+                                  onMouseDown={(e) => {
+                                    e.preventDefault()
+                                    const next = [...variables]
+                                    next[index] = { ...next[index], name }
+                                    setVariables(next)
+                                    setVarSuggestIndex(null)
+                                  }}
+                                  onMouseEnter={() => setVarSuggestSelected(i)}
+                                >
+                                  <span className="flex items-center gap-2">
+                                    <span style={{ color: iconColor }}><IconV2 name="variables" size="sm" /></span>
+                                    <span className="text-foreground-1">
+                                      {parts.map((part, j) =>
+                                        part === 'account' ? <span key={j} className="font-semibold">{part}</span> : <span key={j}>{part}</span>
+                                      )}
+                                    </span>
+                                  </span>
+                                  <span style={{ fontFamily: "'JetBrains Mono', monospace", color: '#9CA3AF' }}>${'{'}${name}{'}'}</span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        )}
                       </div>
                       <Text variant="body-normal" color="foreground-3" className="pb-2">=</Text>
                       <div className="flex-1">
@@ -1003,21 +1181,18 @@ export function WidgetBuilderPage() {
                   ))}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex justify-between gap-2">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => setVariables([...variables, { name: '', defaultValue: '' }])}
                   >
                     <IconV2 name="plus" size="sm" />
                     New Variable
                   </Button>
-                  <Text variant="body-normal" color="foreground-3">
+                  {/* <Text variant="body-normal" color="foreground-3">
                     {'Also add by typing ${variableName} above.'}
-                  </Text>
-                </div>
-
-                <div className="flex justify-end">
+                  </Text> */}
                   <Button size="sm" disabled>Save Variables</Button>
                 </div>
               </div>
