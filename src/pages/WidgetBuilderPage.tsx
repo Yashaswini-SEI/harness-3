@@ -18,7 +18,7 @@ import { Nav2 } from '../components/Nav2'
 import splitIcon from '../assets/icon-split.svg'
 import tableIcon from '../assets/icon-table.svg'
 import chartIcon from '../assets/icon-chart.svg'
-import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 
 // ── Available variable suggestions ──
 const VARIABLE_SUGGESTIONS = [
@@ -184,6 +184,10 @@ export function WidgetBuilderPage() {
   const [timeRange, setTimeRange] = useState('12M')
   const [chartType, setChartType] = useState('table')
   const [viewMode, setViewMode] = useState<'split' | 'table' | 'chart'>('split')
+  const [chartHeight, setChartHeight] = useState(280)
+  const dragging = useRef(false)
+  const dragStartY = useRef(0)
+  const dragStartH = useRef(280)
   const [activeTab, setActiveTab] = useState('builder')
   const [criteriaAdded, setCriteriaAdded] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -193,6 +197,7 @@ export function WidgetBuilderPage() {
   const [criteriaColumn, setCriteriaColumn] = useState('Project')
   const [criteria2Column, setCriteria2Column] = useState<string | undefined>(undefined)
   const [criteriaInteracted, setCriteriaInteracted] = useState(false)
+  const [sorted, setSorted] = useState(false)
   const columnOptions = activeDataset.headers.map(h => ({ label: h, value: h }))
   const [queryText, setQueryText] = useState(
     `find entity sei:sonarqube_metrics\n  | filter metric in ["coverage", "branch_coverage", "line_coverage"] and branch\n      is null\n  | select {\n      metric,\n      avg(value_numeric) as $average_across_projects,\n      count() as $account`
@@ -250,7 +255,10 @@ export function WidgetBuilderPage() {
     return results
   }, [criteriaColumn, criteria2Column, criteriaAdded, activeDataset, scale])
 
-  const chartData = criteriaData.map(d => ({
+  const chartData = (sorted
+    ? [...criteriaData].sort((a, b) => b.count - a.count)
+    : criteriaData
+  ).map(d => ({
     name: d.name,
     value: d.count,
   }))
@@ -310,6 +318,31 @@ export function WidgetBuilderPage() {
       setShowSuggestions(false)
     }
   }, [showSuggestions, filteredSuggestions, suggestionIndex, insertSuggestion])
+
+  // Resize handle drag logic
+  const onResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    dragging.current = true
+    dragStartY.current = e.clientY
+    dragStartH.current = chartHeight
+
+    const onMove = (ev: MouseEvent) => {
+      if (!dragging.current) return
+      const delta = ev.clientY - dragStartY.current
+      setChartHeight(Math.max(120, Math.min(600, dragStartH.current + delta)))
+    }
+    const onUp = () => {
+      dragging.current = false
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'row-resize'
+    document.body.style.userSelect = 'none'
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }, [chartHeight])
 
   return (
     <div className="flex min-h-screen bg-cn-3">
@@ -414,7 +447,7 @@ export function WidgetBuilderPage() {
                   </filter>
                 </defs>
               </svg>
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
                 <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
                   <XAxis
@@ -437,7 +470,8 @@ export function WidgetBuilderPage() {
                   <Legend
                     iconType="square"
                     iconSize={10}
-                    wrapperStyle={{ fontSize: 13, paddingTop: 12 }}
+                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
+                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
                   />
                   <Line
                     type="monotone"
@@ -463,8 +497,8 @@ export function WidgetBuilderPage() {
                   </filter>
                 </defs>
               </svg>
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
+                <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }} barGap={12}>
                   <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
                   <XAxis
                     dataKey="name"
@@ -487,7 +521,8 @@ export function WidgetBuilderPage() {
                   <Legend
                     iconType="square"
                     iconSize={10}
-                    wrapperStyle={{ fontSize: 13, paddingTop: 12 }}
+                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
+                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
                   />
                   <Bar
                     dataKey="value"
@@ -502,10 +537,105 @@ export function WidgetBuilderPage() {
               </ResponsiveContainer>
             </div>
           )}
+          {chartType === 'donut' && (
+            <div className="p-6">
+              <svg width="0" height="0">
+                <defs>
+                  {['#2DA6FF', '#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'].map((color, i) => (
+                    <filter key={i} id={`donut-shadow-${i}`}>
+                      <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor={color} floodOpacity="0.35" />
+                    </filter>
+                  ))}
+                </defs>
+              </svg>
+              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="55%"
+                    outerRadius="80%"
+                    paddingAngle={2}
+                    animationDuration={150}
+                  >
+                    {chartData.map((_, index) => {
+                      const colors = ['#2DA6FF', '#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6']
+                      const ci = index % 8
+                      return (
+                        <Cell
+                          key={index}
+                          fill={colors[ci]}
+                          style={{ filter: `url(#donut-shadow-${ci})` }}
+                        />
+                      )
+                    })}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                  />
+                  <Legend
+                    iconType="square"
+                    iconSize={10}
+                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
+                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+          {chartType === 'horizontal-bar' && viewMode !== 'table' && (
+            <div className="p-6">
+              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
+                <BarChart data={chartData} layout="vertical" margin={{ top: 8, right: 16, left: 0, bottom: 0 }} barGap={12}>
+                  <CartesianGrid strokeDasharray="8 6" horizontal={false} stroke="var(--cn-border-2, #E5E7EB)" />
+                  <XAxis
+                    type="number"
+                    tickFormatter={formatYAxis}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={{ stroke: '#E5E7EB' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={80}
+                  />
+                  <Tooltip
+                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                    cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
+                  />
+                  <Legend
+                    iconType="square"
+                    iconSize={10}
+                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
+                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
+                  />
+                  <Bar
+                    dataKey="value"
+                    name="Count"
+                    fill="var(--cn-comp-data-viz-01-blue, #2DA6FF)"
+                    radius={[0, 4, 4, 0]}
+                    barSize={16}
+                    animationDuration={150}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
           {/* View mode control — horizontal rule with centered tabs overlay */}
-          {(chartType === 'line' || chartType === 'bar') && (
-            <div className="relative flex items-center justify-center">
-              <hr className="absolute inset-x-0 border-borders-2" />
+          {(chartType === 'line' || chartType === 'bar' || chartType === 'horizontal-bar') && (
+            <div className="relative flex items-center justify-center mb-6">
+              {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+              <div className="absolute inset-x-0 -top-1.5 bottom-0 cursor-row-resize" onMouseDown={onResizeStart} />
+              <hr className="absolute inset-x-0 border-borders-2 pointer-events-none" />
               <div className="relative z-10">
                 <Tabs.Root value={viewMode} onValueChange={(v) => setViewMode(v as 'split' | 'table' | 'chart')}>
                   <Tabs.List variant="outlined">
@@ -517,7 +647,7 @@ export function WidgetBuilderPage() {
               </div>
             </div>
           )}
-          {viewMode !== 'chart' && <div className="overflow-hidden rounded-md border border-borders-2">
+          {viewMode !== 'chart' && <div className="overflow-hidden rounded-lg border border-borders-2">
             {criteriaInteracted ? (
               <>
                 <Table.Root variant="default" size="normal">
@@ -627,7 +757,7 @@ export function WidgetBuilderPage() {
                 </div>
 
                 {/* Selection Criteria */}
-                <div className="flex flex-col gap-3 rounded border border-subtle p-3">
+                <div className="flex flex-col gap-3 rounded-lg border border-subtle p-3">
                   <div className="flex items-center justify-between">
                     <Text variant="body-strong" color="foreground-1">Selection Criteria</Text>
                     <Button variant="ghost" size="sm">
@@ -674,7 +804,7 @@ export function WidgetBuilderPage() {
 
                 {/* Second Selection Criteria (shown after clicking Select Criteria) */}
                 {criteriaAdded && (
-                  <div className="flex flex-col gap-3 rounded border border-subtle p-3">
+                  <div className="flex flex-col gap-3 rounded-lg border border-subtle p-3">
                     <div className="flex items-center justify-between">
                       <Text variant="body-strong" color="foreground-1">Selection Criteria</Text>
                       <Button variant="ghost" size="sm" onClick={() => { setCriteriaAdded(false); setCriteria2Column(undefined) }}>
@@ -704,7 +834,7 @@ export function WidgetBuilderPage() {
                 )}
 
                 {/* Filter Criteria */}
-                <div className="flex flex-col gap-2 rounded border border-subtle p-3">
+                <div className="flex flex-col gap-2 rounded-lg border border-subtle p-3">
                   <Text variant="body-strong" color="foreground-1">
                     Filter Criteria <Text as="span" variant="body-normal" color="foreground-3">(Optional)</Text>
                   </Text>
@@ -715,7 +845,7 @@ export function WidgetBuilderPage() {
                 </div>
 
                 {/* Group by */}
-                <div className="flex flex-col gap-2 rounded border border-subtle p-3">
+                <div className="flex flex-col gap-2 rounded-lg border border-subtle p-3">
                   <Text variant="body-strong" color="foreground-1">
                     Group by <Text as="span" variant="body-normal" color="foreground-3">(Optional)</Text>
                   </Text>
@@ -726,14 +856,24 @@ export function WidgetBuilderPage() {
                 </div>
 
                 {/* Sort by */}
-                <div className="flex flex-col gap-2 rounded border border-subtle p-3">
+                <div className="flex flex-col gap-2 rounded-lg border border-subtle p-3">
                   <Text variant="body-strong" color="foreground-1">
                     Sort by <Text as="span" variant="body-normal" color="foreground-3">(Optional)</Text>
                   </Text>
-                  <Button variant="ghost" size="sm" className="self-start">
-                    <IconV2 name="plus" size="sm" />
-                    <Text color="brand" variant="body-normal">Sort by</Text>
-                  </Button>
+                  {sorted ? (
+                    <div className="flex items-center justify-between">
+                      <Text variant="body-normal" color="foreground-1">Count — Descending</Text>
+                      <Button variant="ghost" size="sm" onClick={() => setSorted(false)}>
+                        <IconV2 name="trash" size="sm" />
+                        Remove
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button variant="ghost" size="sm" className="self-start" onClick={() => { setSorted(true); setCriteriaInteracted(true) }}>
+                      <IconV2 name="plus" size="sm" />
+                      <Text color="brand" variant="body-normal">Sort by</Text>
+                    </Button>
+                  )}
                 </div>
 
                 {/* Limit */}
