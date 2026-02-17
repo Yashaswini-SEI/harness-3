@@ -259,10 +259,10 @@ export function InsightsPage() {
             {/* Insight cards — 3-column grid, 2 rows */}
             <div className="grid grid-cols-3 gap-3">
               {harnessInsights.map((insight) => (
-                <Card.Root key={insight.id} size="sm" orientation="horizontal">
+                <Card.Root key={insight.id} size="sm" orientation="horizontal" className="border-0 shadow-none">
                   <Card.Content>
                     <div className="flex gap-4">
-                      <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded border border-borders-2 bg-cn-0">
+                      <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
                         <img src={insight.thumb} alt={insight.title} className="h-full w-full object-contain" />
                       </div>
                       <div className="flex flex-col gap-3 min-w-0">
