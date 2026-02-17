@@ -37,7 +37,7 @@ function OrgFolder({
         {children}
       </Folder>
       <button
-        className="absolute right-1 top-1 z-10 rounded p-0.5 opacity-0 transition-opacity hover:bg-cn-2 group-hover/gear:opacity-100"
+        className="absolute right-1 top-0.5 z-10 rounded p-0.5 opacity-0 transition-opacity hover:bg-cn-2 group-hover/gear:opacity-100"
         onClick={(e) => { e.stopPropagation(); }}
       >
         <IconV2 name="settings" size="xs" className="text-foreground-4" />
@@ -176,8 +176,14 @@ function nodeMatchesSearch(node: OrgNode, query: string): boolean {
 
 function filterTree(nodes: OrgNode[], query: string): OrgNode[] {
   if (!query) return nodes
+  const q = query.toLowerCase()
   return nodes.reduce<OrgNode[]>((acc, node) => {
-    if (nodeMatchesSearch(node, query)) {
+    const directMatch = node.name.toLowerCase().includes(q)
+    if (directMatch) {
+      // Direct match: keep all children so user can select them
+      acc.push(node)
+    } else if (nodeMatchesSearch(node, query)) {
+      // Descendant matches: filter children to show path to match
       const filteredChildren = node.children ? filterTree(node.children, query) : undefined
       acc.push({ ...node, children: filteredChildren })
     }
@@ -281,6 +287,8 @@ export function InsightsPage() {
     <div className="flex min-h-screen bg-cn-3">
       {/* Override execution tree styles: replace status icons with org icons, hide duration/counts */}
       <style>{`
+        .org-tree { scrollbar-width: none; }
+        .org-tree::-webkit-scrollbar { display: none; }
         .org-tree .size-5.flex-none.items-center.justify-center > * { visibility: hidden; }
         .org-tree span.text-cn-1 > span.text-cn-3 { display: none !important; }
         .org-tree .org-leaf span.text-cn-2.flex-none.select-none { display: none !important; }
@@ -299,6 +307,15 @@ export function InsightsPage() {
         .org-tree .org-leaf .size-5.flex-none.items-center.justify-center { display: none !important; }
         .org-tree .px-cn-lg { padding-left: 20px !important; padding-right: 0 !important; }
         .org-tree .text-cn-size-2 { font-size: 14px !important; }
+        .org-tree .gap-x-cn-xs.flex.w-full.justify-between > .flex {
+          min-width: 0;
+          overflow: hidden;
+        }
+        .org-tree span.text-cn-1 {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
         .org-tree .group\\/gear {
           position: relative;
         }
