@@ -270,12 +270,19 @@ const harnessInsights = [
 
 export function InsightsPage() {
   const [search, setSearch] = useState('')
+  const [expandAll, setExpandAll] = useState(false)
+  const [treeKey, setTreeKey] = useState(0)
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains('dark-std-low')
   )
 
   const filteredTree = useMemo(() => filterTree(orgTreeData, search), [search])
-  const expandedIds = useMemo(() => search ? collectIds(filteredTree) : ['harness-sei', 'arvind'], [search, filteredTree])
+  const allIds = useMemo(() => collectIds(filteredTree), [filteredTree])
+  const expandedIds = useMemo(() => {
+    if (search) return allIds
+    if (expandAll) return allIds
+    return ['harness-sei', 'arvind']
+  }, [search, expandAll, allIds])
 
   useEffect(() => {
     const root = document.documentElement
@@ -322,9 +329,9 @@ export function InsightsPage() {
         .org-tree .group\\/gear::after {
           content: '';
           position: absolute;
-          left: 11px;
-          top: -4px;
-          bottom: -4px;
+          left: 5px;
+          top: -10px;
+          bottom: -10px;
           width: 1px;
           background: var(--cn-borders-2, #d0d5dd);
           pointer-events: none;
@@ -387,9 +394,11 @@ export function InsightsPage() {
           {/* Left: tree navigation */}
           <div className="w-[269px] shrink-0 pr-3">
             <div className="mb-2">
-              <Button variant="link" size="sm">Expand all</Button>
+              <Button variant="link" size="sm" onClick={() => { setExpandAll((v) => !v); setTreeKey((k) => k + 1); }}>
+                {expandAll ? 'Collapse all' : 'Expand all'}
+              </Button>
             </div>
-            <Tree key={search} className="org-tree" initialExpendedItems={expandedIds} initialSelectedId="abdul" indicator>
+            <Tree key={`${search}-${treeKey}`} className="org-tree" initialExpendedItems={expandedIds} initialSelectedId="abdul" indicator>
               {filteredTree.map((node) => (
                 <RenderOrgNode key={node.id} node={node} level={0} />
               ))}
