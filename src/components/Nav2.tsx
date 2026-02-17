@@ -26,8 +26,8 @@ interface Nav2Props {
 const activeFilter = 'brightness(0) invert(72%) sepia(50%) saturate(500%) hue-rotate(175deg) brightness(105%)'
 const hoverFilter = 'brightness(0) invert(1)'
 
-const topGroup: { id: Nav2Section; icon: string; alt: string; size?: string }[] = [
-  { id: 'insights', icon: insightsIcon, alt: 'Insights', size: 'h-[17px] w-[17px]' },
+const topGroup: { id: Nav2Section; icon: string; alt: string; size?: string; href?: string }[] = [
+  { id: 'insights', icon: insightsIcon, alt: 'Insights', size: 'h-[17px] w-[17px]', href: '/insights' },
   { id: 'canvas', icon: canvasIcon, alt: 'Canvas', size: 'h-[17px] w-[17px]' },
 ]
 
@@ -42,17 +42,24 @@ function NavItem({
   isActive,
   onClick,
 }: {
-  item: { id: Nav2Section; icon: string; alt: string; size?: string }
+  item: { id: Nav2Section; icon: string; alt: string; size?: string; href?: string }
   isActive: boolean
   onClick: () => void
 }) {
   const imgClass = item.size ?? 'h-5 w-5'
 
+  const handleClick = () => {
+    onClick()
+    if (item.href) {
+      window.location.href = item.href
+    }
+  }
+
   if (isActive) {
     return (
       <button
         className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/90"
-        onClick={onClick}
+        onClick={handleClick}
       >
         <img src={item.icon} alt={item.alt} className={imgClass} style={{ filter: activeFilter }} />
       </button>
@@ -62,7 +69,7 @@ function NavItem({
   return (
     <button
       className="nav2-item flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/90"
-      onClick={onClick}
+      onClick={handleClick}
     >
       <img src={item.icon} alt={item.alt} className={imgClass} />
     </button>

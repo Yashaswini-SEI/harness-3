@@ -750,7 +750,7 @@ export function WidgetBuilderPage() {
             </div>
           )}
           {/* View mode control — horizontal rule with centered tabs overlay */}
-          {(chartType === 'line' || chartType === 'bar' || chartType === 'horizontal-bar' || chartType === 'donut' || chartType === 'area' || chartType === 'scatter') && (
+          {chartType !== 'table' && (
             <div className="relative flex items-center justify-center mb-6">
               {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
               <div className="absolute inset-x-0 -top-1.5 bottom-0 cursor-row-resize" onMouseDown={onResizeStart} />

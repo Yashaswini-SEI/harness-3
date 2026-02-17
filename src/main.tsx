@@ -15,8 +15,8 @@ createRoot(document.getElementById('root')!).render(
         <Route element={<GalleryLayout />}>
           <Route path="/" element={<App />} />
           <Route path="/tables" element={<TableGallery />} />
-          <Route path="/insights" element={<InsightsPage />} />
         </Route>
+        <Route path="/insights" element={<InsightsPage />} />
         <Route path="/widget-builder" element={<WidgetBuilderPage />} />
       </Routes>
     </BrowserRouter>
