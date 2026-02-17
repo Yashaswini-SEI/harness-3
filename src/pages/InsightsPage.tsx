@@ -348,7 +348,32 @@ export function InsightsPage() {
           padding-left: 24px;
         }
         .org-tree .group\\/gear .group\\/gear {
-          padding-left: 20px;
+          padding-left: 0px;
+        }
+        .org-tree .group\\/gear .org-leaf {
+          position: relative;
+        }
+        .org-tree .group\\/gear .org-leaf::before {
+          content: '';
+          position: absolute;
+          left: 5px;
+          top: -10px;
+          bottom: -10px;
+          width: 1px;
+          background: var(--cn-borders-2, #d0d5dd);
+          pointer-events: none;
+          z-index: 1;
+        }
+        .org-tree .group\\/gear .org-leaf:last-child::before {
+          bottom: auto;
+          height: 14px;
+        }
+        .org-tree .duration-200 {
+          transition-duration: 150ms !important;
+        }
+        .org-tree [data-state=open],
+        .org-tree [data-state=closed] {
+          animation-duration: 150ms !important;
         }
       `}</style>
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
