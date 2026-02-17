@@ -295,6 +295,7 @@ export function InsightsPage() {
       {/* Override execution tree styles: replace status icons with org icons, hide duration/counts */}
       <style>{`
         .org-tree { scrollbar-width: none; }
+        .org-tree .overflow-hidden { overflow: visible !important; }
         .org-tree::-webkit-scrollbar { display: none; }
         .org-tree .size-5.flex-none.items-center.justify-center > * { visibility: hidden; }
         .org-tree span.text-cn-1 > span.text-cn-3 { display: none !important; }
@@ -330,8 +331,8 @@ export function InsightsPage() {
           content: '';
           position: absolute;
           left: 5px;
-          top: -10px;
-          bottom: -10px;
+          top: -20px;
+          bottom: -20px;
           width: 1px;
           background: var(--cn-borders-2, #d0d5dd);
           pointer-events: none;
@@ -350,30 +351,32 @@ export function InsightsPage() {
         .org-tree .group\\/gear .group\\/gear {
           padding-left: 0px;
         }
-        .org-tree .group\\/gear .org-leaf {
+        .org-tree .group\\/gear .group\\/gear .org-leaf {
+          padding-left: 28px;
+        }
+        .org-tree .group\\/gear .group\\/gear::after {
+          display: none;
+        }
+        .org-tree .group\\/gear .gap-cn-sm.flex.flex-col {
           position: relative;
         }
-        .org-tree .group\\/gear .org-leaf::before {
+        .org-tree .group\\/gear .gap-cn-sm.flex.flex-col::before {
           content: '';
           position: absolute;
           left: 5px;
-          top: -10px;
-          bottom: -10px;
+          top: 0;
+          bottom: 0;
           width: 1px;
           background: var(--cn-borders-2, #d0d5dd);
           pointer-events: none;
           z-index: 1;
         }
-        .org-tree .group\\/gear .org-leaf:last-child::before {
-          bottom: auto;
-          height: 14px;
-        }
         .org-tree .duration-200 {
-          transition-duration: 150ms !important;
+          transition-duration: 75ms !important;
         }
         .org-tree [data-state=open],
         .org-tree [data-state=closed] {
-          animation-duration: 150ms !important;
+          animation-duration: 75ms !important;
         }
       `}</style>
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
