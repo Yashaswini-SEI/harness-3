@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Text,
   Button,
@@ -44,6 +44,176 @@ function OrgFolder({
       </button>
     </div>
   );
+}
+
+// ── Org tree data ──
+interface OrgNode {
+  id: string
+  name: string
+  children?: OrgNode[]
+}
+
+const orgTreeData: OrgNode[] = [
+  { id: 'harness-fme', name: 'Harness FME' },
+  {
+    id: 'harness-sei', name: 'Harness SEI', children: [
+      {
+        id: 'arvind', name: 'Arvind Srinivasulu', children: [
+          { id: 'alex', name: 'Alex N Markov', children: [
+            { id: 'alex-1', name: 'Deepak Patel' },
+            { id: 'alex-2', name: 'Riya Sharma' },
+          ]},
+          { id: 'abdul', name: 'Abdul Asheem', children: [
+            { id: 'abdul-1', name: 'Neha Gupta' },
+            { id: 'abdul-2', name: 'Vikram Singh' },
+            { id: 'abdul-3', name: 'Priya Nair' },
+          ]},
+          { id: 'kate', name: 'Kate Williams' },
+        ],
+      },
+      {
+        id: 'minash', name: 'Minash Ranjan', children: [
+          { id: 'minash-1', name: 'Raj Mehta' },
+          { id: 'minash-2', name: 'Anita Desai', children: [
+            { id: 'anita-1', name: 'Suresh Kumar' },
+            { id: 'anita-2', name: 'Meena Iyer' },
+          ]},
+        ],
+      },
+      {
+        id: 'sachin', name: 'Sachin Walunj', children: [
+          { id: 'sachin-1', name: 'Pooja Reddy' },
+          { id: 'sachin-2', name: 'Manoj Tiwari' },
+        ],
+      },
+      {
+        id: 'adam', name: 'Adam England', children: [
+          { id: 'adam-1', name: 'James Chen' },
+          { id: 'adam-2', name: 'Sarah Mitchell' },
+          { id: 'adam-3', name: 'David Park' },
+        ],
+      },
+      {
+        id: 'charu', name: 'Charu Swaroop', children: [
+          { id: 'charu-1', name: 'Arun Joshi' },
+          { id: 'charu-2', name: 'Kavitha Rao', children: [
+            { id: 'kavitha-1', name: 'Lakshmi Menon' },
+          ]},
+        ],
+      },
+      { id: 'parvez', name: 'Parvez Husein', children: [
+        { id: 'parvez-1', name: 'Omar Farooq' },
+      ]},
+      { id: 'frank', name: 'Frank Lino', children: [
+        { id: 'frank-1', name: 'Maria Santos' },
+      ]},
+      { id: 'prasad', name: 'Prasad Vazhakkattil', children: [
+        { id: 'prasad-1', name: 'Harish Nambiar' },
+      ]},
+      { id: 'shan', name: 'Shan Calhoun', children: [
+        { id: 'shan-1', name: 'Tyler Brooks' },
+      ]},
+      { id: 'bob', name: 'Bob Coyle', children: [
+        { id: 'bob-1', name: 'Linda Torres' },
+        { id: 'bob-2', name: 'Mike Johnson' },
+      ]},
+      { id: 'promila', name: 'Promila Sagar', children: [
+        { id: 'promila-1', name: 'Rekha Bhat' },
+        { id: 'promila-2', name: 'Sanjay Verma' },
+      ]},
+      { id: 'jash', name: 'Jash Jeyasingh', children: [
+        { id: 'jash-1', name: 'Kiran Rao' },
+        { id: 'jash-2', name: 'Mohan Das' },
+        { id: 'jash-3', name: 'Divya Pillai' },
+      ]},
+      { id: 'ajay', name: 'Ajay Kumar Singh', children: [
+        { id: 'ajay-1', name: 'Rohit Agarwal' },
+        { id: 'ajay-2', name: 'Sunita Pandey' },
+      ]},
+      { id: 'greg', name: 'Greg Bender', children: [
+        { id: 'greg-1', name: 'Emily Watson' },
+      ]},
+      { id: 'sahil', name: 'Sahil Malhotra', children: [
+        { id: 'sahil-1', name: 'Amit Kapoor' },
+        { id: 'sahil-2', name: 'Nisha Arora' },
+      ]},
+      { id: 'ivan', name: 'Ivan de la Garza', children: [
+        { id: 'ivan-1', name: 'Carlos Rivera' },
+      ]},
+      { id: 'reggie', name: 'Reggie Hawkins', children: [
+        { id: 'reggie-1', name: 'Jordan Lee' },
+      ]},
+    ],
+  },
+  {
+    id: 'harness-cicd', name: 'Harness CI/CD', children: [
+      {
+        id: 'rachel', name: 'Rachel Foster', children: [
+          { id: 'rachel-1', name: 'Ben Nguyen' },
+          { id: 'rachel-2', name: 'Sophie Clark' },
+        ],
+      },
+      {
+        id: 'marcus', name: 'Marcus Webb', children: [
+          { id: 'marcus-1', name: 'Hannah Price' },
+        ],
+      },
+    ],
+  },
+]
+
+function countDescendants(node: OrgNode): number {
+  if (!node.children) return 0
+  return node.children.reduce((sum, child) => sum + 1 + countDescendants(child), 0)
+}
+
+function nodeMatchesSearch(node: OrgNode, query: string): boolean {
+  const q = query.toLowerCase()
+  if (node.name.toLowerCase().includes(q)) return true
+  if (node.children) return node.children.some((child) => nodeMatchesSearch(child, q))
+  return false
+}
+
+function filterTree(nodes: OrgNode[], query: string): OrgNode[] {
+  if (!query) return nodes
+  return nodes.reduce<OrgNode[]>((acc, node) => {
+    if (nodeMatchesSearch(node, query)) {
+      const filteredChildren = node.children ? filterTree(node.children, query) : undefined
+      acc.push({ ...node, children: filteredChildren })
+    }
+    return acc
+  }, [])
+}
+
+function collectIds(nodes: OrgNode[]): string[] {
+  return nodes.flatMap((n) => [n.id, ...(n.children ? collectIds(n.children) : [])])
+}
+
+function RenderOrgNode({ node, level }: { node: OrgNode; level: number }) {
+  const count = countDescendants(node)
+  const hasChildren = node.children && node.children.length > 0
+  if (level === 0) {
+    return (
+      <Folder className="org-top" element={node.name} value={node.id} status={S} level={0}>
+        {hasChildren
+          ? node.children!.map((child) => <RenderOrgNode key={child.id} node={child} level={1} />)
+          : <File className="org-leaf" value={`${node.id}-empty`} status={S} level={1}>{' '}</File>
+        }
+      </Folder>
+    )
+  }
+  if (!hasChildren) {
+    return (
+      <File className="org-leaf" value={node.id} status={S} level={level}>{node.name}</File>
+    )
+  }
+  return (
+    <OrgFolder element={node.name} value={node.id} duration={String(count)} level={level}>
+      {node.children!.map((child) => (
+        <RenderOrgNode key={child.id} node={child} level={level + 1} />
+      ))}
+    </OrgFolder>
+  )
 }
 
 // ── Insight cards data ──
@@ -98,6 +268,9 @@ export function InsightsPage() {
     document.documentElement.classList.contains('dark-std-low')
   )
 
+  const filteredTree = useMemo(() => filterTree(orgTreeData, search), [search])
+  const expandedIds = useMemo(() => search ? collectIds(filteredTree) : ['harness-sei', 'arvind'], [search, filteredTree])
+
   useEffect(() => {
     const root = document.documentElement
     root.classList.remove('light-std-low', 'dark-std-low')
@@ -124,8 +297,35 @@ export function InsightsPage() {
           background: url("${iconOrgTree}") center / 16px 16px no-repeat;
         }
         .org-tree .org-leaf .size-5.flex-none.items-center.justify-center { display: none !important; }
-        .org-tree .px-cn-lg { padding-left: 0 !important; padding-right: 0 !important; }
+        .org-tree .px-cn-lg { padding-left: 20px !important; padding-right: 0 !important; }
         .org-tree .text-cn-size-2 { font-size: 14px !important; }
+        .org-tree .group\\/gear {
+          position: relative;
+        }
+        .org-tree .group\\/gear::after {
+          content: '';
+          position: absolute;
+          left: 11px;
+          top: -4px;
+          bottom: -4px;
+          width: 1px;
+          background: var(--cn-borders-2, #d0d5dd);
+          pointer-events: none;
+          z-index: 1;
+        }
+        .org-tree .group\\/gear:first-child::after {
+          top: 0;
+        }
+        .org-tree .group\\/gear:last-child::after {
+          bottom: auto;
+          height: 14px;
+        }
+        .org-tree .org-leaf {
+          padding-left: 24px;
+        }
+        .org-tree .group\\/gear .group\\/gear {
+          padding-left: 20px;
+        }
       `}</style>
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
@@ -172,67 +372,10 @@ export function InsightsPage() {
             <div className="mb-2">
               <Button variant="link" size="sm">Expand all</Button>
             </div>
-            <Tree className="org-tree" initialExpendedItems={['harness-sei', 'arvind']} initialSelectedId="abdul" indicator>
-              <Folder className="org-top" element="Harness FME" value="harness-fme" status={S} level={0}>
-                <File className="org-leaf" value="harness-fme-empty" status={S} level={1}>{' '}</File>
-              </Folder>
-              <Folder className="org-top" element="Harness SEI" value="harness-sei" status={S} level={0}>
-                <OrgFolder element="Arvind Srinivasulu" value="arvind" duration="302">
-                  <File className="org-leaf" value="alex" status={S} level={2}>Alex N Markov</File>
-                  <File className="org-leaf" value="abdul" status={S} level={2}>Abdul Asheem</File>
-                </OrgFolder>
-                <OrgFolder element="Minash Ranjan" value="minash" duration="128">
-                  <File className="org-leaf" value="minash-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Sachin Walunj" value="sachin" duration="62">
-                  <File className="org-leaf" value="sachin-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Adam England" value="adam" duration="53">
-                  <File className="org-leaf" value="adam-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Charu Swaroop" value="charu" duration="124">
-                  <File className="org-leaf" value="charu-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Parvez Husein" value="parvez" duration="18">
-                  <File className="org-leaf" value="parvez-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Frank Lino" value="frank" duration="6">
-                  <File className="org-leaf" value="frank-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Prasad Vazhakkattil" value="prasad" duration="5">
-                  <File className="org-leaf" value="prasad-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Shan Calhoun" value="shan" duration="5">
-                  <File className="org-leaf" value="shan-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Bob Coyle" value="bob" duration="7">
-                  <File className="org-leaf" value="bob-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Promila Sagar" value="promila" duration="24">
-                  <File className="org-leaf" value="promila-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Jash Jeyasingh" value="jash" duration="96">
-                  <File className="org-leaf" value="jash-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Ajay Kumar Singh" value="ajay" duration="67">
-                  <File className="org-leaf" value="ajay-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Greg Bender" value="greg" duration="8">
-                  <File className="org-leaf" value="greg-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Sahil Malhotra" value="sahil" duration="12">
-                  <File className="org-leaf" value="sahil-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Ivan de la Garza" value="ivan" duration="4">
-                  <File className="org-leaf" value="ivan-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-                <OrgFolder element="Reggie Hawkins" value="reggie" duration="3">
-                  <File className="org-leaf" value="reggie-empty" status={S} level={2}>{' '}</File>
-                </OrgFolder>
-              </Folder>
-              <Folder className="org-top" element="Harness CI/CD" value="harness-cicd" status={S} level={0}>
-                <File className="org-leaf" value="harness-cicd-empty" status={S} level={1}>{' '}</File>
-              </Folder>
+            <Tree key={search} className="org-tree" initialExpendedItems={expandedIds} initialSelectedId="abdul" indicator>
+              {filteredTree.map((node) => (
+                <RenderOrgNode key={node.id} node={node} level={0} />
+              ))}
             </Tree>
           </div>
 
