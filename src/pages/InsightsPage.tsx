@@ -102,7 +102,7 @@ export function InsightsPage() {
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       {/* Page content */}
-      <div className="flex flex-1 flex-col gap-5 p-8">
+      <div className="flex flex-1 flex-col gap-5 py-8 pr-8 pl-1">
         {/* Breadcrumb */}
         <Breadcrumb2 items={[
           { label: 'Edge Wireless', href: '#' },
