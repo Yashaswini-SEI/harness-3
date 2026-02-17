@@ -40,7 +40,7 @@ function OrgFolder({
         className="absolute right-1 top-1 z-10 rounded p-0.5 opacity-0 transition-opacity hover:bg-cn-2 group-hover/gear:opacity-100"
         onClick={(e) => { e.stopPropagation(); }}
       >
-        <IconV2 name="settings" size="xs" className="text-foreground-3" />
+        <IconV2 name="settings" size="xs" className="text-foreground-4" />
       </button>
     </div>
   );
@@ -115,6 +115,7 @@ export function InsightsPage() {
         .org-tree .org-child span.text-cn-2.flex-none.select-none {
           font-size: 12px; line-height: 18px; border: 1px solid var(--cn-borders-2, #d0d5dd);
           border-radius: 6px; padding: 0 6px; color: var(--cn-foreground-3, #6b6f79);
+          margin-right: 28px;
         }
         .org-tree .org-top .size-5.flex-none.items-center.justify-center {
           background: url("${iconOrg}") center / 16px 16px no-repeat;
@@ -167,7 +168,7 @@ export function InsightsPage() {
         {/* Main content: tree nav + insights */}
         <div className="flex gap-5">
           {/* Left: tree navigation */}
-          <div className="w-[269px] shrink-0">
+          <div className="w-[269px] shrink-0 pr-3">
             <div className="mb-2">
               <Button variant="link" size="sm">Expand all</Button>
             </div>
