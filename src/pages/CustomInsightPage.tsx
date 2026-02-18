@@ -65,7 +65,7 @@ export function CustomInsightPage() {
             </div>
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                <IconV2 name="more-dots-fill" size="sm" />
+                <IconV2 name="more-horizontal" size="sm" />
               </Button>
               <Button variant="outline" size="sm" onClick={() => window.history.back()}>Cancel</Button>
               <Button size="sm">Save</Button>
@@ -140,7 +140,7 @@ export function CustomInsightPage() {
       {/* Toast notification */}
       {showToast && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3.5 shadow-md">
-          <IconV2 name="success" size="sm" className="text-icons-success" />
+          <IconV2 name="check-circle-solid" size="sm" className="text-icons-success" />
           <Text variant="body-normal" color="foreground-1">Dashboard generated successfully.</Text>
         </div>
       )}

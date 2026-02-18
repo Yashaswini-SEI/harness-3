@@ -190,7 +190,7 @@ export function CanvasPage() {
                 </Table.Cell>
                 <Table.Cell>
                   <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                    <IconV2 name="more-dots-fill" size="sm" />
+                    <IconV2 name="more-horizontal" size="sm" />
                   </Button>
                 </Table.Cell>
               </Table.Row>
@@ -229,7 +229,7 @@ export function CanvasPage() {
             <div className="flex items-center justify-between px-5 py-4">
               <Text variant="heading-subsection" color="foreground-1">Create Insight</Text>
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeDrawer}>
-                <IconV2 name="x-mark" size="sm" />
+                <IconV2 name="xmark" size="sm" />
               </Button>
             </div>
             <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 pb-5">

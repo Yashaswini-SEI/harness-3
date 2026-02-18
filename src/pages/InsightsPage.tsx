@@ -684,7 +684,7 @@ export function InsightsPage() {
                 {findNodeName(orgTreeData, settingsNode!)} Settings
               </Text>
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeSettings}>
-                <IconV2 name="x-mark" size="sm" />
+                <IconV2 name="xmark" size="sm" />
               </Button>
             </div>
             <Tabs.Root defaultValue="details" className="flex flex-1 flex-col overflow-hidden">
@@ -719,7 +719,7 @@ export function InsightsPage() {
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center gap-1">
                       <Text variant="body-strong" color="foreground-1">Team owner</Text>
-                      <IconV2 name="circle-information" size="xs" className="text-foreground-4" />
+                      <IconV2 name="info-circle" size="xs" className="text-foreground-4" />
                     </div>
                     <Select
                       value="sarah-johnson"
