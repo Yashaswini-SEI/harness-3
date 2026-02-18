@@ -8,6 +8,7 @@ import { TableGallery } from './pages/TableGallery'
 import { InsightsPage } from './pages/InsightsPage'
 import { WidgetBuilderPage } from './pages/WidgetBuilderPage'
 import { CanvasPage } from './pages/CanvasPage'
+import { CustomInsightPage } from './pages/CustomInsightPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/widget-builder" element={<WidgetBuilderPage />} />
         <Route path="/canvas" element={<CanvasPage />} />
+        <Route path="/insights/custom/:id" element={<CustomInsightPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

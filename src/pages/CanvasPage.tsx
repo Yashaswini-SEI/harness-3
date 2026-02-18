@@ -11,6 +11,7 @@ import {
   Textarea,
   Tag,
 } from '@harnessio/ui/components'
+import { useNavigate } from 'react-router-dom'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
 
@@ -38,6 +39,7 @@ const statusTheme = { Published: 'success', Draft: 'info' } as const
 const defaultTags = ['Audit', 'Dec Report', 'Project_Sh35', 'Org: Default']
 
 export function CanvasPage() {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [sortDir, setSortDir] = useState<'asc' | 'desc' | false>(false)
   const [dark, setDark] = useState(() =>
@@ -270,7 +272,18 @@ export function CanvasPage() {
             </div>
             <div className="flex items-center justify-end gap-3 border-t border-cn-1 px-5 py-3">
               <Button variant="outline" size="sm" onClick={closeDrawer}>Cancel</Button>
-              <Button size="sm">Submit</Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const params = new URLSearchParams()
+                  if (insightName) params.set('name', insightName)
+                  if (insightDesc) params.set('desc', insightDesc)
+                  if (insightTags.length) params.set('tags', insightTags.join(','))
+                  navigate(`/insights/custom/1?${params.toString()}`)
+                }}
+              >
+                Submit
+              </Button>
             </div>
           </div>
         </>
