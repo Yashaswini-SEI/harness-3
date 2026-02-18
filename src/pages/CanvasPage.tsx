@@ -229,7 +229,7 @@ export function CanvasPage() {
             <div className="flex items-center justify-between px-5 py-4">
               <Text variant="heading-subsection" color="foreground-1">Create Insight</Text>
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeDrawer}>
-                <IconV2 name="xmark" size="sm" />
+                <IconV2 name="xmark-circle" size="sm" />
               </Button>
             </div>
             <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 pb-5">
