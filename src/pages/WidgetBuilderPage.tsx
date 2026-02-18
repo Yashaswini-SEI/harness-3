@@ -478,7 +478,7 @@ export function WidgetBuilderPage() {
                     width={48}
                   />
                   <Tooltip
-                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
                     contentStyle={{ borderRadius: 8, fontSize: 13 }}
                   />
                   <Legend
@@ -528,7 +528,7 @@ export function WidgetBuilderPage() {
                     width={48}
                   />
                   <Tooltip
-                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
                     contentStyle={{ borderRadius: 8, fontSize: 13 }}
                     cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
                   />
@@ -588,7 +588,7 @@ export function WidgetBuilderPage() {
                     })}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
                     contentStyle={{ borderRadius: 8, fontSize: 13 }}
                   />
                   <Legend
@@ -622,7 +622,7 @@ export function WidgetBuilderPage() {
                     width={80}
                   />
                   <Tooltip
-                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
                     contentStyle={{ borderRadius: 8, fontSize: 13 }}
                     cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
                   />
@@ -671,7 +671,7 @@ export function WidgetBuilderPage() {
                     width={48}
                   />
                   <Tooltip
-                    formatter={(value: number) => [value.toLocaleString(), 'Count']}
+                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
                     contentStyle={{ borderRadius: 8, fontSize: 13 }}
                   />
                   <Legend
@@ -719,7 +719,7 @@ export function WidgetBuilderPage() {
                     width={48}
                   />
                   <Tooltip
-                    formatter={(value: number) => value.toLocaleString()}
+                    formatter={(value: number | undefined) => (value ?? 0).toLocaleString()}
                     contentStyle={{ borderRadius: 8, fontSize: 13 }}
                     cursor={{ strokeDasharray: '4 4' }}
                   />

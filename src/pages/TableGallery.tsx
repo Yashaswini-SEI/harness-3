@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Table, Text, StatusBadge, Button, IconV2 } from '@harnessio/ui/components'
+import { Table, Text, StatusBadge, IconV2 } from '@harnessio/ui/components'
 import { Link } from 'react-router-dom'
 
 const sampleData = [

@@ -313,7 +313,7 @@ export function InsightsPage() {
           background: url("${iconOrgTree}") center / 16px 16px no-repeat;
         }
         .org-tree .org-leaf .size-5.flex-none.items-center.justify-center { display: none !important; }
-        .org-tree .px-cn-lg { padding-left: 20px !important; padding-right: 0 !important; }
+        .org-tree .px-cn-lg { padding-right: 0 !important; }
         .org-tree .text-cn-size-2 { font-size: 14px !important; }
         .org-tree .gap-x-cn-xs.flex.w-full.justify-between > .flex {
           min-width: 0;
@@ -327,16 +327,26 @@ export function InsightsPage() {
         .org-tree .group\\/gear {
           position: relative;
         }
+        .org-tree .group\\/gear > div > button > svg {
+          position: relative;
+          z-index: 2;
+          background: var(--cn-bg-3);
+          box-shadow: 0 0 0 4px var(--cn-bg-3);
+        }
         .org-tree .group\\/gear::after {
           content: '';
           position: absolute;
-          left: 5px;
+          left: 34px;
           top: -20px;
           bottom: -20px;
           width: 1px;
           background: var(--cn-borders-2, #d0d5dd);
           pointer-events: none;
           z-index: 1;
+          display: none;
+        }
+        .org-tree .group\\/gear:has([data-state=open])::after {
+          display: block;
         }
         .org-tree .group\\/gear:first-child::after {
           top: 0;
@@ -351,25 +361,34 @@ export function InsightsPage() {
         .org-tree .group\\/gear .group\\/gear {
           padding-left: 0px;
         }
+        .org-tree .group\\/gear .group\\/gear > div > button.px-cn-lg {
+          padding-left: 28px !important;
+        }
         .org-tree .group\\/gear .group\\/gear .org-leaf {
           padding-left: 28px;
         }
         .org-tree .group\\/gear .group\\/gear::after {
           display: none;
         }
-        .org-tree .group\\/gear .gap-cn-sm.flex.flex-col {
+        .org-tree .mt-cn-sm.gap-cn-sm.flex.flex-col {
           position: relative;
         }
-        .org-tree .group\\/gear .gap-cn-sm.flex.flex-col::before {
+        .org-tree .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
           content: '';
           position: absolute;
-          left: 5px;
+          left: 34px;
           top: 0;
           bottom: 0;
           width: 1px;
           background: var(--cn-borders-2, #d0d5dd);
           pointer-events: none;
           z-index: 1;
+        }
+        .org-tree .group\\/gear .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
+          left: 34px;
+        }
+        .org-tree .group\\/gear .group\\/gear .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
+          left: 42px;
         }
         .org-tree .duration-200 {
           transition-duration: 75ms !important;
