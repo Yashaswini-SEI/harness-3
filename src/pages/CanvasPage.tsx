@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Text,
   Button,
@@ -7,6 +7,9 @@ import {
   Table,
   StatusBadge,
   Select,
+  TextInput,
+  Textarea,
+  Tag,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
@@ -32,12 +35,38 @@ const canvasData = [
 
 const statusTheme = { Published: 'success', Draft: 'info' } as const
 
+const defaultTags = ['Audit', 'Dec Report', 'Project_Sh35', 'Org: Default']
+
 export function CanvasPage() {
   const [search, setSearch] = useState('')
   const [sortDir, setSortDir] = useState<'asc' | 'desc' | false>(false)
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains('dark-std-low')
   )
+  const [drawerVisible, setDrawerVisible] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout>>()
+  const [insightName, setInsightName] = useState('')
+  const [insightDesc, setInsightDesc] = useState('')
+  const [insightTagInput, setInsightTagInput] = useState('')
+  const [insightTags, setInsightTags] = useState<string[]>(defaultTags)
+
+  const openDrawer = useCallback(() => {
+    clearTimeout(closeTimerRef.current)
+    setDrawerVisible(true)
+    requestAnimationFrame(() => requestAnimationFrame(() => setDrawerOpen(true)))
+  }, [])
+
+  const closeDrawer = useCallback(() => {
+    setDrawerOpen(false)
+    closeTimerRef.current = setTimeout(() => {
+      setDrawerVisible(false)
+      setInsightName('')
+      setInsightDesc('')
+      setInsightTagInput('')
+      setInsightTags(defaultTags)
+    }, 300)
+  }, [])
 
   useEffect(() => {
     const root = document.documentElement
@@ -76,7 +105,7 @@ export function CanvasPage() {
         {/* Page title + action */}
         <div className="flex items-center justify-between">
           <Text as="h1" variant="heading-hero" color="foreground-1">Canvas</Text>
-          <Button size="sm">
+          <Button size="sm" onClick={openDrawer}>
             <IconV2 name="plus" size="sm" />
             New Insights
           </Button>
@@ -189,6 +218,75 @@ export function CanvasPage() {
           </div>
         </div>
       </div>
+
+      {/* Create Insight drawer */}
+      {drawerVisible && (
+        <>
+          <div
+            className="fixed inset-0 z-40 transition-opacity duration-300 ease-in-out"
+            style={{
+              backgroundColor: drawerOpen ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)',
+            }}
+            onClick={closeDrawer}
+          />
+          <div
+            className="fixed right-0 top-0 z-50 flex h-full w-[420px] flex-col border-l border-cn-1 bg-cn-3 shadow-xl"
+            style={{
+              transform: drawerOpen ? 'translateX(0)' : 'translateX(100%)',
+              transition: 'transform 300ms ease-in-out',
+            }}
+          >
+            <div className="flex items-center justify-between px-5 py-4">
+              <Text variant="heading-subsection" color="foreground-1">Create Insight</Text>
+              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeDrawer}>
+                <IconV2 name="x-mark" size="sm" />
+              </Button>
+            </div>
+            <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 pb-5">
+              <div className="flex flex-col gap-1.5">
+                <Text variant="body-strong" color="foreground-1">Name</Text>
+                <TextInput
+                  value={insightName}
+                  onChange={(e) => setInsightName(e.target.value)}
+                  placeholder="Enter name"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Text variant="body-strong" color="foreground-1">Description (Optional)</Text>
+                <Textarea
+                  value={insightDesc}
+                  onChange={(e) => setInsightDesc(e.target.value)}
+                  placeholder="Measure how smoothly work flows through your pipeline by identifying where delays and bottlenecks happen."
+                  rows={4}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Text variant="body-strong" color="foreground-1">Tags (Optional)</Text>
+                <TextInput
+                  value={insightTagInput}
+                  onChange={(e) => setInsightTagInput(e.target.value)}
+                  placeholder="Add a tag"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && insightTagInput.trim()) {
+                      setInsightTags((prev) => [...prev, insightTagInput.trim()])
+                      setInsightTagInput('')
+                    }
+                  }}
+                />
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {insightTags.map((tag) => (
+                    <Tag key={tag} variant="outline" theme="gray" size="sm" value={tag} />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 border-t border-cn-1 px-5 py-3">
+              <Button variant="outline" size="sm" onClick={closeDrawer}>Cancel</Button>
+              <Button size="sm">Submit</Button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
