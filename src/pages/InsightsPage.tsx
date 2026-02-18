@@ -607,16 +607,14 @@ export function InsightsPage() {
                     Insights by Harness
                   </Text>
                 </button>
-                {harnessInsightsOpen && (
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                      <IconV2 name="nav-arrow-left" size="sm" />
-                    </Button>
-                    <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                      <IconV2 name="nav-arrow-right" size="sm" />
-                    </Button>
-                  </div>
-                )}
+                <div className={`flex items-center gap-2${harnessInsightsOpen ? '' : ' invisible'}`}>
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                    <IconV2 name="nav-arrow-left" size="sm" />
+                  </Button>
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                    <IconV2 name="nav-arrow-right" size="sm" />
+                  </Button>
+                </div>
               </div>
               {harnessInsightsOpen && (
                 <div className="grid grid-cols-3 gap-3">
