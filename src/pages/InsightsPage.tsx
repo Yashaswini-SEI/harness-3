@@ -581,7 +581,7 @@ export function InsightsPage() {
         {/* Main content: tree nav + insights */}
         <div className="flex gap-5">
           {/* Left: tree navigation */}
-          <div className="w-[269px] shrink-0 pr-3">
+          <div className="w-[300px] shrink-0 pr-3">
             <div className="mb-2">
               <Button variant="link" size="sm" onClick={() => { setExpandAll((v) => !v); setTreeKey((k) => k + 1); }}>
                 {expandAll ? 'Collapse all' : 'Expand all'}
@@ -598,49 +598,51 @@ export function InsightsPage() {
 
           {/* Right: insights overview */}
           <div className="flex-1 flex flex-col gap-5">
-            {/* "Insights by Harness" header */}
-            <div className="flex items-center justify-between">
-              <button className="flex items-center gap-2" onClick={() => setHarnessInsightsOpen((v) => !v)}>
-                <IconV2 name={harnessInsightsOpen ? 'nav-arrow-down' : 'nav-arrow-right'} size="sm" />
-                <Text as="h2" variant="heading-subsection" color="foreground-1">
-                  Insights by Harness
-                </Text>
-              </button>
+            {/* "Insights by Harness" collapsible section */}
+            <div className="flex flex-col gap-5">
+              <div className="flex items-center justify-between">
+                <button className="flex items-center gap-2" onClick={() => setHarnessInsightsOpen((v) => !v)}>
+                  <IconV2 name={harnessInsightsOpen ? 'nav-arrow-down' : 'nav-arrow-right'} size="sm" />
+                  <Text as="h2" variant="heading-subsection" color="foreground-1">
+                    Insights by Harness
+                  </Text>
+                </button>
+                {harnessInsightsOpen && (
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                      <IconV2 name="nav-arrow-left" size="sm" />
+                    </Button>
+                    <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                      <IconV2 name="nav-arrow-right" size="sm" />
+                    </Button>
+                  </div>
+                )}
+              </div>
               {harnessInsightsOpen && (
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                    <IconV2 name="nav-arrow-left" size="sm" />
-                  </Button>
-                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                    <IconV2 name="nav-arrow-right" size="sm" />
-                  </Button>
+                <div className="grid grid-cols-3 gap-3">
+                  {filteredInsights.map((insight) => (
+                    <Card.Root key={insight.id} size="sm" orientation="horizontal" className="border-0 shadow-none">
+                      <Card.Content>
+                        <div className="flex gap-4">
+                          <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
+                            <img src={insight.thumb} alt={insight.title} className="h-full w-full object-contain" />
+                          </div>
+                          <div className="flex flex-col gap-3 min-w-0">
+                            <div className="flex flex-col gap-1">
+                              <Text variant="body-strong" color="foreground-1">{insight.title}</Text>
+                              <Text variant="body-normal" color="foreground-3">{insight.description}</Text>
+                            </div>
+                            <div>
+                              <Tag variant="outline" theme="gray" size="sm" value={insight.tag} />
+                            </div>
+                          </div>
+                        </div>
+                      </Card.Content>
+                    </Card.Root>
+                  ))}
                 </div>
               )}
             </div>
-
-            {/* Insight cards — 3-column grid, 2 rows */}
-            {harnessInsightsOpen && <div className="grid grid-cols-3 gap-3">
-              {filteredInsights.map((insight) => (
-                <Card.Root key={insight.id} size="sm" orientation="horizontal" className="border-0 shadow-none">
-                  <Card.Content>
-                    <div className="flex gap-4">
-                      <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
-                        <img src={insight.thumb} alt={insight.title} className="h-full w-full object-contain" />
-                      </div>
-                      <div className="flex flex-col gap-3 min-w-0">
-                        <div className="flex flex-col gap-1">
-                          <Text variant="body-strong" color="foreground-1">{insight.title}</Text>
-                          <Text variant="body-normal" color="foreground-3">{insight.description}</Text>
-                        </div>
-                        <div>
-                          <Tag variant="outline" theme="gray" size="sm" value={insight.tag} />
-                        </div>
-                      </div>
-                    </div>
-                  </Card.Content>
-                </Card.Root>
-              ))}
-            </div>}
 
             {/* "Custom insights" section */}
             <div className="flex flex-col items-center gap-4">
