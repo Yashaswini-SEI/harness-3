@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   Text,
   Button,
@@ -327,6 +328,17 @@ function findNodeName(nodes: OrgNode[], id: string): string | undefined {
 }
 
 export function InsightsPage() {
+  const location = useLocation()
+  const savedInsight = (location.state as { insightSaved?: boolean; insightName?: string } | null)
+  const [hasCustomInsight, setHasCustomInsight] = useState(false)
+  const customInsightName = savedInsight?.insightName || 'Process Efficiency'
+
+  useEffect(() => {
+    if (savedInsight?.insightSaved) {
+      setHasCustomInsight(true)
+    }
+  }, [savedInsight])
+
   const [search, setSearch] = useState('')
   const [expandAll, setExpandAll] = useState(false)
   const [treeKey, setTreeKey] = useState(0)
@@ -643,18 +655,39 @@ export function InsightsPage() {
             </div>
 
             {/* "Custom insights" section */}
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-full">
-                <Text as="h2" variant="heading-subsection" color="foreground-1">
-                  Custom insights
-                </Text>
-              </div>
-              <div className="flex flex-col items-center gap-4 py-20">
-                <img src={imgEmptyState} alt="No custom insights" />
-                <Text variant="heading-subsection" color="foreground-3">
-                  You don&apos;t have any custom insights.
-                </Text>
-              </div>
+            <div className="flex flex-col gap-4">
+              <Text as="h2" variant="heading-subsection" color="foreground-1">
+                Custom insights
+              </Text>
+              {hasCustomInsight ? (
+                <div className="grid grid-cols-3 gap-3">
+                  <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none">
+                    <Card.Content>
+                      <div className="flex gap-4">
+                        <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
+                          <img src={thumb5} alt={customInsightName} className="h-full w-full object-contain" />
+                        </div>
+                        <div className="flex flex-col gap-3 min-w-0">
+                          <div className="flex flex-col gap-1">
+                            <Text variant="body-strong" color="foreground-1">{customInsightName}</Text>
+                            <Text variant="body-normal" color="foreground-3">Custom insight with issues by project widget.</Text>
+                          </div>
+                          <div>
+                            <Tag variant="outline" theme="gray" size="sm" value="Custom" />
+                          </div>
+                        </div>
+                      </div>
+                    </Card.Content>
+                  </Card.Root>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 py-20">
+                  <img src={imgEmptyState} alt="No custom insights" />
+                  <Text variant="heading-subsection" color="foreground-3">
+                    You don&apos;t have any custom insights.
+                  </Text>
+                </div>
+              )}
             </div>
           </div>
         </div>
