@@ -9,10 +9,14 @@ import {
   Folder,
   File,
   Card,
+  Tabs,
+  Select,
+  TextInput,
 } from '@harnessio/ui/components'
 import { ExecutionState } from '@harnessio/ui/views'
 import iconOrg from '../assets/icon-org.svg'
 import iconOrgTree from '../assets/icon-org-tree.svg'
+import imgEmptyState from '../assets/img-empty-state.svg'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
 
@@ -33,7 +37,7 @@ function OrgFolder({
   onSettingsClick?: (nodeId: string) => void;
 }) {
   return (
-    <div className="group/gear relative">
+    <div className="group/gear relative" data-node-id={value}>
       <Folder className="org-child" element={element} value={value} status={S} level={level} duration={duration}>
         {children}
       </Folder>
@@ -201,7 +205,7 @@ function RenderOrgNode({ node, level, onSettingsClick }: { node: OrgNode; level:
   const hasChildren = node.children && node.children.length > 0
   if (level === 0) {
     return (
-      <Folder className="org-top" element={node.name} value={node.id} status={S} level={0}>
+      <Folder className="org-top" element={node.name} value={node.id} status={S} level={0} {...(hasChildren ? { 'data-node-id': node.id } : {})}>
         {hasChildren
           ? node.children!.map((child) => <RenderOrgNode key={child.id} node={child} level={1} onSettingsClick={onSettingsClick} />)
           : <File className="org-leaf" value={`${node.id}-empty`} status={S} level={1}>{' '}</File>
@@ -269,6 +273,49 @@ const harnessInsights = [
   },
 ]
 
+function CanvasVariableRow({ name, defaultValue }: { name: string; defaultValue: string }) {
+  const [overridden, setOverridden] = useState(false)
+  const [value, setValue] = useState(defaultValue)
+  const savedValueRef = useRef(defaultValue)
+
+  return (
+    <div className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-3 py-2.5">
+      <TextInput value={name} disabled={!overridden} onChange={() => {}} />
+      <Text variant="body-normal" color="foreground-4">=</Text>
+      <TextInput
+        value={value}
+        disabled={!overridden}
+        onChange={(e) => setValue(e.target.value)}
+      />
+      {overridden ? (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setValue(savedValueRef.current)
+            setOverridden(false)
+          }}
+        >
+          <IconV2 name="undo" size="xs" />
+          Restore value
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            savedValueRef.current = value
+            setOverridden(true)
+          }}
+        >
+          <IconV2 name="overrides" size="xs" />
+          Override
+        </Button>
+      )}
+    </div>
+  )
+}
+
 function findNodeName(nodes: OrgNode[], id: string): string | undefined {
   for (const node of nodes) {
     if (node.id === id) return node.name
@@ -283,6 +330,7 @@ export function InsightsPage() {
   const [search, setSearch] = useState('')
   const [expandAll, setExpandAll] = useState(false)
   const [treeKey, setTreeKey] = useState(0)
+  const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains('dark-std-low')
   )
@@ -316,6 +364,48 @@ export function InsightsPage() {
     return ['harness-sei', 'arvind']
   }, [search, expandAll, allIds])
 
+  const filteredInsights = useMemo(() => {
+    // Simple string hash to deterministically pick a subset per node
+    let hash = 0
+    for (let i = 0; i < selectedNodeId.length; i++) {
+      hash = ((hash << 5) - hash + selectedNodeId.charCodeAt(i)) | 0
+    }
+    const absHash = Math.abs(hash)
+    // Pick 2–6 cards based on the hash
+    const count = 2 + (absHash % 5)
+    // Shuffle using the hash as seed, then take `count` items
+    const indices = harnessInsights.map((_, i) => i)
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = ((absHash * (i + 1) * 2654435761) >>> 0) % (i + 1)
+      ;[indices[i], indices[j]] = [indices[j], indices[i]]
+    }
+    return indices.slice(0, count).sort((a, b) => a - b).map((i) => harnessInsights[i])
+  }, [selectedNodeId])
+
+  const handleTreeCapture = useCallback((e: React.MouseEvent) => {
+    let el = e.target as HTMLElement
+    let nodeId: string | null = null
+    while (el && el !== e.currentTarget) {
+      // Settings gear button — let it handle itself
+      if (el.tagName === 'BUTTON' && el.classList.contains('absolute')) return
+      // Chevron SVG (direct child of the org-top/org-child trigger button)
+      if (el.tagName.toLowerCase() === 'svg' &&
+        el.parentElement?.tagName === 'BUTTON' &&
+        (el.parentElement.classList.contains('org-child') || el.parentElement.classList.contains('org-top'))) {
+        return
+      }
+      if (!nodeId && el instanceof HTMLElement && el.dataset.nodeId) {
+        nodeId = el.dataset.nodeId
+      }
+      el = el.parentElement as HTMLElement
+    }
+    if (nodeId) {
+      e.stopPropagation()
+      e.preventDefault()
+      setSelectedNodeId(nodeId)
+    }
+  }, [])
+
   useEffect(() => {
     const root = document.documentElement
     root.classList.remove('light-std-low', 'dark-std-low')
@@ -334,7 +424,7 @@ export function InsightsPage() {
         .org-tree .org-leaf span.text-cn-2.flex-none.select-none { display: none !important; }
         .org-tree .org-top span.text-cn-2.flex-none.select-none { display: none !important; }
         .org-tree .org-child span.text-cn-2.flex-none.select-none {
-          font-size: 12px; line-height: 18px; border: 1px solid var(--cn-borders-2, #d0d5dd);
+          font-size: 12px; line-height: 18px; border: 1px solid var(--cn-borders-3, #E7E8E9);
           border-radius: 6px; padding: 0 6px; color: var(--cn-foreground-3, #6b6f79);
           margin-right: 28px;
         }
@@ -373,7 +463,7 @@ export function InsightsPage() {
           top: -20px;
           bottom: -20px;
           width: 1px;
-          background: var(--cn-borders-2, #d0d5dd);
+          background: var(--cn-borders-3, #E7E8E9);
           pointer-events: none;
           z-index: 1;
           display: none;
@@ -477,11 +567,13 @@ export function InsightsPage() {
                 {expandAll ? 'Collapse all' : 'Expand all'}
               </Button>
             </div>
-            <Tree key={`${search}-${treeKey}`} className="org-tree" initialExpendedItems={expandedIds} initialSelectedId="abdul" indicator>
-              {filteredTree.map((node) => (
-                <RenderOrgNode key={node.id} node={node} level={0} onSettingsClick={openSettings} />
-              ))}
-            </Tree>
+            <div onClickCapture={handleTreeCapture}>
+              <Tree key={`${search}-${treeKey}`} className="org-tree" initialExpendedItems={expandedIds} initialSelectedId="abdul" indicator>
+                {filteredTree.map((node) => (
+                  <RenderOrgNode key={node.id} node={node} level={0} onSettingsClick={openSettings} />
+                ))}
+              </Tree>
+            </div>
           </div>
 
           {/* Right: insights overview */}
@@ -506,7 +598,7 @@ export function InsightsPage() {
 
             {/* Insight cards — 3-column grid, 2 rows */}
             <div className="grid grid-cols-3 gap-3">
-              {harnessInsights.map((insight) => (
+              {filteredInsights.map((insight) => (
                 <Card.Root key={insight.id} size="sm" orientation="horizontal" className="border-0 shadow-none">
                   <Card.Content>
                     <div className="flex gap-4">
@@ -536,9 +628,7 @@ export function InsightsPage() {
                 </Text>
               </div>
               <div className="flex flex-col items-center gap-4 py-20">
-                <div className="w-28 h-28 rounded-full bg-cn-2 flex items-center justify-center">
-                  <IconV2 name="open-select-hand-gesture" size="sm" className="opacity-40" />
-                </div>
+                <img src={imgEmptyState} alt="No custom insights" />
                 <Text variant="heading-subsection" color="foreground-3">
                   You don&apos;t have any custom insights.
                 </Text>
@@ -561,13 +651,13 @@ export function InsightsPage() {
           />
           {/* Panel */}
           <div
-            className="fixed right-0 top-0 z-50 flex h-full w-1/3 flex-col border-l border-cn-1 bg-cn-3 shadow-xl"
+            className="fixed right-0 top-0 z-50 flex h-full w-2/3 min-w-[640px] flex-col border-l border-cn-1 bg-cn-3 shadow-xl"
             style={{
               transform: panelOpen ? 'translateX(0)' : 'translateX(100%)',
               transition: 'transform 300ms ease-in-out',
             }}
           >
-            <div className="flex items-center justify-between border-b border-cn-1 px-5 py-4">
+            <div className="flex items-center justify-between px-5 py-4">
               <Text variant="heading-subsection" color="foreground-1">
                 {findNodeName(orgTreeData, settingsNode!)} Settings
               </Text>
@@ -575,12 +665,90 @@ export function InsightsPage() {
                 <IconV2 name="x-mark" size="sm" />
               </Button>
             </div>
-            <div className="flex-1 overflow-y-auto p-5">
-              <div className="flex flex-col gap-4">
-                <Text variant="body-normal" color="foreground-3">
-                  Configure settings for this org node.
-                </Text>
+            <Tabs.Root defaultValue="details" className="flex flex-1 flex-col overflow-hidden">
+              <div className="px-5">
+                <Tabs.List variant="underlined">
+                  <Tabs.Trigger value="details">Details</Tabs.Trigger>
+                  <Tabs.Trigger value="integrations">Integrations</Tabs.Trigger>
+                  <Tabs.Trigger value="developers">Developers</Tabs.Trigger>
+                  <Tabs.Trigger value="issue-management">Issue management</Tabs.Trigger>
+                  <Tabs.Trigger value="source-code-manager">Source code manager</Tabs.Trigger>
+                  <Tabs.Trigger value="ci-cd">CI & CD</Tabs.Trigger>
+                  <Tabs.Trigger value="itsm">ITSM</Tabs.Trigger>
+                  <Tabs.Trigger value="canvas">Canvas</Tabs.Trigger>
+                </Tabs.List>
               </div>
+              <Tabs.Content value="details" className="flex-1 overflow-y-auto p-5">
+                <div className="flex flex-col gap-5">
+                  <Text variant="heading-subsection" color="foreground-1">Variables</Text>
+                  <div className="flex flex-col gap-1.5">
+                    <Text variant="body-strong" color="foreground-1">Team name</Text>
+                    <Select
+                      value="engineering"
+                      options={[
+                        { label: 'Engineering', value: 'engineering' },
+                        { label: 'Design', value: 'design' },
+                        { label: 'Product', value: 'product' },
+                        { label: 'Marketing', value: 'marketing' },
+                      ]}
+                      onChange={() => {}}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-1">
+                      <Text variant="body-strong" color="foreground-1">Team owner</Text>
+                      <IconV2 name="circle-information" size="xs" className="text-foreground-4" />
+                    </div>
+                    <Select
+                      value="sarah-johnson"
+                      options={[
+                        { label: 'Sarah Johnson (Engineering Manager)', value: 'sarah-johnson' },
+                        { label: 'Alex N Markov (Tech Lead)', value: 'alex-markov' },
+                        { label: 'Kate Williams (Director)', value: 'kate-williams' },
+                      ]}
+                      onChange={() => {}}
+                    />
+                  </div>
+                </div>
+              </Tabs.Content>
+              <Tabs.Content value="integrations" className="flex-1 overflow-y-auto p-5">
+              </Tabs.Content>
+              <Tabs.Content value="developers" className="flex-1 overflow-y-auto p-5">
+              </Tabs.Content>
+              <Tabs.Content value="issue-management" className="flex-1 overflow-y-auto p-5">
+              </Tabs.Content>
+              <Tabs.Content value="source-code-manager" className="flex-1 overflow-y-auto p-5">
+              </Tabs.Content>
+              <Tabs.Content value="ci-cd" className="flex-1 overflow-y-auto p-5">
+              </Tabs.Content>
+              <Tabs.Content value="itsm" className="flex-1 overflow-y-auto p-5">
+              </Tabs.Content>
+              <Tabs.Content value="canvas" className="flex-1 overflow-y-auto p-5">
+                <div className="flex flex-col gap-4">
+                  <Text variant="heading-subsection" color="foreground-1">Variables</Text>
+                  <div className="flex flex-col">
+                    {/* Header */}
+                    <div className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-3 pb-2">
+                      <Text variant="body-strong" color="foreground-1">Name</Text>
+                      <span />
+                      <Text variant="body-strong" color="foreground-1">Value</Text>
+                      <span />
+                    </div>
+                    {/* Rows */}
+                    {[
+                      { name: 'account.rev', value: '0' },
+                      { name: 'custom.account.size', value: '0' },
+                      { name: 'custom.account.age', value: '0' },
+                    ].map((variable) => (
+                      <CanvasVariableRow key={variable.name} name={variable.name} defaultValue={variable.value} />
+                    ))}
+                  </div>
+                </div>
+              </Tabs.Content>
+            </Tabs.Root>
+            <div className="flex items-center justify-end gap-3 border-t border-cn-1 px-5 py-3">
+              <Button variant="outline" size="sm" onClick={closeSettings}>Cancel</Button>
+              <Button size="sm">Save</Button>
             </div>
           </div>
         </>
