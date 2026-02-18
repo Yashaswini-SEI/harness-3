@@ -42,35 +42,36 @@ export function CustomInsightPage() {
     <div className="flex min-h-screen bg-cn-3">
       <Nav2 activeSection="canvas" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
-      <div className="flex flex-1 flex-col gap-5 p-8">
-        {/* Breadcrumb */}
-        <Breadcrumb2
-          items={[
-            { label: 'Account: Harness.io', href: '#' },
-            { label: 'Organization: Harness Analytics', href: '#' },
-            { label: 'Project: Split FME Analytics' },
-          ]}
-        />
+      <div className="flex flex-1 flex-col">
+        <div className="flex flex-col gap-5 px-5 pb-5 pt-3">
+          {/* Breadcrumb */}
+          <Breadcrumb2
+            items={[
+              { label: 'Account: Harness.io', href: '#' },
+              { label: 'Organization: Harness Analytics', href: '#' },
+              { label: 'Project: Split FME Analytics' },
+            ]}
+          />
 
-        {/* Header row */}
-        <div className="flex items-start justify-between">
-          <div className="flex flex-col gap-1">
-            <Text as="h1" variant="heading-hero" color="foreground-1">{insightName}</Text>
-            {insightDesc && (
-              <Text variant="body-normal" color="foreground-3">{insightDesc}</Text>
-            )}
+          {/* Header row */}
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-1">
+              <Text as="h1" variant="heading-hero" color="foreground-1">{insightName}</Text>
+              {insightDesc && (
+                <Text variant="body-normal" color="foreground-3">{insightDesc}</Text>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                <IconV2 name="more-dots-fill" size="sm" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => window.history.back()}>Cancel</Button>
+              <Button size="sm">Save</Button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-              <IconV2 name="more-dots-fill" size="sm" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => window.history.back()}>Cancel</Button>
-            <Button size="sm">Save</Button>
-          </div>
-        </div>
 
-        {/* Metadata row */}
-        <div className="flex items-center gap-10">
+          {/* Metadata row */}
+          <div className="flex items-center gap-10">
           <div className="flex flex-col gap-1">
             <Text variant="body-normal" color="foreground-3">Status</Text>
             <StatusBadge variant="outline" theme="info" size="sm">Draft</StatusBadge>
@@ -98,8 +99,10 @@ export function CustomInsightPage() {
           )}
         </div>
 
+        </div>
+
         {/* Content area */}
-        <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-borders-2 bg-cn-0">
+        <div className="flex flex-1 flex-col overflow-hidden border-t border-borders-2 bg-white dark:bg-cn-0">
           {/* Controls bar */}
           <div className="flex items-center justify-between px-5 py-3">
             <Tabs.Root value={timeRange} onValueChange={setTimeRange}>
