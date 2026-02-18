@@ -98,7 +98,7 @@ export function CustomInsightPage() {
                 <IconV2 name="more-horizontal" size="sm" />
               </Button>
               <Button variant="outline" size="sm" onClick={() => window.history.back()}>Cancel</Button>
-              <Button size="sm">Save</Button>
+              <Button size="sm" onClick={() => navigate('/insights')}>Save</Button>
             </div>
           </div>
 
