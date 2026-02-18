@@ -12,6 +12,7 @@ import {
   NumberInput,
   TextInput,
 } from '@harnessio/ui/components'
+import { useNavigate } from 'react-router-dom'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
 import splitIcon from '../assets/icon-split.svg'
@@ -175,6 +176,7 @@ const formatYAxis = (value: number) => {
 }
 
 export function WidgetBuilderPage() {
+  const navigate = useNavigate()
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains('dark-std-low')
   )
@@ -395,8 +397,8 @@ export function WidgetBuilderPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm">Cancel</Button>
-          <Button size="sm">Add Widget</Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('..')}>Cancel</Button>
+          <Button size="sm" onClick={() => navigate('..')}>Add Widget</Button>
         </div>
       </div>
 
