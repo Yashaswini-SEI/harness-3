@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import {
   Text,
   Button,
@@ -27,9 +27,10 @@ import thumb6 from '../assets/dashboard-thumbnails/6-light.svg'
 const S = ExecutionState.SUCCESS
 
 function OrgFolder({
-  element, value, duration, level = 1, children,
+  element, value, duration, level = 1, children, onSettingsClick,
 }: {
   element: string; value: string; duration: string; level?: number; children: React.ReactNode;
+  onSettingsClick?: (nodeId: string) => void;
 }) {
   return (
     <div className="group/gear relative">
@@ -38,7 +39,7 @@ function OrgFolder({
       </Folder>
       <button
         className="absolute right-1 top-0.5 z-10 rounded p-0.5 opacity-0 transition-opacity hover:bg-cn-2 group-hover/gear:opacity-100"
-        onClick={(e) => { e.stopPropagation(); }}
+        onClick={(e) => { e.stopPropagation(); onSettingsClick?.(value); }}
       >
         <IconV2 name="settings" size="xs" className="text-foreground-4" />
       </button>
@@ -195,14 +196,14 @@ function collectIds(nodes: OrgNode[]): string[] {
   return nodes.flatMap((n) => [n.id, ...(n.children ? collectIds(n.children) : [])])
 }
 
-function RenderOrgNode({ node, level }: { node: OrgNode; level: number }) {
+function RenderOrgNode({ node, level, onSettingsClick }: { node: OrgNode; level: number; onSettingsClick?: (nodeId: string) => void }) {
   const count = countDescendants(node)
   const hasChildren = node.children && node.children.length > 0
   if (level === 0) {
     return (
       <Folder className="org-top" element={node.name} value={node.id} status={S} level={0}>
         {hasChildren
-          ? node.children!.map((child) => <RenderOrgNode key={child.id} node={child} level={1} />)
+          ? node.children!.map((child) => <RenderOrgNode key={child.id} node={child} level={1} onSettingsClick={onSettingsClick} />)
           : <File className="org-leaf" value={`${node.id}-empty`} status={S} level={1}>{' '}</File>
         }
       </Folder>
@@ -214,9 +215,9 @@ function RenderOrgNode({ node, level }: { node: OrgNode; level: number }) {
     )
   }
   return (
-    <OrgFolder element={node.name} value={node.id} duration={String(count)} level={level}>
+    <OrgFolder element={node.name} value={node.id} duration={String(count)} level={level} onSettingsClick={onSettingsClick}>
       {node.children!.map((child) => (
-        <RenderOrgNode key={child.id} node={child} level={level + 1} />
+        <RenderOrgNode key={child.id} node={child} level={level + 1} onSettingsClick={onSettingsClick} />
       ))}
     </OrgFolder>
   )
@@ -268,6 +269,16 @@ const harnessInsights = [
   },
 ]
 
+function findNodeName(nodes: OrgNode[], id: string): string | undefined {
+  for (const node of nodes) {
+    if (node.id === id) return node.name
+    if (node.children) {
+      const found = findNodeName(node.children, id)
+      if (found) return found
+    }
+  }
+}
+
 export function InsightsPage() {
   const [search, setSearch] = useState('')
   const [expandAll, setExpandAll] = useState(false)
@@ -275,6 +286,27 @@ export function InsightsPage() {
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains('dark-std-low')
   )
+  const [settingsNode, setSettingsNode] = useState<string | null>(null)
+  const [panelVisible, setPanelVisible] = useState(false)
+  const [panelOpen, setPanelOpen] = useState(false)
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout>>()
+
+  const openSettings = useCallback((nodeId: string) => {
+    clearTimeout(closeTimerRef.current)
+    setSettingsNode(nodeId)
+    setPanelVisible(true)
+    // Next frame: trigger the CSS transition
+    requestAnimationFrame(() => requestAnimationFrame(() => setPanelOpen(true)))
+  }, [])
+
+  const closeSettings = useCallback(() => {
+    setPanelOpen(false)
+    // Wait for the transition to finish before unmounting
+    closeTimerRef.current = setTimeout(() => {
+      setPanelVisible(false)
+      setSettingsNode(null)
+    }, 300)
+  }, [])
 
   const filteredTree = useMemo(() => filterTree(orgTreeData, search), [search])
   const allIds = useMemo(() => collectIds(filteredTree), [filteredTree])
@@ -367,6 +399,23 @@ export function InsightsPage() {
         .org-tree .group\\/gear .group\\/gear .org-leaf {
           padding-left: 28px;
         }
+        .org-tree .mt-cn-sm.gap-cn-sm.flex.flex-col {
+          position: relative;
+        }
+        .org-tree .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
+          content: '';
+          position: absolute;
+          left: 34px;
+          top: 0;
+          bottom: 0;
+          width: 1px;
+          background: var(--cn-borders-2, #d0d5dd);
+          pointer-events: none;
+          z-index: 1;
+        }
+        .org-tree .group\\/gear .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
+          display: none;
+        }
         .org-tree .duration-200 {
           transition-duration: 75ms !important;
         }
@@ -424,7 +473,7 @@ export function InsightsPage() {
             </div>
             <Tree key={`${search}-${treeKey}`} className="org-tree" initialExpendedItems={expandedIds} initialSelectedId="abdul" indicator>
               {filteredTree.map((node) => (
-                <RenderOrgNode key={node.id} node={node} level={0} />
+                <RenderOrgNode key={node.id} node={node} level={0} onSettingsClick={openSettings} />
               ))}
             </Tree>
           </div>
@@ -492,6 +541,44 @@ export function InsightsPage() {
           </div>
         </div>
       </div>
+
+      {/* Settings side panel */}
+      {panelVisible && (
+        <>
+          {/* Backdrop mask */}
+          <div
+            className="fixed inset-0 z-40 transition-opacity duration-300 ease-in-out"
+            style={{
+              backgroundColor: panelOpen ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)',
+            }}
+            onClick={closeSettings}
+          />
+          {/* Panel */}
+          <div
+            className="fixed right-0 top-0 z-50 flex h-full w-1/3 flex-col border-l border-cn-1 bg-cn-3 shadow-xl"
+            style={{
+              transform: panelOpen ? 'translateX(0)' : 'translateX(100%)',
+              transition: 'transform 300ms ease-in-out',
+            }}
+          >
+            <div className="flex items-center justify-between border-b border-cn-1 px-5 py-4">
+              <Text variant="heading-subsection" color="foreground-1">
+                {findNodeName(orgTreeData, settingsNode!)} Settings
+              </Text>
+              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeSettings}>
+                <IconV2 name="x-mark" size="sm" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-5">
+              <div className="flex flex-col gap-4">
+                <Text variant="body-normal" color="foreground-3">
+                  Configure settings for this org node.
+                </Text>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
