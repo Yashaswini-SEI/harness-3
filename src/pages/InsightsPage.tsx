@@ -367,29 +367,6 @@ export function InsightsPage() {
         .org-tree .group\\/gear .group\\/gear .org-leaf {
           padding-left: 28px;
         }
-        .org-tree .group\\/gear .group\\/gear::after {
-          display: none;
-        }
-        .org-tree .mt-cn-sm.gap-cn-sm.flex.flex-col {
-          position: relative;
-        }
-        .org-tree .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
-          content: '';
-          position: absolute;
-          left: 34px;
-          top: 0;
-          bottom: 0;
-          width: 1px;
-          background: var(--cn-borders-2, #d0d5dd);
-          pointer-events: none;
-          z-index: 1;
-        }
-        .org-tree .group\\/gear .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
-          left: 34px;
-        }
-        .org-tree .group\\/gear .group\\/gear .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
-          left: 42px;
-        }
         .org-tree .duration-200 {
           transition-duration: 75ms !important;
         }
