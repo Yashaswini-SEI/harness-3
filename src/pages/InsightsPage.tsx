@@ -388,7 +388,7 @@ export function InsightsPage() {
           height: 14px;
         }
         .org-tree .org-leaf {
-          padding-left: 24px;
+          padding-left: 29px;
         }
         .org-tree .group\\/gear .group\\/gear {
           padding-left: 0px;
@@ -397,24 +397,7 @@ export function InsightsPage() {
           padding-left: 28px !important;
         }
         .org-tree .group\\/gear .group\\/gear .org-leaf {
-          padding-left: 28px;
-        }
-        .org-tree .mt-cn-sm.gap-cn-sm.flex.flex-col {
-          position: relative;
-        }
-        .org-tree .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
-          content: '';
-          position: absolute;
-          left: 34px;
-          top: 0;
-          bottom: 0;
-          width: 1px;
-          background: var(--cn-borders-2, #d0d5dd);
-          pointer-events: none;
-          z-index: 1;
-        }
-        .org-tree .group\\/gear .mt-cn-sm.gap-cn-sm.flex.flex-col::before {
-          display: none;
+          padding-left: 36px;
         }
         .org-tree .duration-200 {
           transition-duration: 75ms !important;
