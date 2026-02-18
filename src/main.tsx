@@ -19,9 +19,9 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/tables" element={<TableGallery />} />
         </Route>
         <Route path="/insights" element={<InsightsPage />} />
-        <Route path="/widget-builder" element={<WidgetBuilderPage />} />
         <Route path="/canvas" element={<CanvasPage />} />
         <Route path="/insights/custom/:id" element={<CustomInsightPage />} />
+        <Route path="/insights/custom/:id/widget-builder" element={<WidgetBuilderPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

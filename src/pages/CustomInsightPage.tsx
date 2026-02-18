@@ -7,12 +7,14 @@ import {
   Tag,
   Tabs,
 } from '@harnessio/ui/components'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
 import canvasIcon from '../assets/icon-canvas.svg'
 
 export function CustomInsightPage() {
+  const { id } = useParams()
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const insightName = searchParams.get('name') || 'Process Efficiency'
   const insightDesc = searchParams.get('desc') || ''
@@ -115,7 +117,7 @@ export function CustomInsightPage() {
                 <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
               </Tabs.List>
             </Tabs.Root>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => navigate(`/insights/custom/${id}/widget-builder`)}>
               <IconV2 name="plus" size="sm" />
               New Widget
             </Button>
@@ -127,7 +129,7 @@ export function CustomInsightPage() {
               <img src={canvasIcon} alt="" className="h-6 w-6 opacity-40" />
             </div>
             <Text variant="body-normal" color="foreground-3">Add widgets to your Insight</Text>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => navigate(`/insights/custom/${id}/widget-builder`)}>
               <IconV2 name="plus" size="sm" />
               New Widget
             </Button>
