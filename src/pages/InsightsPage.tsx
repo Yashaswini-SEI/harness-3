@@ -523,7 +523,7 @@ export function InsightsPage() {
         .org-tree [data-node-id="${selectedNodeId}"] > div > button.org-child > div {
           background-color: var(--cn-bg-2);
           border-radius: 6px;
-          padding: 6px 6px 6px 14px;
+          padding: 6px 0 6px 14px;
           margin: -6px 0;
           position: relative;
         }
