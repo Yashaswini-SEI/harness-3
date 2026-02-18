@@ -376,6 +376,10 @@ export function InsightsPage() {
           background: var(--cn-borders-2, #d0d5dd);
           pointer-events: none;
           z-index: 1;
+          display: none;
+        }
+        .org-tree > .flex.flex-col > .pb-cn-sm:has([data-state=open])::after {
+          display: block;
         }
         .org-tree > .flex.flex-col > .pb-cn-sm:first-child::after {
           top: 0;
@@ -394,11 +398,9 @@ export function InsightsPage() {
           background: var(--cn-borders-2, #d0d5dd);
           pointer-events: none;
           z-index: 1;
-        }
-        .org-tree .group\\/gear .group\\/gear::after {
           display: none;
         }
-        .org-tree .group\\/gear .group\\/gear:has([data-state=open])::after {
+        .org-tree .group\\/gear:has([data-state=open])::after {
           display: block;
         }
         .org-tree .group\\/gear:first-child::after {
