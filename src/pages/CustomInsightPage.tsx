@@ -11,7 +11,7 @@ import { useSearchParams, useParams, useNavigate, useLocation } from 'react-rout
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
-import canvasIcon from '../assets/icon-canvas.svg'
+import imgEmptyState from '../assets/img-empty-state.svg'
 
 const widgetChartData = [
   { name: 'FME', value: 9_200_000 },
@@ -97,8 +97,8 @@ export function CustomInsightPage() {
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
                 <IconV2 name="more-horizontal" size="sm" />
               </Button>
-              <Button variant="outline" size="sm" onClick={() => window.history.back()}>Cancel</Button>
-              <Button size="sm" onClick={() => navigate('/insights', { state: { insightSaved: true, insightName } })}>Save</Button>
+              <Button variant="outline" size="sm" disabled>Cancel</Button>
+              <Button size="sm" disabled>Save</Button>
             </div>
           </div>
 
@@ -201,9 +201,7 @@ export function CustomInsightPage() {
             </div>
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-4 pb-20">
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-borders-2">
-                <img src={canvasIcon} alt="" className="h-6 w-6 opacity-40" />
-              </div>
+              <img src={imgEmptyState} alt="No widgets" />
               <Text variant="body-normal" color="foreground-3">Add widgets to your Insight</Text>
               <Button variant="outline" size="sm" onClick={() => navigate(`/insights/custom/${id}/widget-builder`)}>
                 <IconV2 name="plus" size="sm" />
