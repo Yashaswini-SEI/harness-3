@@ -337,6 +337,7 @@ export function InsightsPage() {
   const [settingsNode, setSettingsNode] = useState<string | null>(null)
   const [panelVisible, setPanelVisible] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
+  const [harnessInsightsOpen, setHarnessInsightsOpen] = useState(true)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout>>()
 
   const openSettings = useCallback((nodeId: string) => {
@@ -416,7 +417,7 @@ export function InsightsPage() {
     <div className="flex min-h-screen bg-cn-3">
       {/* Override execution tree styles: replace status icons with org icons, hide duration/counts */}
       <style>{`
-        .org-tree { scrollbar-width: none; }
+        .org-tree { scrollbar-width: none; overflow-x: hidden; }
         .org-tree .overflow-hidden { overflow: visible !important; }
         .org-tree::-webkit-scrollbar { display: none; }
         .org-tree .size-5.flex-none.items-center.justify-center > * { visibility: hidden; }
@@ -599,24 +600,26 @@ export function InsightsPage() {
           <div className="flex-1 flex flex-col gap-5">
             {/* "Insights by Harness" header */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <IconV2 name="nav-arrow-down" size="sm" />
+              <button className="flex items-center gap-2" onClick={() => setHarnessInsightsOpen((v) => !v)}>
+                <IconV2 name={harnessInsightsOpen ? 'nav-arrow-down' : 'nav-arrow-right'} size="sm" />
                 <Text as="h2" variant="heading-subsection" color="foreground-1">
                   Insights by Harness
                 </Text>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                  <IconV2 name="nav-arrow-left" size="sm" />
-                </Button>
-                <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                  <IconV2 name="nav-arrow-right" size="sm" />
-                </Button>
-              </div>
+              </button>
+              {harnessInsightsOpen && (
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                    <IconV2 name="nav-arrow-left" size="sm" />
+                  </Button>
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                    <IconV2 name="nav-arrow-right" size="sm" />
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Insight cards — 3-column grid, 2 rows */}
-            <div className="grid grid-cols-3 gap-3">
+            {harnessInsightsOpen && <div className="grid grid-cols-3 gap-3">
               {filteredInsights.map((insight) => (
                 <Card.Root key={insight.id} size="sm" orientation="horizontal" className="border-0 shadow-none">
                   <Card.Content>
@@ -637,7 +640,7 @@ export function InsightsPage() {
                   </Card.Content>
                 </Card.Root>
               ))}
-            </div>
+            </div>}
 
             {/* "Custom insights" section */}
             <div className="flex flex-col items-center gap-4">
