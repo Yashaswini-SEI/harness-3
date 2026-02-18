@@ -177,7 +177,7 @@ export function CustomInsightPage() {
                       width={48}
                     />
                     <Tooltip
-                      formatter={(value: number) => [value.toLocaleString(), 'Issue Key Count']}
+                      formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Issue Key Count']}
                       contentStyle={{ borderRadius: 8, fontSize: 13 }}
                       cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
                     />
