@@ -7,14 +7,35 @@ import {
   Tag,
   Tabs,
 } from '@harnessio/ui/components'
-import { useSearchParams, useParams, useNavigate } from 'react-router-dom'
+import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom'
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
 import canvasIcon from '../assets/icon-canvas.svg'
 
+const widgetChartData = [
+  { name: 'FME', value: 9_200_000 },
+  { name: 'CDE', value: 4_800_000 },
+  { name: 'ENGTAI', value: 3_500_000 },
+  { name: 'BT', value: 3_200_000 },
+  { name: 'DEVOPS', value: 2_800_000 },
+  { name: 'ASP', value: 2_100_000 },
+  { name: 'FLAM', value: 1_800_000 },
+  { name: 'EXP', value: 1_400_000 },
+  { name: 'COE', value: 1_100_000 },
+  { name: 'DS', value: 600_000 },
+]
+
+const formatYAxis = (value: number) => {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)}M`
+  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`
+  return String(value)
+}
+
 export function CustomInsightPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const insightName = searchParams.get('name') || 'Process Efficiency'
   const insightDesc = searchParams.get('desc') || ''
@@ -24,8 +45,17 @@ export function CustomInsightPage() {
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains('dark-std-low')
   )
+  const [hasWidget, setHasWidget] = useState(false)
   const [showToast, setShowToast] = useState(true)
   const [timeRange, setTimeRange] = useState('7D')
+
+  useEffect(() => {
+    const state = location.state as { widgetAdded?: boolean } | null
+    if (state?.widgetAdded) {
+      setHasWidget(true)
+      setShowToast(true)
+    }
+  }, [location.state])
 
   useEffect(() => {
     const root = document.documentElement
@@ -123,17 +153,64 @@ export function CustomInsightPage() {
             </Button>
           </div>
 
-          {/* Empty state */}
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 pb-20">
-            <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-borders-2">
-              <img src={canvasIcon} alt="" className="h-6 w-6 opacity-40" />
+          {hasWidget ? (
+            <div className="flex-1 p-5">
+              <div className="rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1">
+                <div className="mb-4 flex flex-col gap-1">
+                  <Text variant="body-strong" color="foreground-1">Issues by project</Text>
+                  <Text variant="body-normal" color="foreground-3">Widget represents issues by projects</Text>
+                </div>
+                <ResponsiveContainer width="100%" height={320}>
+                  <BarChart data={widgetChartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 12, fill: '#6B7280' }}
+                      axisLine={{ stroke: '#E5E7EB' }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tickFormatter={formatYAxis}
+                      tick={{ fontSize: 12, fill: '#6B7280' }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={48}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => [value.toLocaleString(), 'Issue Key Count']}
+                      contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                      cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
+                    />
+                    <Legend
+                      iconType="square"
+                      iconSize={10}
+                      wrapperStyle={{ fontSize: 13, paddingTop: 12 }}
+                      formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
+                    />
+                    <Bar
+                      dataKey="value"
+                      name="Issue Key Count"
+                      fill="var(--cn-comp-data-viz-01-blue, #2DA6FF)"
+                      radius={[4, 4, 0, 0]}
+                      barSize={32}
+                      animationDuration={150}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-            <Text variant="body-normal" color="foreground-3">Add widgets to your Insight</Text>
-            <Button variant="outline" size="sm" onClick={() => navigate(`/insights/custom/${id}/widget-builder`)}>
-              <IconV2 name="plus" size="sm" />
-              New Widget
-            </Button>
-          </div>
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center gap-4 pb-20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-borders-2">
+                <img src={canvasIcon} alt="" className="h-6 w-6 opacity-40" />
+              </div>
+              <Text variant="body-normal" color="foreground-3">Add widgets to your Insight</Text>
+              <Button variant="outline" size="sm" onClick={() => navigate(`/insights/custom/${id}/widget-builder`)}>
+                <IconV2 name="plus" size="sm" />
+                New Widget
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -141,7 +218,9 @@ export function CustomInsightPage() {
       {showToast && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3.5 shadow-md">
           <IconV2 name="check-circle-solid" size="sm" className="text-icons-success" />
-          <Text variant="body-normal" color="foreground-1">Dashboard generated successfully.</Text>
+          <Text variant="body-normal" color="foreground-1">
+            {hasWidget ? 'Widget added successfully.' : 'Dashboard generated successfully.'}
+          </Text>
         </div>
       )}
     </div>
