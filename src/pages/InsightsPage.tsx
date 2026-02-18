@@ -519,6 +519,25 @@ export function InsightsPage() {
         .org-tree [data-state=closed] {
           animation-duration: 75ms !important;
         }
+        .org-tree [data-node-id="${selectedNodeId}"] > button.org-top > div,
+        .org-tree [data-node-id="${selectedNodeId}"] > div > button.org-child > div {
+          background-color: var(--cn-bg-2);
+          border-radius: 6px;
+          padding: 6px 6px 6px 14px;
+          margin: -6px 0;
+          position: relative;
+        }
+        .org-tree [data-node-id="${selectedNodeId}"] > button.org-top > div::before,
+        .org-tree [data-node-id="${selectedNodeId}"] > div > button.org-child > div::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 10px;
+          bottom: 10px;
+          width: 3px;
+          border-radius: 2px;
+          background-color: var(--cn-brand-default, #0078D4);
+        }
       `}</style>
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
