@@ -6,7 +6,7 @@ import {
   SearchInput,
   Table,
   StatusBadge,
-  Select,
+  Pagination,
   TextInput,
   Textarea,
   Tag,
@@ -43,6 +43,8 @@ export function CanvasPage() {
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains('dark-std-low')
   )
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [drawerVisible, setDrawerVisible] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout>>()
@@ -195,28 +197,14 @@ export function CanvasPage() {
         </Table.Root>
 
         {/* Pagination footer */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Select
-              value="10"
-              options={[
-                { label: '10 items per page', value: '10' },
-                { label: '20 items per page', value: '20' },
-                { label: '50 items per page', value: '50' },
-              ]}
-              onChange={() => {}}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Text variant="body-normal" color="foreground-3">Page 1 of 1</Text>
-            <Button variant="outline" size="sm" iconOnly ignoreIconOnlyTooltip disabled>
-              <IconV2 name="nav-arrow-left" size="sm" />
-            </Button>
-            <Button variant="outline" size="sm" iconOnly ignoreIconOnlyTooltip disabled>
-              <IconV2 name="nav-arrow-right" size="sm" />
-            </Button>
-          </div>
-        </div>
+        <Pagination
+          totalItems={sortedData.length}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          goToPage={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 20, 50]}
+        />
       </div>
 
       {/* Create Insight drawer */}
