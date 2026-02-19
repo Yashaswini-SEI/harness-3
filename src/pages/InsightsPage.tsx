@@ -555,13 +555,9 @@ export function InsightsPage() {
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       {/* Page content */}
-      <div className="flex flex-1 flex-col gap-5 p-8">
+      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
         {/* Breadcrumb */}
-        <Breadcrumb2 items={[
-          { label: 'Edge Wireless', href: '#' },
-          { label: 'Platform', href: '#' },
-          { label: 'Insights' },
-        ]} />
+        <Breadcrumb2 />
 
         {/* Page title */}
         <Text as="h1" variant="heading-hero" color="foreground-1">Insights</Text>

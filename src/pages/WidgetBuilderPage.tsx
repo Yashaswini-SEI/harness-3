@@ -373,13 +373,9 @@ export function WidgetBuilderPage() {
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       {/* Page content */}
-      <div className="flex flex-1 flex-col gap-5 bg-cn-3 p-8">
+      <div className="flex flex-1 flex-col gap-5 bg-cn-3 px-5 pb-5 pt-3">
       {/* Breadcrumb */}
-      <Breadcrumb2 items={[
-        { label: 'Account: Harness.io', href: '#' },
-        { label: 'Organization: Harness Analytics', href: '#' },
-        { label: 'Project: Split FME Analytics', href: '#' },
-      ]} />
+      <Breadcrumb2 />
 
       {/* Header row */}
       <div className="flex items-start justify-between">

@@ -77,13 +77,7 @@ export function CustomInsightPage() {
       <div className="flex flex-1 flex-col">
         <div className="flex flex-col gap-5 px-5 pb-5 pt-3">
           {/* Breadcrumb */}
-          <Breadcrumb2
-            items={[
-              { label: 'Account: Harness.io', href: '#' },
-              { label: 'Organization: Harness Analytics', href: '#' },
-              { label: 'Project: Split FME Analytics' },
-            ]}
-          />
+          <Breadcrumb2 />
 
           {/* Header row */}
           <div className="flex items-start justify-between">
