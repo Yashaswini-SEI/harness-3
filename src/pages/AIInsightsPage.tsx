@@ -114,7 +114,7 @@ function DonutMetricCard({ title, subtitle, data, metric, color, trend }: {
         <Text variant="body-strong" color="foreground-1">{title}</Text>
         <Text variant="caption-normal" color="foreground-3">{subtitle}</Text>
       </div>
-      <DonutChart data={data} height={140} color={color} metric={metric} trend={trend} />
+      <DonutChart data={data} height={168} color={color} metric={metric} trend={trend} />
     </div>
   )
 }

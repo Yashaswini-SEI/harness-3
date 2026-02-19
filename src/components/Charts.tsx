@@ -196,7 +196,7 @@ export interface DonutChartProps extends ChartProps {
   color?: string
 }
 
-export function DonutChart({ data, height = 420, seriesName = 'Count', metric, trend, color }: DonutChartProps) {
+export function DonutChart({ data, height = 504, seriesName = 'Count', metric, trend, color }: DonutChartProps) {
   const isSingleColor = !!color
   const isPositive = trend?.startsWith('+')
 
