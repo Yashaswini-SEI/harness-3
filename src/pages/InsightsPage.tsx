@@ -631,7 +631,7 @@ export function InsightsPage() {
               {harnessInsightsOpen && (
                 <div className="grid grid-cols-3 gap-3">
                   {filteredInsights.map((insight) => (
-                    <Card.Root key={insight.id} size="sm" orientation="horizontal" className="border-0 shadow-none">
+                    <Card.Root key={insight.id} size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2">
                       <Card.Content>
                         <div className="flex gap-4">
                           <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
@@ -661,7 +661,7 @@ export function InsightsPage() {
               </Text>
               {hasCustomInsight ? (
                 <div className="grid grid-cols-3 gap-3">
-                  <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none">
+                  <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2">
                     <Card.Content>
                       <div className="flex gap-4">
                         <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
