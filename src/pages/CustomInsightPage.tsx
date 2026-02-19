@@ -8,7 +8,7 @@ import {
   Tabs,
 } from '@harnessio/ui/components'
 import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom'
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { BarChart2 } from '../components/Charts'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
 import imgEmptyState from '../assets/img-empty-state.svg'
@@ -25,12 +25,6 @@ const widgetChartData = [
   { name: 'COE', value: 1_100_000 },
   { name: 'DS', value: 600_000 },
 ]
-
-const formatYAxis = (value: number) => {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)}M`
-  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`
-  return String(value)
-}
 
 export function CustomInsightPage() {
   const { id } = useParams()
@@ -154,43 +148,7 @@ export function CustomInsightPage() {
                   <Text variant="body-strong" color="foreground-1">Issues by project</Text>
                   <Text variant="body-normal" color="foreground-3">Widget represents issues by projects</Text>
                 </div>
-                <ResponsiveContainer width="100%" height={320}>
-                  <BarChart data={widgetChartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
-                    <XAxis
-                      dataKey="name"
-                      tick={{ fontSize: 12, fill: '#6B7280' }}
-                      axisLine={{ stroke: '#E5E7EB' }}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tickFormatter={formatYAxis}
-                      tick={{ fontSize: 12, fill: '#6B7280' }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={48}
-                    />
-                    <Tooltip
-                      formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Issue Key Count']}
-                      contentStyle={{ borderRadius: 8, fontSize: 13 }}
-                      cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
-                    />
-                    <Legend
-                      iconType="square"
-                      iconSize={10}
-                      wrapperStyle={{ fontSize: 13, paddingTop: 12 }}
-                      formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
-                    />
-                    <Bar
-                      dataKey="value"
-                      name="Issue Key Count"
-                      fill="var(--cn-comp-data-viz-01-blue, #2DA6FF)"
-                      radius={[4, 4, 0, 0]}
-                      barSize={32}
-                      animationDuration={150}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                <BarChart2 data={widgetChartData} height={320} seriesName="Issue Key Count" />
               </div>
             </div>
           ) : (

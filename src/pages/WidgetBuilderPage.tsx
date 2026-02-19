@@ -23,7 +23,7 @@ import scatterIcon from '../assets/icon-scatter.svg'
 import areaChartIcon from '../assets/icon-area-chart.svg'
 import donutIcon from '../assets/icon-donut.svg'
 import metricIcon from '../assets/icon-metric.svg'
-import { ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ScatterChart, Scatter, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { LineChart2, BarChart2, HorizontalBarChart, AreaChart2, ScatterChart2, DonutChart, MetricCard } from '../components/Charts'
 
 // ── Available variable suggestions ──
 const VARIABLE_SUGGESTIONS = [
@@ -169,12 +169,6 @@ const TIME_RANGE_SCALE: Record<string, number> = {
   custom: 1,
 }
 
-const formatYAxis = (value: number) => {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)}M`
-  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`
-  return String(value)
-}
-
 export function WidgetBuilderPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -278,14 +272,6 @@ export function WidgetBuilderPage() {
     name: d.name,
     value: d.count,
   }))
-
-  const scatterData = useMemo(() =>
-    chartData.map((d, i) => ({
-      x: i + 1,
-      y: d.value,
-      name: d.name,
-    })),
-  [chartData])
 
   const handleQueryChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
@@ -453,299 +439,37 @@ export function WidgetBuilderPage() {
           </div>
           {chartType === 'line' && viewMode !== 'table' && (
             <div className="p-6">
-              <svg width="0" height="0">
-                <defs>
-                  <filter id="line-shadow">
-                    <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor="rgba(41, 173, 255, 0.25)" floodOpacity="1" />
-                  </filter>
-                </defs>
-              </svg>
-              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
-                <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={{ stroke: '#E5E7EB' }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tickFormatter={formatYAxis}
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={48}
-                  />
-                  <Tooltip
-                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
-                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
-                  />
-                  <Legend
-                    iconType="square"
-                    iconSize={10}
-                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
-                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    name="Count"
-                    stroke="var(--cn-comp-data-viz-01-blue, #2DA6FF)"
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={false}
-                    style={{ filter: 'url(#line-shadow)' }}
-                    animationDuration={150}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <LineChart2 data={chartData} height={chartHeight * 1.5} />
             </div>
           )}
           {chartType === 'bar' && viewMode !== 'table' && (
             <div className="p-6">
-              <svg width="0" height="0">
-                <defs>
-                  <filter id="bar-shadow">
-                    <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor="rgba(41, 173, 255, 0.25)" floodOpacity="1" />
-                  </filter>
-                </defs>
-              </svg>
-              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
-                <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }} barGap={12}>
-                  <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={{ stroke: '#E5E7EB' }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tickFormatter={formatYAxis}
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={48}
-                  />
-                  <Tooltip
-                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
-                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
-                    cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
-                  />
-                  <Legend
-                    iconType="square"
-                    iconSize={10}
-                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
-                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
-                  />
-                  <Bar
-                    dataKey="value"
-                    name="Count"
-                    fill="var(--cn-comp-data-viz-01-blue, #2DA6FF)"
-                    radius={[4, 4, 0, 0]}
-                    barSize={32}
-                    style={{ filter: 'url(#bar-shadow)' }}
-                    animationDuration={150}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChart2 data={chartData} height={chartHeight * 1.5} />
             </div>
           )}
           {chartType === 'donut' && viewMode !== 'table' && (
             <div className="p-6 overflow-visible">
-              <svg width="0" height="0">
-                <defs>
-                  {['#2DA6FF', '#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'].map((color, i) => (
-                    <filter key={i} id={`donut-shadow-${i}`}>
-                      <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor={color} floodOpacity="0.35" />
-                    </filter>
-                  ))}
-                </defs>
-              </svg>
-              <ResponsiveContainer width="100%" height={chartHeight * 1.5} style={{ overflow: 'visible' }}>
-                <PieChart style={{ overflow: 'visible' }}>
-                  <Pie
-                    data={chartData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius="55%"
-                    outerRadius="80%"
-                    paddingAngle={2}
-                    animationDuration={150}
-                  >
-                    {chartData.map((_, index) => {
-                      const colors = ['#2DA6FF', '#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6']
-                      const ci = index % 8
-                      return (
-                        <Cell
-                          key={index}
-                          fill={colors[ci]}
-                          style={{ filter: `url(#donut-shadow-${ci})` }}
-                        />
-                      )
-                    })}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
-                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
-                  />
-                  <Legend
-                    iconType="square"
-                    iconSize={10}
-                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
-                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+              <DonutChart data={chartData} height={chartHeight * 1.5} />
             </div>
           )}
           {chartType === 'horizontal-bar' && viewMode !== 'table' && (
             <div className="p-6">
-              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
-                <BarChart data={chartData} layout="vertical" margin={{ top: 8, right: 16, left: 0, bottom: 0 }} barGap={12}>
-                  <CartesianGrid strokeDasharray="8 6" horizontal={false} stroke="var(--cn-border-2, #E5E7EB)" />
-                  <XAxis
-                    type="number"
-                    tickFormatter={formatYAxis}
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={{ stroke: '#E5E7EB' }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={80}
-                  />
-                  <Tooltip
-                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
-                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
-                    cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }}
-                  />
-                  <Legend
-                    iconType="square"
-                    iconSize={10}
-                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
-                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
-                  />
-                  <Bar
-                    dataKey="value"
-                    name="Count"
-                    fill="var(--cn-comp-data-viz-01-blue, #2DA6FF)"
-                    radius={[0, 4, 4, 0]}
-                    barSize={16}
-                    animationDuration={150}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <HorizontalBarChart data={chartData} height={chartHeight * 1.5} />
             </div>
           )}
           {chartType === 'area' && viewMode !== 'table' && (
             <div className="p-6">
-              <svg width="0" height="0">
-                <defs>
-                  <linearGradient id="area-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2DA6FF" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#2DA6FF" stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
-                <AreaChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="8 6" vertical={false} stroke="var(--cn-border-2, #E5E7EB)" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={{ stroke: '#E5E7EB' }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tickFormatter={formatYAxis}
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={48}
-                  />
-                  <Tooltip
-                    formatter={(value: number | undefined) => [(value ?? 0).toLocaleString(), 'Count']}
-                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
-                  />
-                  <Legend
-                    iconType="square"
-                    iconSize={10}
-                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
-                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    name="Count"
-                    stroke="#2DA6FF"
-                    strokeWidth={2}
-                    fill="url(#area-gradient)"
-                    dot={false}
-                    activeDot={{ r: 4, fill: '#2DA6FF' }}
-                    animationDuration={150}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <AreaChart2 data={chartData} height={chartHeight * 1.5} />
             </div>
           )}
           {chartType === 'scatter' && viewMode !== 'table' && (
             <div className="p-6">
-              <ResponsiveContainer width="100%" height={chartHeight * 1.5}>
-                <ScatterChart margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="8 6" stroke="var(--cn-border-2, #E5E7EB)" />
-                  <XAxis
-                    type="number"
-                    dataKey="x"
-                    name="Index"
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={{ stroke: '#E5E7EB' }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    type="number"
-                    dataKey="y"
-                    name="Count"
-                    tickFormatter={formatYAxis}
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={48}
-                  />
-                  <Tooltip
-                    formatter={(value: number | undefined) => (value ?? 0).toLocaleString()}
-                    contentStyle={{ borderRadius: 8, fontSize: 13 }}
-                    cursor={{ strokeDasharray: '4 4' }}
-                  />
-                  <Legend
-                    iconType="square"
-                    iconSize={10}
-                    wrapperStyle={{ fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }}
-                    formatter={(value) => <span style={{ color: '#4B5563' }}>{value}</span>}
-                  />
-                  <Scatter
-                    name="Count"
-                    data={scatterData}
-                    fill="#8B5CF6"
-                    animationDuration={150}
-                  />
-                </ScatterChart>
-              </ResponsiveContainer>
+              <ScatterChart2 data={chartData} height={chartHeight * 1.5} />
             </div>
           )}
           {chartType === 'metric' && (
-            <div className="flex items-center justify-center p-6" style={{ height: chartHeight * 1.5 }}>
-              <div className="flex flex-col items-center gap-2">
-                <span className="text-foreground-1" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 64, fontWeight: 600, lineHeight: 1 }}>
-                  {chartData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
-                </span>
-                <span className="text-sm text-foreground-3">Total Count</span>
-              </div>
+            <div className="p-6">
+              <MetricCard data={chartData} height={chartHeight * 1.5} />
             </div>
           )}
           {/* View mode control — horizontal rule with centered tabs overlay */}

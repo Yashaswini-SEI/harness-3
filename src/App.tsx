@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { SideNav } from './components/SideNav'
 import { Nav2, type Nav2Section } from './components/Nav2'
 import { Breadcrumb2 } from './components/Breadcrumb2'
+import { LineChart2, BarChart2, HorizontalBarChart, AreaChart2, ScatterChart2, DonutChart, MetricCard } from './components/Charts'
 
 function App() {
   const [search, setSearch] = useState('')
@@ -14,33 +15,80 @@ function App() {
     <div className="space-y-8">
       {/* Header */}
       <header className="space-y-1">
-        <Text as="h1" variant="heading-hero" color="foreground-1">Component Gallery</Text>
+        <Text as="h1" variant="heading-hero" color="foreground-1">Harness Prototypes</Text>
         <Text as="p" variant="body-normal" color="foreground-2">
           Harness Design System 3.0 — composed components built from primitives
         </Text>
       </header>
 
-      {/* Quick links to sub-pages */}
-      <nav className="flex gap-3">
-        <Link to="/tables">
-          <Button variant="outline" size="sm">
-            <IconV2 name="grip-dots" size="sm" />
-            Tables
-          </Button>
-        </Link>
-        <Link to="/insights">
-          <Button variant="outline" size="sm">
-            <IconV2 name="dashboard" size="sm" />
-            Insights
-          </Button>
-        </Link>
-        <Link to="/widget-builder">
-          <Button variant="outline" size="sm">
-            <IconV2 name="settings" size="sm" />
-            Widget Builder
-          </Button>
-        </Link>
-      </nav>
+      {/* Page directory */}
+      <section className="space-y-3">
+        <Text as="h2" variant="heading-subsection" color="foreground-1">Pages</Text>
+        <div className="grid grid-cols-2 gap-3">
+          <Link to="/insights" className="rounded-cn-2 border border-subtle bg-surface-1 p-4 hover:border-borders-3 transition-colors no-underline">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cn-2">
+                <IconV2 name="dashboard" size="sm" className="text-foreground-2" />
+              </div>
+              <div>
+                <Text variant="body-strong" color="foreground-1">Insights</Text>
+                <Text variant="caption-normal" color="foreground-3">Dashboard listing with search, filters, and create flow</Text>
+              </div>
+            </div>
+          </Link>
+          <Link to="/canvas" className="rounded-cn-2 border border-subtle bg-surface-1 p-4 hover:border-borders-3 transition-colors no-underline">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cn-2">
+                <IconV2 name="layout-grid" size="sm" className="text-foreground-2" />
+              </div>
+              <div>
+                <Text variant="body-strong" color="foreground-1">Canvas</Text>
+                <Text variant="caption-normal" color="foreground-3">Drag-and-drop canvas workspace for visual composition</Text>
+              </div>
+            </div>
+          </Link>
+          <Link to="/insights/custom/1" className="rounded-cn-2 border border-subtle bg-surface-1 p-4 hover:border-borders-3 transition-colors no-underline">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cn-2">
+                <IconV2 name="bar-vertical" size="sm" className="text-foreground-2" />
+              </div>
+              <div>
+                <Text variant="body-strong" color="foreground-1">Custom Insight</Text>
+                <Text variant="caption-normal" color="foreground-3">Single insight view with widget chart and time range controls</Text>
+              </div>
+            </div>
+          </Link>
+          <Link to="/insights/custom/1/widget-builder" className="rounded-cn-2 border border-subtle bg-surface-1 p-4 hover:border-borders-3 transition-colors no-underline">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cn-2">
+                <IconV2 name="settings" size="sm" className="text-foreground-2" />
+              </div>
+              <div>
+                <Text variant="body-strong" color="foreground-1">Widget Builder</Text>
+                <Text variant="caption-normal" color="foreground-3">Query builder with 7 chart types, datasource selection, and criteria config</Text>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Component Gallery ── */}
+      <section className="space-y-3">
+        <Text as="h2" variant="heading-subsection" color="foreground-1">Component Gallery</Text>
+        <div className="grid grid-cols-2 gap-3">
+          <Link to="/tables" className="rounded-cn-2 border border-subtle bg-surface-1 p-4 hover:border-borders-3 transition-colors no-underline">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cn-2">
+                <IconV2 name="grip-dots" size="sm" className="text-foreground-2" />
+              </div>
+              <div>
+                <Text variant="body-strong" color="foreground-1">Tables</Text>
+                <Text variant="caption-normal" color="foreground-3">Data tables with sorting, pagination, and row actions</Text>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
 
       {/* ── SideNav Component ── */}
       <section className="space-y-3">
@@ -125,6 +173,58 @@ function App() {
             ]} />
           </div>
         </div>
+      </section>
+
+      {/* ── Data Visualizations ── */}
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <Text as="h2" variant="heading-subsection" color="foreground-1">Data Visualizations</Text>
+          <Text as="p" variant="body-normal" color="foreground-3">
+            Reusable chart components built on Recharts. Each accepts a simple <code>{'{ name, value }[]'}</code> data array.
+          </Text>
+        </div>
+        {(() => {
+          const sampleData = [
+            { name: 'Alpha', value: 4_200_000 },
+            { name: 'Beta', value: 3_100_000 },
+            { name: 'Gamma', value: 2_800_000 },
+            { name: 'Delta', value: 1_900_000 },
+            { name: 'Epsilon', value: 1_200_000 },
+            { name: 'Zeta', value: 750_000 },
+          ]
+          return (
+            <div className="grid grid-cols-2 gap-6">
+              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2">
+                <Text variant="caption-strong" color="foreground-2">BarChart2</Text>
+                <BarChart2 data={sampleData} height={280} />
+              </div>
+              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2">
+                <Text variant="caption-strong" color="foreground-2">LineChart2</Text>
+                <LineChart2 data={sampleData} height={280} />
+              </div>
+              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2">
+                <Text variant="caption-strong" color="foreground-2">AreaChart2</Text>
+                <AreaChart2 data={sampleData} height={280} />
+              </div>
+              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2">
+                <Text variant="caption-strong" color="foreground-2">HorizontalBarChart</Text>
+                <HorizontalBarChart data={sampleData} height={280} />
+              </div>
+              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2">
+                <Text variant="caption-strong" color="foreground-2">ScatterChart2</Text>
+                <ScatterChart2 data={sampleData} height={280} />
+              </div>
+              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2 overflow-visible">
+                <Text variant="caption-strong" color="foreground-2">DonutChart</Text>
+                <DonutChart data={sampleData} height={280} />
+              </div>
+              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2 col-span-2">
+                <Text variant="caption-strong" color="foreground-2">MetricCard</Text>
+                <MetricCard data={sampleData} height={200} seriesName="Total Revenue" />
+              </div>
+            </div>
+          )
+        })()}
       </section>
 
       {/* ── Section: Primitives Reference ── */}
