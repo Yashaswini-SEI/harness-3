@@ -121,7 +121,7 @@ function DonutMetric({ title, subtitle, data, value, color }: {
   color: string
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1">
+    <div className="flex flex-col items-center gap-3 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
       <Text variant="body-strong" color="foreground-1">{title}</Text>
       <Text variant="caption-normal" color="foreground-3">{subtitle}</Text>
       <div className="relative" style={{ width: 140, height: 140 }}>
@@ -161,7 +161,7 @@ function StackedBarCard({ title, subtitle, data, yAxisFormatter }: {
   yAxisFormatter?: (value: number) => string
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1">
+    <div className="flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-0.5">
           <Text variant="body-strong" color="foreground-1">{title}</Text>
@@ -302,7 +302,7 @@ export function AIInsightsPage() {
 
         {/* Stats row below donuts */}
         <div className="grid grid-cols-3 gap-5">
-          <div className="flex justify-between rounded-lg border border-borders-2 bg-white px-5 py-3 dark:bg-cn-1">
+          <div className="flex justify-between rounded-cn-2 border border-borders-2 bg-white px-5 py-3 dark:bg-cn-1">
             <div className="flex flex-col">
               <Text variant="caption-normal" color="foreground-3">Total developers</Text>
               <div className="flex items-baseline gap-1">
@@ -324,7 +324,7 @@ export function AIInsightsPage() {
               </div>
             </div>
           </div>
-          <div className="flex justify-between rounded-lg border border-borders-2 bg-white px-5 py-3 dark:bg-cn-1">
+          <div className="flex justify-between rounded-cn-2 border border-borders-2 bg-white px-5 py-3 dark:bg-cn-1">
             <div className="flex flex-col">
               <Text variant="caption-normal" color="foreground-3">Lines suggested / Active Contrib...</Text>
               <div className="flex items-baseline gap-1">
@@ -340,7 +340,7 @@ export function AIInsightsPage() {
               </div>
             </div>
           </div>
-          <div className="flex justify-between rounded-lg border border-borders-2 bg-white px-5 py-3 dark:bg-cn-1">
+          <div className="flex justify-between rounded-cn-2 border border-borders-2 bg-white px-5 py-3 dark:bg-cn-1">
             <div className="flex flex-col">
               <Text variant="caption-normal" color="foreground-3">Recent rework in 30 days</Text>
               <div className="flex items-baseline gap-1">
@@ -387,7 +387,7 @@ export function AIInsightsPage() {
         </div>
 
         {/* Active users table */}
-        <div className="rounded-lg border border-borders-2 bg-white dark:bg-cn-1">
+        <div className="rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
           <div className="p-5 pb-3">
             <Text variant="body-strong" color="foreground-1">Active users in team</Text>
             <Text variant="body-normal" color="foreground-3" className="mt-0.5">
