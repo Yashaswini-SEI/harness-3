@@ -228,19 +228,17 @@ export function DonutChart({ data, height = 420, seriesName = 'Count', metric, t
             paddingAngle={isSingleColor ? 0 : 2}
             animationDuration={150}
           >
-            {isSingleColor ? (
-              <>
-                <Cell fill={color} />
-                <Cell fill="var(--cn-border-2, #E5E7EB)" />
-              </>
-            ) : (
-              data.map((_, index) => {
-                const ci = index % DONUT_COLORS.length
-                return (
-                  <Cell key={index} fill={DONUT_COLORS[ci]} style={{ filter: `url(#donut-shadow-${ci})` }} />
-                )
-              })
-            )}
+            {isSingleColor
+              ? [color, 'var(--cn-border-2, #E5E7EB)'].map((fill, i) => (
+                  <Cell key={i} fill={fill} />
+                ))
+              : data.map((_, index) => {
+                  const ci = index % DONUT_COLORS.length
+                  return (
+                    <Cell key={index} fill={DONUT_COLORS[ci]} style={{ filter: `url(#donut-shadow-${ci})` }} />
+                  )
+                })
+            }
           </Pie>
           <Tooltip formatter={tooltipFormatter(seriesName)} contentStyle={TOOLTIP_STYLE} />
           {!isSingleColor && (
