@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import {
   Text,
   Button,
@@ -627,24 +627,26 @@ export function InsightsPage() {
               {harnessInsightsOpen && (
                 <div className="grid grid-cols-3 gap-3">
                   {filteredInsights.map((insight) => (
-                    <Card.Root key={insight.id} size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2">
-                      <Card.Content>
-                        <div className="flex gap-4">
-                          <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
-                            <img src={insight.thumb} alt={insight.title} className="h-full w-full object-contain" />
-                          </div>
-                          <div className="flex flex-col gap-3 min-w-0">
-                            <div className="flex flex-col gap-1">
-                              <Text variant="body-strong" color="foreground-1">{insight.title}</Text>
-                              <Text variant="body-normal" color="foreground-3">{insight.description}</Text>
+                    <Link key={insight.id} to={`/insights/harness/${insight.id}`} className="rounded-lg no-underline">
+                      <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2 cursor-pointer">
+                        <Card.Content>
+                          <div className="flex gap-4">
+                            <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
+                              <img src={insight.thumb} alt={insight.title} className="h-full w-full object-contain" />
                             </div>
-                            <div>
-                              <Tag variant="outline" theme="gray" size="sm" value={insight.tag} />
+                            <div className="flex flex-col gap-3 min-w-0">
+                              <div className="flex flex-col gap-1">
+                                <Text variant="body-strong" color="foreground-1">{insight.title}</Text>
+                                <Text variant="body-normal" color="foreground-3">{insight.description}</Text>
+                              </div>
+                              <div>
+                                <Tag variant="outline" theme="gray" size="sm" value={insight.tag} />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Card.Content>
-                    </Card.Root>
+                        </Card.Content>
+                      </Card.Root>
+                    </Link>
                   ))}
                 </div>
               )}

@@ -9,6 +9,7 @@ import { InsightsPage } from './pages/InsightsPage'
 import { WidgetBuilderPage } from './pages/WidgetBuilderPage'
 import { CanvasPage } from './pages/CanvasPage'
 import { CustomInsightPage } from './pages/CustomInsightPage'
+import { HarnessReportPage } from './pages/HarnessReportPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
         </Route>
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/canvas" element={<CanvasPage />} />
+        <Route path="/insights/harness/:slug" element={<HarnessReportPage />} />
         <Route path="/insights/custom/:id" element={<CustomInsightPage />} />
         <Route path="/insights/custom/:id/widget-builder" element={<WidgetBuilderPage />} />
       </Routes>
