@@ -449,7 +449,7 @@ export function WidgetBuilderPage() {
           )}
           {chartType === 'donut' && viewMode !== 'table' && (
             <div className="p-6 overflow-visible">
-              <DonutChart data={chartData} height={chartHeight * 1.5} />
+              <DonutChart data={chartData} height={chartHeight * 1.875} />
             </div>
           )}
           {chartType === 'horizontal-bar' && viewMode !== 'table' && (

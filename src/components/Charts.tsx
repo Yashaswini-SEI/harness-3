@@ -197,7 +197,7 @@ export interface DonutChartProps extends ChartProps {
   color?: string
 }
 
-export function DonutChart({ data, height = 504, seriesName = 'Count', metric, metricLabel, trend, color }: DonutChartProps) {
+export function DonutChart({ data, height = 630, seriesName = 'Count', metric, metricLabel, trend, color }: DonutChartProps) {
   const isSingleColor = !!color
   const isPositive = trend?.startsWith('+')
 
@@ -235,7 +235,7 @@ export function DonutChart({ data, height = 504, seriesName = 'Count', metric, m
             animationDuration={150}
           >
             {isSingleColor
-              ? [color, 'var(--cn-border-2, #E5E7EB)'].map((fill, i) => (
+              ? [color, 'var(--cn-donut-remaining, #F3F4F6)'].map((fill, i) => (
                   <Cell key={i} fill={fill} style={i === 0 ? { filter: `url(#donut-shadow-single-${color!.replace(/[^a-zA-Z0-9]/g, '')})` } : undefined} />
                 ))
               : data.map((_, index) => {
@@ -253,10 +253,10 @@ export function DonutChart({ data, height = 504, seriesName = 'Count', metric, m
         </PieChart>
       </ResponsiveContainer>
       {metric && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ gap: 1 }}>
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center" style={{ gap: 1 }}>
           <span className="text-foreground-1 font-semibold" style={{ fontSize: 24, lineHeight: 1, marginTop: 6 }}>{metric}</span>
           {metricLabel && (
-            <span className="text-foreground-3" style={{ fontSize: 11, lineHeight: 1 }}>{metricLabel}</span>
+            <span className="text-foreground-3" style={{ fontSize: 13, lineHeight: 1 }}>{metricLabel}</span>
           )}
           {trend && (
             <span className={`text-xs font-medium ${isPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>

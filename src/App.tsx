@@ -216,7 +216,7 @@ function App() {
               </div>
               <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2 overflow-visible">
                 <Text variant="caption-strong" color="foreground-2">DonutChart</Text>
-                <DonutChart data={sampleData} height={280} />
+                <DonutChart data={sampleData} height={350} />
               </div>
               <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2">
                 <Text variant="caption-strong" color="foreground-2">StackedBarChart</Text>

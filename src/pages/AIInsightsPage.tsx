@@ -183,11 +183,12 @@ function CardTitle({ title, subtitle, tooltip }: { title: string; subtitle: stri
 
 // ── Donut metric card ──
 
-function DonutMetricCard({ title, subtitle, data, metric, color, trend, tooltip, children }: {
+function DonutMetricCard({ title, subtitle, data, metric, metricLabel, color, trend, tooltip, children }: {
   title: string
   subtitle: string
   data: { name: string; value: number }[]
   metric: string
+  metricLabel?: string
   color: string
   trend: string
   tooltip?: string
@@ -197,7 +198,7 @@ function DonutMetricCard({ title, subtitle, data, metric, color, trend, tooltip,
     <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
       <div className="flex flex-col gap-4 p-5">
         <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
-        <DonutChart data={data} height={168} color={color} metric={metric} trend={trend} />
+        <DonutChart data={data} height={210} color={color} metric={metric} metricLabel={metricLabel} trend={trend} />
       </div>
       {children}
     </div>
@@ -364,8 +365,8 @@ export function AIInsightsPage() {
         {/* Donut metrics row */}
         <div className="grid grid-cols-3 gap-5">
           <DonutMetricCard
-            title="AI Adoption Rate"
-            subtitle="Last 12 months"
+            title="Adoption"
+            subtitle=""
             tooltip="Percentage of developers actively using AI coding assistants out of total developers on the team."
             data={adoptionData}
             metric={`${profile.adoptionRate}%`}
@@ -390,8 +391,8 @@ export function AIInsightsPage() {
             </div>
           </DonutMetricCard>
           <DonutMetricCard
-            title="Usage: Acceptance Rate"
-            subtitle="Last 12 months"
+            title="Velocity"
+            subtitle=""
             tooltip="Ratio of AI-suggested code lines that were accepted by developers versus total suggestions."
             data={acceptanceData}
             metric={`${profile.acceptanceRate}%`}
@@ -415,8 +416,8 @@ export function AIInsightsPage() {
             </div>
           </DonutMetricCard>
           <DonutMetricCard
-            title="Quality: Code Rework"
-            subtitle="Last 12 months"
+            title="Quality"
+            subtitle=""
             tooltip="Percentage of AI-generated code that required rework or was reverted within 30 days of being merged."
             data={reworkData}
             metric={`${profile.reworkRate}%`}
@@ -443,20 +444,20 @@ export function AIInsightsPage() {
 
         {/* Daily Active Users + Net Lines charts */}
         <div className="grid grid-cols-2 gap-5">
-          <ChartCard title="Daily Active Users by Assistant" subtitle="Last 12 months" tooltip="Number of unique developers using each AI assistant per day, averaged weekly.">
+          <ChartCard title="Daily Active Users by Assistant" subtitle="" tooltip="Number of unique developers using each AI assistant per day, averaged weekly.">
             <StackedBarChart data={filterData(dailyActiveData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => String(v)} />
           </ChartCard>
-          <ChartCard title="Net Lines Added Per Contributor" subtitle="Last 12 months" tooltip="Average net lines of code added per active contributor, broken down by AI assistant.">
+          <ChartCard title="Net Lines Added Per Contributor" subtitle="" tooltip="Average net lines of code added per active contributor, broken down by AI assistant.">
             <StackedBarChart data={filterData(netLinesData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={formatYAxis} />
           </ChartCard>
         </div>
 
         {/* Adoption & Acceptance rate by team */}
         <div className="grid grid-cols-2 gap-5">
-          <ChartCard title="Adoption Rate by Team" subtitle="Last 12 months" tooltip="Breakdown of AI assistant adoption across teams, showing Windsurf vs Cursor usage.">
+          <ChartCard title="Adoption Rate by Team" subtitle="" tooltip="Breakdown of AI assistant adoption across teams, showing Windsurf vs Cursor usage.">
             <StackedBarChart data={filterData(teamData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
-          <ChartCard title="Acceptance Rate" subtitle="Last 12 months" tooltip="Code suggestion acceptance rate by team, comparing Windsurf and Cursor assistants.">
+          <ChartCard title="Acceptance Rate" subtitle="" tooltip="Code suggestion acceptance rate by team, comparing Windsurf and Cursor assistants.">
             <StackedBarChart data={filterData(acceptanceByTeamData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
         </div>
