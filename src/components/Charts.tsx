@@ -260,6 +260,62 @@ export function DonutChart({ data, height = 420, seriesName = 'Count', metric, t
   )
 }
 
+// ── Stacked bar chart ──
+
+export interface StackedBarSeries {
+  dataKey: string
+  name: string
+  color: string
+}
+
+export interface StackedBarChartProps {
+  data: Record<string, string | number>[]
+  series: StackedBarSeries[]
+  height?: number
+  yAxisFormatter?: (value: number) => string
+}
+
+export function StackedBarChart({ data, series, height = 420, yAxisFormatter }: StackedBarChartProps) {
+  const maxTotal = Math.max(...data.map(d =>
+    series.reduce((sum, s) => sum + (Number(d[s.dataKey]) || 0), 0)
+  ))
+  const gap = Math.round(maxTotal * 0.015) || 1
+  const gappedData = data.map(d => ({ ...d, _gap: gap }))
+
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={gappedData} margin={CHART_MARGIN}>
+        <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
+        <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
+        <YAxis
+          tickFormatter={yAxisFormatter ?? formatYAxis}
+          tick={TICK_STYLE}
+          axisLine={false}
+          tickLine={false}
+          width={48}
+        />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
+        {series.map((s, i) => (
+          <Bar
+            key={s.dataKey}
+            dataKey={s.dataKey}
+            name={s.name}
+            fill={s.color}
+            stackId="a"
+            radius={i === series.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+            animationDuration={150}
+          />
+        )).flatMap((bar, i) =>
+          i < series.length - 1
+            ? [bar, <Bar key={`_gap_${i}`} dataKey="_gap" stackId="a" fill="transparent" legendType="none" tooltipType="none" animationDuration={0} />]
+            : [bar]
+        )}
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
 export function MetricCard({ data, height = 420, seriesName = 'Total Count' }: ChartProps) {
   const total = data.reduce((sum, d) => sum + d.value, 0)
 

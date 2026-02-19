@@ -9,14 +9,9 @@ import {
   StatusBadge,
   Tag,
 } from '@harnessio/ui/components'
-import {
-  ResponsiveContainer,
-  BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-} from 'recharts'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
-import { DonutChart } from '../components/Charts'
+import { DonutChart, StackedBarChart, formatYAxis } from '../components/Charts'
 
 // ── Donut chart data ──
 
@@ -93,23 +88,15 @@ const activeUsers = [
   { name: 'Michael Zhang', role: 'Software Engineer', team: 'Quality Engineering', assistant: 'Cursor', lines: 2_890 },
 ]
 
-// ── Shared chart constants ──
+// ── Chart constants ──
 
-const TICK_STYLE = { fontSize: 12, fill: '#6B7280' }
-const AXIS_LINE = { stroke: '#E5E7EB' }
-const GRID_STROKE = 'var(--cn-border-2, #E5E7EB)'
-const TOOLTIP_STYLE = { borderRadius: 8, fontSize: 13 }
-const LEGEND_STYLE = { fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }
 const WINDSURF_COLOR = '#2DA6FF'
 const CURSOR_COLOR = '#D946EF'
 
-const formatYAxis = (value: number) => {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)}M`
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`
-  return String(value)
-}
-
-const legendFormatter = (value: string) => <span style={{ color: '#4B5563' }}>{value}</span>
+const ASSISTANT_SERIES = [
+  { dataKey: 'windsurf', name: 'Windsurf', color: WINDSURF_COLOR },
+  { dataKey: 'cursor', name: 'Cursor', color: CURSOR_COLOR },
+]
 
 // ── Donut metric card ──
 
@@ -132,18 +119,13 @@ function DonutMetricCard({ title, subtitle, data, metric, color, trend }: {
   )
 }
 
-// ── Stacked bar chart card ──
+// ── Chart card wrapper ──
 
-function StackedBarCard({ title, subtitle, data, yAxisFormatter }: {
+function ChartCard({ title, subtitle, children }: {
   title: string
   subtitle: string
-  data: { name: string; windsurf: number; cursor: number }[]
-  yAxisFormatter?: (value: number) => string
+  children: React.ReactNode
 }) {
-  const maxTotal = Math.max(...data.map(d => d.windsurf + d.cursor))
-  const gap = Math.round(maxTotal * 0.015) || 1
-  const gappedData = data.map(d => ({ ...d, _gap: gap }))
-
   return (
     <div className="flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
       <div className="flex items-start justify-between">
@@ -155,24 +137,7 @@ function StackedBarCard({ title, subtitle, data, yAxisFormatter }: {
           <IconV2 name="more-horizontal" size="sm" />
         </Button>
       </div>
-      <ResponsiveContainer width="100%" height={240}>
-        <BarChart data={gappedData} margin={{ top: 8, right: 0, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
-          <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
-          <YAxis
-            tickFormatter={yAxisFormatter ?? ((v: number) => `${v}%`)}
-            tick={TICK_STYLE}
-            axisLine={false}
-            tickLine={false}
-            width={48}
-          />
-          <Tooltip contentStyle={TOOLTIP_STYLE} filterNull={false} itemStyle={{ padding: 0 }} />
-          <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
-          <Bar dataKey="windsurf" name="Windsurf" fill={WINDSURF_COLOR} stackId="a" animationDuration={150} />
-          <Bar dataKey="_gap" stackId="a" fill="transparent" legendType="none" tooltipType="none" animationDuration={0} />
-          <Bar dataKey="cursor" name="Cursor" fill={CURSOR_COLOR} stackId="a" radius={[4, 4, 0, 0]} animationDuration={150} />
-        </BarChart>
-      </ResponsiveContainer>
+      {children}
     </div>
   )
 }
@@ -346,32 +311,22 @@ export function AIInsightsPage() {
 
         {/* Daily Active Users + Net Lines charts */}
         <div className="grid grid-cols-2 gap-5">
-          <StackedBarCard
-            title="Daily Active Users by Assistant"
-            subtitle="Last 12 months"
-            data={dailyActiveData}
-            yAxisFormatter={(v) => String(v)}
-          />
-          <StackedBarCard
-            title="Net Lines Added Per Contributor"
-            subtitle="Last 12 months"
-            data={netLinesData}
-            yAxisFormatter={formatYAxis}
-          />
+          <ChartCard title="Daily Active Users by Assistant" subtitle="Last 12 months">
+            <StackedBarChart data={dailyActiveData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => String(v)} />
+          </ChartCard>
+          <ChartCard title="Net Lines Added Per Contributor" subtitle="Last 12 months">
+            <StackedBarChart data={netLinesData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={formatYAxis} />
+          </ChartCard>
         </div>
 
         {/* Adoption & Acceptance rate by team */}
         <div className="grid grid-cols-2 gap-5">
-          <StackedBarCard
-            title="Adoption Rate by Team"
-            subtitle="Last 12 months"
-            data={teamData}
-          />
-          <StackedBarCard
-            title="Acceptance Rate"
-            subtitle="Last 12 months"
-            data={acceptanceByTeamData}
-          />
+          <ChartCard title="Adoption Rate by Team" subtitle="Last 12 months">
+            <StackedBarChart data={teamData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
+          </ChartCard>
+          <ChartCard title="Acceptance Rate" subtitle="Last 12 months">
+            <StackedBarChart data={acceptanceByTeamData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
+          </ChartCard>
         </div>
 
         {/* Active users table */}

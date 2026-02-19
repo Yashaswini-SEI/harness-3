@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { SideNav } from './components/SideNav'
 import { Nav2, type Nav2Section } from './components/Nav2'
 import { Breadcrumb2 } from './components/Breadcrumb2'
-import { LineChart2, BarChart2, HorizontalBarChart, AreaChart2, ScatterChart2, DonutChart, MetricCard } from './components/Charts'
+import { LineChart2, BarChart2, HorizontalBarChart, AreaChart2, ScatterChart2, DonutChart, StackedBarChart, MetricCard } from './components/Charts'
 
 function App() {
   const [search, setSearch] = useState('')
@@ -218,7 +218,25 @@ function App() {
                 <Text variant="caption-strong" color="foreground-2">DonutChart</Text>
                 <DonutChart data={sampleData} height={280} />
               </div>
-              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2 col-span-2">
+              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2">
+                <Text variant="caption-strong" color="foreground-2">StackedBarChart</Text>
+                <StackedBarChart
+                  data={[
+                    { name: 'Platform', a: 82, b: 18 },
+                    { name: 'Product', a: 65, b: 35 },
+                    { name: 'Mobile', a: 58, b: 42 },
+                    { name: 'Frontend', a: 72, b: 28 },
+                    { name: 'Backend', a: 78, b: 22 },
+                  ]}
+                  series={[
+                    { dataKey: 'a', name: 'Series A', color: '#2DA6FF' },
+                    { dataKey: 'b', name: 'Series B', color: '#D946EF' },
+                  ]}
+                  height={280}
+                  yAxisFormatter={(v) => `${v}%`}
+                />
+              </div>
+              <div className="rounded-cn-2 border border-subtle bg-surface-1 p-4 space-y-2">
                 <Text variant="caption-strong" color="foreground-2">MetricCard</Text>
                 <MetricCard data={sampleData} height={200} seriesName="Total Revenue" />
               </div>
