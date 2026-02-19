@@ -146,7 +146,7 @@ function DonutMetric({ title, subtitle, data, value, color, trend }: {
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ gap: 1 }}>
           <Text variant="heading-section" color="foreground-1" className="font-semibold">{value}</Text>
           <span className={`text-xs font-medium ${isPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
             {trend}
@@ -303,7 +303,7 @@ export function AIInsightsPage() {
             subtitle="Last 12 months"
             data={reworkData}
             value="19.8%"
-            color="#F59E0B"
+            color="#EF4444"
             trend="-4.2%"
           />
         </div>
