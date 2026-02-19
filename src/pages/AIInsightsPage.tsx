@@ -75,17 +75,17 @@ const acceptanceByTeamData = [
 // ── Active users table data ──
 
 const activeUsers = [
-  { name: 'Priya Sharma', role: 'Staff Engineer', team: 'Product Engineering', assistant: 'Windsurf', lines: 5_320 },
-  { name: 'Emily Rodriguez', role: 'Staff Engineer', team: 'Product Engineering', assistant: 'Windsurf', lines: 5_120 },
-  { name: 'Jessica Taylor', role: 'Senior Software Engineer', team: 'Data Science', assistant: 'Windsurf', lines: 4_890 },
-  { name: 'James Chen', role: 'Senior Software Engineer', team: 'Platform Engineering', assistant: 'Cursor', lines: 4_650 },
-  { name: 'Sarah Chen', role: 'Staff Engineer', team: 'Platform Engineering', assistant: 'Cursor', lines: 4_320 },
-  { name: 'David Park', role: 'Software Engineer', team: 'Product Engineering', assistant: 'Cursor', lines: 4_100 },
-  { name: 'Ryan O\'Connor', role: 'Software Engineer', team: 'Product Engineering', assistant: 'Cursor', lines: 3_950 },
-  { name: 'Marcus Williams', role: 'Senior Software Engineer', team: 'Product Engineering', assistant: 'Cursor', lines: 3_800 },
-  { name: 'Olivia Martinez', role: 'Software Engineer', team: 'Data Science', assistant: 'Cursor', lines: 3_500 },
-  { name: 'Daniel Patel', role: 'Software Engineer', team: 'Mobile Development', assistant: 'Cursor', lines: 2_970 },
-  { name: 'Michael Zhang', role: 'Software Engineer', team: 'Quality Engineering', assistant: 'Cursor', lines: 2_890 },
+  { name: 'Priya Sharma', email: 'p.sharma@sei.io', role: 'Staff Engineer', team: 'Product Engineering', assistant: 'Windsurf', lines: 5_320 },
+  { name: 'Emily Rodriguez', email: 'e.rodriguez@sei.io', role: 'Staff Engineer', team: 'Product Engineering', assistant: 'Windsurf', lines: 5_120 },
+  { name: 'Jessica Taylor', email: 'j.taylor@sei.io', role: 'Senior Software Engineer', team: 'Data Science', assistant: 'Windsurf', lines: 4_890 },
+  { name: 'James Chen', email: 'j.chen@sei.io', role: 'Senior Software Engineer', team: 'Platform Engineering', assistant: 'Cursor', lines: 4_650 },
+  { name: 'Sarah Chen', email: 's.chen@sei.io', role: 'Staff Engineer', team: 'Platform Engineering', assistant: 'Cursor', lines: 4_320 },
+  { name: 'David Park', email: 'd.park@sei.io', role: 'Software Engineer', team: 'Product Engineering', assistant: 'Cursor', lines: 4_100 },
+  { name: 'Ryan O\'Connor', email: 'r.oconnor@sei.io', role: 'Software Engineer', team: 'Product Engineering', assistant: 'Cursor', lines: 3_950 },
+  { name: 'Marcus Williams', email: 'm.williams@sei.io', role: 'Senior Software Engineer', team: 'Product Engineering', assistant: 'Cursor', lines: 3_800 },
+  { name: 'Olivia Martinez', email: 'o.martinez@sei.io', role: 'Software Engineer', team: 'Data Science', assistant: 'Cursor', lines: 3_500 },
+  { name: 'Daniel Patel', email: 'd.patel@sei.io', role: 'Software Engineer', team: 'Mobile Development', assistant: 'Cursor', lines: 2_970 },
+  { name: 'Michael Zhang', email: 'm.zhang@sei.io', role: 'Software Engineer', team: 'Quality Engineering', assistant: 'Cursor', lines: 2_890 },
 ]
 
 // ── Chart constants ──
@@ -344,7 +344,17 @@ export function AIInsightsPage() {
             <Table.Body>
               {activeUsers.map((user) => (
                 <Table.Row key={user.name}>
-                  <Table.Cell>{user.name}</Table.Cell>
+                  <Table.Cell>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cn-2 text-sm font-medium text-foreground-2">
+                        {user.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div className="flex flex-col">
+                        <Text variant="body-normal" color="foreground-1">{user.name}</Text>
+                        <Text variant="caption-normal" color="foreground-4">{user.email}</Text>
+                      </div>
+                    </div>
+                  </Table.Cell>
                   <Table.Cell>{user.role}</Table.Cell>
                   <Table.Cell>{user.team}</Table.Cell>
                   <Table.Cell>
