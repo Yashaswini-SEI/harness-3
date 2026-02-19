@@ -294,7 +294,7 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter }: 
           tickLine={false}
           width={48}
         />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }} />
         <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
         {series.map((s, i) => (
           <Bar
