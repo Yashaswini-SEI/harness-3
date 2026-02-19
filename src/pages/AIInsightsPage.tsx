@@ -413,7 +413,7 @@ export function AIInsightsPage() {
                   <Table.Cell>
                     <Tag
                       variant="outline"
-                      theme={user.assistant === 'Windsurf' ? 'info' : 'purple' as 'info'}
+                      theme={user.assistant === 'Windsurf' ? 'blue' : 'purple'}
                       size="sm"
                       value={user.assistant}
                     />
