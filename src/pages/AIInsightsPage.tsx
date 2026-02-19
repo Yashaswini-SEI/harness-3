@@ -227,14 +227,31 @@ export function AIInsightsPage() {
 
         {/* Donut metrics row */}
         <div className="grid grid-cols-3 gap-5">
-          <DonutMetricCard
-            title="AI Adoption Rate"
-            subtitle="Last 12 months"
-            data={adoptionData}
-            metric="75%"
-            color="#10B981"
-            trend="+21%"
-          />
+          <div className="flex flex-col gap-5">
+            <DonutMetricCard
+              title="AI Adoption Rate"
+              subtitle="Last 12 months"
+              data={adoptionData}
+              metric="75%"
+              color="#10B981"
+              trend="+21%"
+            />
+            <div className="rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+              {[
+                { label: 'Total developers', value: '145', change: '+21%', positive: true },
+                { label: 'Active developers', value: '109', change: '+21%', positive: true },
+                { label: 'Inactive developers', value: '36', change: '+21%', positive: true },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between border-b border-borders-2 px-4 py-3 last:border-b-0">
+                  <Text variant="body-normal" color="foreground-3">{row.label}</Text>
+                  <div className="flex items-center gap-2">
+                    <Text variant="body-strong" color="foreground-1">{row.value}</Text>
+                    <Text variant="caption-normal" color={row.positive ? 'success' : 'danger'}>{row.change}</Text>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <DonutMetricCard
             title="Usage: Acceptance Rate"
             subtitle="Last 12 months"
