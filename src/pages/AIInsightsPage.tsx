@@ -113,13 +113,15 @@ const legendFormatter = (value: string) => <span style={{ color: '#4B5563' }}>{v
 
 // ── Donut metric card ──
 
-function DonutMetric({ title, subtitle, data, value, color }: {
+function DonutMetric({ title, subtitle, data, value, color, trend }: {
   title: string
   subtitle: string
   data: { name: string; value: number }[]
   value: string
   color: string
+  trend: string
 }) {
+  const isPositive = trend.startsWith('+')
   return (
     <div className="flex flex-col items-center gap-3 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
       <Text variant="body-strong" color="foreground-1">{title}</Text>
@@ -144,8 +146,11 @@ function DonutMetric({ title, subtitle, data, value, color }: {
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
           <Text variant="heading-section" color="foreground-1" className="font-semibold">{value}</Text>
+          <span className={`text-xs font-medium ${isPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+            {trend}
+          </span>
         </div>
       </div>
     </div>
@@ -283,6 +288,7 @@ export function AIInsightsPage() {
             data={adoptionData}
             value="75%"
             color="#10B981"
+            trend="+21%"
           />
           <DonutMetric
             title="Usage: Acceptance Rate"
@@ -290,6 +296,7 @@ export function AIInsightsPage() {
             data={acceptanceData}
             value="70.6%"
             color="#10B981"
+            trend="+8.3%"
           />
           <DonutMetric
             title="Quality: Code Rework"
@@ -297,6 +304,7 @@ export function AIInsightsPage() {
             data={reworkData}
             value="19.8%"
             color="#F59E0B"
+            trend="-4.2%"
           />
         </div>
 
