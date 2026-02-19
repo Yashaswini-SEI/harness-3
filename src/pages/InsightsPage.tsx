@@ -661,24 +661,26 @@ export function InsightsPage() {
               </Text>
               {hasCustomInsight ? (
                 <div className="grid grid-cols-3 gap-3">
-                  <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2">
-                    <Card.Content>
-                      <div className="flex gap-4">
-                        <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
-                          <img src={thumb5} alt={customInsightName} className="h-full w-full object-contain" />
-                        </div>
-                        <div className="flex flex-col gap-3 min-w-0">
-                          <div className="flex flex-col gap-1">
-                            <Text variant="body-strong" color="foreground-1">{customInsightName}</Text>
-                            <Text variant="body-normal" color="foreground-3">Custom insight with issues by project widget.</Text>
+                  <a href="/insights/custom/1" className="rounded-lg">
+                    <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2 cursor-pointer">
+                      <Card.Content>
+                        <div className="flex gap-4">
+                          <div className="shrink-0 flex items-center justify-center w-[85px] h-[73px] rounded">
+                            <img src={thumb5} alt={customInsightName} className="h-full w-full object-contain" />
                           </div>
-                          <div>
-                            <Tag variant="outline" theme="gray" size="sm" value="Custom" />
+                          <div className="flex flex-col gap-3 min-w-0">
+                            <div className="flex flex-col gap-1">
+                              <Text variant="body-strong" color="foreground-1">{customInsightName}</Text>
+                              <Text variant="body-normal" color="foreground-3">Custom insight with issues by project widget.</Text>
+                            </div>
+                            <div>
+                              <Tag variant="outline" theme="gray" size="sm" value="Custom" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Card.Content>
-                  </Card.Root>
+                      </Card.Content>
+                    </Card.Root>
+                  </a>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-4 py-20">
