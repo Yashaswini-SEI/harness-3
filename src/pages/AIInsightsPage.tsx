@@ -262,7 +262,22 @@ export function AIInsightsPage() {
             metric="70.6%"
             color="#10B981"
             trend="+8.3%"
-          />
+          >
+            <div className="border-t border-borders-2">
+              {[
+                { label: 'Lines suggested / Active Contrib...', value: '2,338', change: '+18.5%', positive: true },
+                { label: 'Lines accepted / Active Contrib...', value: '1,650', change: '+21%', positive: true },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between border-b border-borders-2 px-4 py-3 last:border-b-0">
+                  <Text variant="body-normal" color="foreground-3">{row.label}</Text>
+                  <div className="flex items-center gap-2">
+                    <Text variant="body-strong" color="foreground-1">{row.value}</Text>
+                    <Text variant="caption-normal" color={row.positive ? 'success' : 'danger'}>{row.change}</Text>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DonutMetricCard>
           <DonutMetricCard
             title="Quality: Code Rework"
             subtitle="Last 12 months"
@@ -270,63 +285,22 @@ export function AIInsightsPage() {
             metric="19.8%"
             color="#EF4444"
             trend="-4.2%"
-          />
-        </div>
-
-        {/* Stats row below donuts */}
-        <div className="grid grid-cols-3 gap-5">
-          <div className="flex justify-between rounded-cn-2 border border-borders-2 bg-white px-5 py-3 dark:bg-cn-1">
-            <div className="flex flex-col">
-              <Text variant="caption-normal" color="foreground-3">Total developers</Text>
-              <div className="flex items-baseline gap-1">
-                <Text variant="heading-subsection" color="foreground-1">145</Text>
-                <Text variant="caption-normal" color="success">+21%</Text>
-              </div>
+          >
+            <div className="border-t border-borders-2">
+              {[
+                { label: 'Recent rework in 30 days', value: '13.1%', change: '', positive: true },
+                { label: 'Legacy rework', value: '6.7%', change: '', positive: true },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between border-b border-borders-2 px-4 py-3 last:border-b-0">
+                  <Text variant="body-normal" color="foreground-3">{row.label}</Text>
+                  <div className="flex items-center gap-2">
+                    <Text variant="body-strong" color="foreground-1">{row.value}</Text>
+                    {row.change && <Text variant="caption-normal" color={row.positive ? 'success' : 'danger'}>{row.change}</Text>}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex flex-col">
-              <Text variant="caption-normal" color="foreground-3">Active developers</Text>
-              <div className="flex items-baseline gap-1">
-                <Text variant="heading-subsection" color="foreground-1">109</Text>
-                <Text variant="caption-normal" color="success">+21%</Text>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <Text variant="caption-normal" color="foreground-3">Unadopted developers</Text>
-              <div className="flex items-baseline gap-1">
-                <Text variant="heading-subsection" color="foreground-1">36</Text>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-between rounded-cn-2 border border-borders-2 bg-white px-5 py-3 dark:bg-cn-1">
-            <div className="flex flex-col">
-              <Text variant="caption-normal" color="foreground-3">Lines suggested / Active Contrib...</Text>
-              <div className="flex items-baseline gap-1">
-                <Text variant="heading-subsection" color="foreground-1">2,338</Text>
-                <Text variant="caption-normal" color="success">+18.5%</Text>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <Text variant="caption-normal" color="foreground-3">Lines accepted / Active Contrib...</Text>
-              <div className="flex items-baseline gap-1">
-                <Text variant="heading-subsection" color="foreground-1">1,650</Text>
-                <Text variant="caption-normal" color="success">+21%</Text>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-between rounded-cn-2 border border-borders-2 bg-white px-5 py-3 dark:bg-cn-1">
-            <div className="flex flex-col">
-              <Text variant="caption-normal" color="foreground-3">Recent rework in 30 days</Text>
-              <div className="flex items-baseline gap-1">
-                <Text variant="heading-subsection" color="foreground-1">13.1%</Text>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <Text variant="caption-normal" color="foreground-3">Legacy rework</Text>
-              <div className="flex items-baseline gap-1">
-                <Text variant="heading-subsection" color="foreground-1">6.7%</Text>
-              </div>
-            </div>
-          </div>
+          </DonutMetricCard>
         </div>
 
         {/* Daily Active Users + Net Lines charts */}
