@@ -85,8 +85,8 @@ export function CustomInsightPage() {
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
                 <IconV2 name="more-horizontal" size="sm" />
               </Button>
-              <Button variant="outline" size="sm" onClick={() => navigate('/canvas')}>Cancel</Button>
-              <Button size="sm" onClick={() => navigate('/insights', { state: { insightSaved: true, insightName } })}>Save</Button>
+              <Button variant="outline" size="sm" disabled={!hasWidget} onClick={() => navigate('/canvas')}>Cancel</Button>
+              <Button size="sm" disabled={!hasWidget} onClick={() => navigate('/insights', { state: { insightSaved: true, insightName } })}>Save</Button>
             </div>
           </div>
 
