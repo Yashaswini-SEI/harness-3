@@ -134,15 +134,15 @@ function DonutMetricCard({ title, subtitle, data, metric, color, trend }: {
 
 // ── Stacked bar chart card ──
 
-const STACK_GAP = 2
-
 function StackedBarCard({ title, subtitle, data, yAxisFormatter }: {
   title: string
   subtitle: string
   data: { name: string; windsurf: number; cursor: number }[]
   yAxisFormatter?: (value: number) => string
 }) {
-  const gappedData = data.map(d => ({ ...d, _gap: STACK_GAP }))
+  const maxTotal = Math.max(...data.map(d => d.windsurf + d.cursor))
+  const gap = Math.round(maxTotal * 0.015) || 1
+  const gappedData = data.map(d => ({ ...d, _gap: gap }))
 
   return (
     <div className="flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
