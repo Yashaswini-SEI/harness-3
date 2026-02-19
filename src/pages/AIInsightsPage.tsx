@@ -324,8 +324,8 @@ export function AIInsightsPage() {
         </div>
 
         {/* Active users table */}
-        <div className="rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
-          <div className="p-5 pb-3">
+        <div className="rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+          <div className="pb-3">
             <Text variant="body-strong" color="foreground-1">Active users in team</Text>
             <Text variant="body-normal" color="foreground-3" className="mt-0.5">
               Team members actively using AI coding assistances with detailed productivity metrics
