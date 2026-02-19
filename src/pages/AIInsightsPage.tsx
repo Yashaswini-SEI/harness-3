@@ -369,6 +369,7 @@ export function AIInsightsPage() {
             tooltip="Percentage of developers actively using AI coding assistants out of total developers on the team."
             data={adoptionData}
             metric={`${profile.adoptionRate}%`}
+            metricLabel="Adoption Rate"
             color="#10B981"
             trend={profile.adoptionTrend}
           >
@@ -394,6 +395,7 @@ export function AIInsightsPage() {
             tooltip="Ratio of AI-suggested code lines that were accepted by developers versus total suggestions."
             data={acceptanceData}
             metric={`${profile.acceptanceRate}%`}
+            metricLabel="Acceptance Rate"
             color="#10B981"
             trend={profile.acceptanceTrend}
           >
@@ -418,6 +420,7 @@ export function AIInsightsPage() {
             tooltip="Percentage of AI-generated code that required rework or was reverted within 30 days of being merged."
             data={reworkData}
             metric={`${profile.reworkRate}%`}
+            metricLabel="Code Rework"
             color="#EF4444"
             trend={profile.reworkTrend}
           >

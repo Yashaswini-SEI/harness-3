@@ -192,27 +192,32 @@ export function ScatterChart2({ data, height = 420, seriesName = 'Count' }: Char
 
 export interface DonutChartProps extends ChartProps {
   metric?: string
+  metricLabel?: string
   trend?: string
   color?: string
 }
 
-export function DonutChart({ data, height = 504, seriesName = 'Count', metric, trend, color }: DonutChartProps) {
+export function DonutChart({ data, height = 504, seriesName = 'Count', metric, metricLabel, trend, color }: DonutChartProps) {
   const isSingleColor = !!color
   const isPositive = trend?.startsWith('+')
 
   return (
     <div className="relative" style={{ height }}>
-      {!isSingleColor && (
-        <svg width="0" height="0">
-          <defs>
-            {DONUT_COLORS.map((c, i) => (
+      <svg width="0" height="0">
+        <defs>
+          {isSingleColor ? (
+            <filter id={`donut-shadow-single-${color!.replace(/[^a-zA-Z0-9]/g, '')}`}>
+              <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor={color} floodOpacity="0.35" />
+            </filter>
+          ) : (
+            DONUT_COLORS.map((c, i) => (
               <filter key={i} id={`donut-shadow-${i}`}>
                 <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor={c} floodOpacity="0.35" />
               </filter>
-            ))}
-          </defs>
-        </svg>
-      )}
+            ))
+          )}
+        </defs>
+      </svg>
       <ResponsiveContainer width="100%" height="100%" style={{ overflow: 'visible' }}>
         <PieChart style={{ overflow: 'visible' }}>
           <Pie
@@ -226,11 +231,12 @@ export function DonutChart({ data, height = 504, seriesName = 'Count', metric, t
             startAngle={isSingleColor ? 90 : 0}
             endAngle={isSingleColor ? -270 : 360}
             paddingAngle={isSingleColor ? 0 : 2}
+            cornerRadius={4}
             animationDuration={150}
           >
             {isSingleColor
               ? [color, 'var(--cn-border-2, #E5E7EB)'].map((fill, i) => (
-                  <Cell key={i} fill={fill} />
+                  <Cell key={i} fill={fill} style={i === 0 ? { filter: `url(#donut-shadow-single-${color!.replace(/[^a-zA-Z0-9]/g, '')})` } : undefined} />
                 ))
               : data.map((_, index) => {
                   const ci = index % DONUT_COLORS.length
@@ -249,6 +255,9 @@ export function DonutChart({ data, height = 504, seriesName = 'Count', metric, t
       {metric && (
         <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ gap: 1 }}>
           <span className="text-foreground-1 font-semibold" style={{ fontSize: 24, lineHeight: 1, marginTop: 6 }}>{metric}</span>
+          {metricLabel && (
+            <span className="text-foreground-3" style={{ fontSize: 11, lineHeight: 1 }}>{metricLabel}</span>
+          )}
           {trend && (
             <span className={`text-xs font-medium ${isPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
               {trend}
@@ -283,36 +292,48 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter }: 
   const gappedData = data.map(d => ({ ...d, _gap: gap }))
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={gappedData} margin={CHART_MARGIN}>
-        <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
-        <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
-        <YAxis
-          tickFormatter={yAxisFormatter ?? formatYAxis}
-          tick={TICK_STYLE}
-          axisLine={false}
-          tickLine={false}
-          width={48}
-        />
-        <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }} />
-        <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
-        {series.map((s, i) => (
-          <Bar
-            key={s.dataKey}
-            dataKey={s.dataKey}
-            name={s.name}
-            fill={s.color}
-            stackId="a"
-            radius={i === series.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
-            animationDuration={150}
+    <>
+      <svg width="0" height="0">
+        <defs>
+          {series.map((s) => (
+            <filter key={s.dataKey} id={`stacked-shadow-${s.dataKey}`}>
+              <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor={s.color} floodOpacity="0.25" />
+            </filter>
+          ))}
+        </defs>
+      </svg>
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart data={gappedData} margin={CHART_MARGIN}>
+          <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
+          <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
+          <YAxis
+            tickFormatter={yAxisFormatter ?? formatYAxis}
+            tick={TICK_STYLE}
+            axisLine={false}
+            tickLine={false}
+            width={48}
           />
-        )).flatMap((bar, i) =>
-          i < series.length - 1
-            ? [bar, <Bar key={`_gap_${i}`} dataKey="_gap" stackId="a" fill="transparent" legendType="none" tooltipType="none" animationDuration={0} />]
-            : [bar]
-        )}
-      </BarChart>
-    </ResponsiveContainer>
+          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }} />
+          <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
+          {series.map((s) => (
+            <Bar
+              key={s.dataKey}
+              dataKey={s.dataKey}
+              name={s.name}
+              fill={s.color}
+              stackId="a"
+              radius={[4, 4, 4, 4]}
+              style={{ filter: `url(#stacked-shadow-${s.dataKey})` }}
+              animationDuration={150}
+            />
+          )).flatMap((bar, i) =>
+            i < series.length - 1
+              ? [bar, <Bar key={`_gap_${i}`} dataKey="_gap" stackId="a" fill="transparent" legendType="none" tooltipType="none" animationDuration={0} />]
+              : [bar]
+          )}
+        </BarChart>
+      </ResponsiveContainer>
+    </>
   )
 }
 
