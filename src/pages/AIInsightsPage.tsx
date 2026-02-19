@@ -11,7 +11,7 @@ import {
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
-import { DonutChart, StackedBarChart, formatYAxis } from '../components/Charts'
+import { DonutChart, GroupedBarChart } from '../components/Charts'
 
 // ── Time range config ──
 // Shorter ranges show earlier/lower adoption, fewer users, less volume
@@ -92,15 +92,6 @@ function jitter(seed: string, base: number, variance: number): number {
   return Math.round(base + (t - 0.5) * 2 * variance)
 }
 
-// ── Base data generators ──
-
-function generateTimeSeriesData(labels: string[], baseWindsurf: number, baseCursor: number, variance: number) {
-  return labels.map((name, i) => ({
-    name,
-    windsurf: jitter(`w${name}${i}`, baseWindsurf + i * (variance * 0.3), variance),
-    cursor: jitter(`c${name}${i}`, baseCursor + i * (variance * 0.2), variance),
-  }))
-}
 
 // ── Team data (percentages scale slightly with time range) ──
 
@@ -119,15 +110,6 @@ const TEAM_BASE_DATA = [
   { name: 'Data Science', windsurf: 45, cursor: 55 },
   { name: 'Frontend', windsurf: 72, cursor: 28 },
   { name: 'Backend', windsurf: 78, cursor: 22 },
-]
-
-const ACCEPTANCE_BASE_DATA = [
-  { name: 'Platform', windsurf: 76, cursor: 24 },
-  { name: 'Product', windsurf: 68, cursor: 32 },
-  { name: 'Mobile', windsurf: 62, cursor: 38 },
-  { name: 'Data Science', windsurf: 52, cursor: 48 },
-  { name: 'Frontend', windsurf: 71, cursor: 29 },
-  { name: 'Backend', windsurf: 74, cursor: 26 },
 ]
 
 // ── Active users table data ──
@@ -155,6 +137,97 @@ const ASSISTANT_SERIES = [
   { dataKey: 'windsurf', name: 'Windsurf', color: WINDSURF_COLOR },
   { dataKey: 'cursor', name: 'Cursor', color: CURSOR_COLOR },
 ]
+
+const ALL_COLOR = '#6366F1'
+const ADOPTION_SERIES = [
+  { dataKey: 'windsurf', name: 'Windsurf', color: WINDSURF_COLOR },
+  { dataKey: 'cursor', name: 'Cursor', color: CURSOR_COLOR },
+  { dataKey: 'all', name: 'All', color: ALL_COLOR },
+]
+
+// ── AI Summary panel ──
+
+function AISummaryPanel() {
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 3000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  return (
+    <div className="relative overflow-hidden rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+      {/* Animated gradient left border */}
+      <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${loading ? 'ai-gradient-border' : 'ai-gradient-border-static'}`} />
+
+      <div className="py-4 pl-6 pr-5">
+        {/* Header: Summary title + feedback controls */}
+        <div className="mb-3 flex items-center">
+          <Text variant="heading-section" color="foreground-1">AI's Summary</Text>
+          <div className="ml-auto flex items-center gap-0.5">
+            <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+              <IconV2 name="thumbs-up" size="sm" />
+            </Button>
+            <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+              <IconV2 name="thumbs-down" size="sm" />
+            </Button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex flex-col gap-3">
+            <div className="ai-shimmer h-3 w-full" />
+            <div className="ai-shimmer h-3 w-11/12" />
+            <div className="ai-shimmer h-3 w-4/5" />
+            <div className="mt-1 ai-shimmer h-4 w-40" />
+            <div className="ai-shimmer h-3 w-full" />
+            <div className="ai-shimmer h-3 w-10/12" />
+            <div className="mt-1 ai-shimmer h-4 w-36" />
+            <div className="ai-shimmer h-3 w-full" />
+            <div className="ai-shimmer h-3 w-9/12" />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 text-sm text-foreground-2">
+            <div>
+              <p>
+                AI coding assistant adoption has reached <strong className="text-foreground-1">75%</strong> across the organization with a strong upward trend of +21%.
+                The acceptance rate stands at <strong className="text-foreground-1">70.6%</strong>, indicating developers are finding AI suggestions highly relevant.
+                Code rework has decreased to <strong className="text-foreground-1">19.8%</strong>, suggesting improving code quality from AI-assisted development.
+                Windsurf is the dominant assistant across most teams, with <strong className="text-foreground-1">109 active developers</strong> out of 145 total.
+              </p>
+            </div>
+
+            <div>
+              <Text variant="body-strong" color="foreground-1" className="mb-1 block uppercase tracking-wide" style={{ fontSize: 11 }}>
+                Actionable Insights
+              </Text>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Platform and Backend teams lead Windsurf adoption at 82% and 78% respectively, while Data Science favors Cursor at 55%.</li>
+                <li>Top contributors are generating over 5,000 lines of AI-assisted code per period — these power users can champion adoption for remaining teams.</li>
+                <li>Daily active users show consistent weekly growth across both assistants, but Cursor growth is accelerating faster in recent weeks.</li>
+              </ul>
+            </div>
+
+            <div>
+              <Text variant="body-strong" color="foreground-1" className="mb-1 block uppercase tracking-wide" style={{ fontSize: 11 }}>
+                Recommendations
+              </Text>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Expand Windsurf enablement sessions for the Data Science team where Cursor currently dominates — aligning on a primary tool could improve cross-team collaboration.</li>
+                <li>Investigate the 19.8% rework rate with targeted code review practices to push it below 15%.</li>
+                <li>Leverage top performers like Priya Sharma and Emily Rodriguez as AI champions to accelerate adoption among the remaining 25% of non-adopters.</li>
+              </ul>
+            </div>
+
+            <p className="text-foreground-4" style={{ fontSize: 11 }}>
+              This summary was generated by AI based on dashboard data and may contain inaccuracies.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 // ── Card title with hover info tooltip ──
 
@@ -252,35 +325,28 @@ export function AIInsightsPage() {
     { name: 'Remaining', value: +(100 - profile.reworkRate).toFixed(1) },
   ], [profile])
 
-  const dailyActiveData = useMemo(
-    () => generateTimeSeriesData(profile.labels, Math.round(55 * profile.scale), Math.round(38 * profile.scale), Math.round(12 * profile.scale)),
+  const adoptionTimeData = useMemo(
+    () => profile.labels.map((name, i) => {
+      const w = jitter(`aw${name}${i}`, Math.round(62 * profile.scale) + i * 2, 8)
+      const c = jitter(`ac${name}${i}`, Math.round(48 * profile.scale) + i * 2, 6)
+      return { name, windsurf: w, cursor: c, all: w + c }
+    }),
     [profile]
   )
 
-  const netLinesData = useMemo(
-    () => generateTimeSeriesData(profile.labels, Math.round(16000 * profile.scale), Math.round(11000 * profile.scale), Math.round(3000 * profile.scale)),
+  const teamAdoptionData = useMemo(
+    () => TEAM_BASE_DATA.map(t => {
+      const w = Math.round(t.windsurf * (0.85 + 0.15 * profile.scale))
+      const c = Math.round(t.cursor * (0.85 + 0.15 * profile.scale))
+      return { name: t.name, windsurf: w, cursor: c, all: w + c }
+    }),
     [profile]
   )
-
-  const teamData = useMemo(() => generateTeamData(profile.scale, TEAM_BASE_DATA), [profile])
-  const acceptanceByTeamData = useMemo(() => generateTeamData(profile.scale, ACCEPTANCE_BASE_DATA), [profile])
 
   const activeUsers = useMemo(
     () => BASE_ACTIVE_USERS.map(u => ({ ...u, lines: Math.round(u.lines * profile.scale) })),
     [profile]
   )
-
-  const filterData = useMemo(() => {
-    if (assistantFilter === 'all') return (d: Record<string, string | number>[]) => d
-    return (d: Record<string, string | number>[]) =>
-      d.map(row => {
-        const filtered = { ...row }
-        for (const s of ASSISTANT_SERIES) {
-          if (s.dataKey !== assistantFilter) filtered[s.dataKey] = 0
-        }
-        return filtered
-      })
-  }, [assistantFilter])
 
   const filteredUsers = useMemo(
     () => assistantFilter === 'all' ? activeUsers : activeUsers.filter(u => u.assistant.toLowerCase() === assistantFilter),
@@ -362,6 +428,9 @@ export function AIInsightsPage() {
           />
         </div>
 
+        {/* AI Summary */}
+        <AISummaryPanel />
+
         {/* Donut metrics row */}
         <div className="grid grid-cols-3 gap-5">
           <DonutMetricCard
@@ -390,35 +459,42 @@ export function AIInsightsPage() {
               ))}
             </div>
           </DonutMetricCard>
-          <DonutMetricCard
-            title="Velocity"
-            subtitle=""
-            tooltip="Ratio of AI-suggested code lines that were accepted by developers versus total suggestions."
-            data={acceptanceData}
-            metric={`${profile.acceptanceRate}%`}
-            metricLabel="Acceptance Rate"
-            color="#10B981"
-            trend={profile.acceptanceTrend}
-          >
+          <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+            <div className="flex flex-col gap-4 p-5">
+              <CardTitle title="Velocity" subtitle="" tooltip="Average PRs merged per developer in this period" />
+              <div className="flex items-center justify-center" style={{ height: 210 }}>
+                <div className="flex flex-col items-center" style={{ gap: 2 }}>
+                  <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 42, lineHeight: 1 }}>
+                    {profile.acceptanceRate}%
+                  </span>
+                  <span className="text-foreground-3" style={{ fontSize: 13, lineHeight: 1 }}>PRs/developer/week</span>
+                  <span className={`text-xs font-medium ${profile.acceptanceTrend.startsWith('+') ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+                    {profile.acceptanceTrend}
+                  </span>
+                </div>
+              </div>
+            </div>
             <div className="border-t border-borders-2">
               {[
-                { label: 'Lines suggested / Active Contrib...', value: profile.linesSuggested.toLocaleString(), change: profile.linesTrend, positive: true },
-                { label: 'Lines accepted / Active Contrib...', value: profile.linesAccepted.toLocaleString(), change: profile.devTrend, positive: true },
+                { label: 'Cursor', value: '4.7', change: '+9.95%', color: 'success' as const },
+                { label: 'Windsurf', value: '0.0', change: 'No change', color: 'foreground-3' as const },
+                { label: 'Unlicensed', value: '1.2', change: 'No change', color: 'foreground-3' as const },
+                { label: 'All', value: '5.7', change: '-15.67%', color: 'danger' as const },
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between border-b border-borders-2 px-4 py-3 last:border-b-0">
                   <Text variant="body-normal" color="foreground-3">{row.label}</Text>
                   <div className="flex items-center gap-2">
                     <Text variant="body-strong" color="foreground-1">{row.value}</Text>
-                    <Text variant="caption-normal" color={row.positive ? 'success' : 'danger'}>{row.change}</Text>
+                    <Text variant="caption-normal" color={row.color}>{row.change}</Text>
                   </div>
                 </div>
               ))}
             </div>
-          </DonutMetricCard>
+          </div>
           <DonutMetricCard
             title="Quality"
             subtitle=""
-            tooltip="Percentage of AI-generated code that required rework or was reverted within 30 days of being merged."
+            tooltip="Percentage of code being rewritten per developer in this period."
             data={reworkData}
             metric={`${profile.reworkRate}%`}
             metricLabel="Code Rework"
@@ -427,14 +503,16 @@ export function AIInsightsPage() {
           >
             <div className="border-t border-borders-2">
               {[
-                { label: 'Recent rework in 30 days', value: `${profile.recentRework}%`, change: '', positive: true },
-                { label: 'Legacy rework', value: `${profile.legacyRework}%`, change: '', positive: true },
+                { label: 'Cursor', value: '21.43%', change: '+9.95%', color: 'danger' as const },
+                { label: 'Windsurf', value: '0.0%', change: 'No change', color: 'foreground-3' as const },
+                { label: 'Unlicensed', value: '25.0%', change: 'No change', color: 'foreground-3' as const },
+                { label: 'All', value: '22.22%', change: '-15.67%', color: 'success' as const },
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between border-b border-borders-2 px-4 py-3 last:border-b-0">
                   <Text variant="body-normal" color="foreground-3">{row.label}</Text>
                   <div className="flex items-center gap-2">
                     <Text variant="body-strong" color="foreground-1">{row.value}</Text>
-                    {row.change && <Text variant="caption-normal" color={row.positive ? 'success' : 'danger'}>{row.change}</Text>}
+                    <Text variant="caption-normal" color={row.color}>{row.change}</Text>
                   </div>
                 </div>
               ))}
@@ -442,23 +520,13 @@ export function AIInsightsPage() {
           </DonutMetricCard>
         </div>
 
-        {/* Daily Active Users + Net Lines charts */}
+        {/* Adoption charts */}
         <div className="grid grid-cols-2 gap-5">
-          <ChartCard title="Daily Active Users by Assistant" subtitle="" tooltip="Number of unique developers using each AI assistant per day, averaged weekly.">
-            <StackedBarChart data={filterData(dailyActiveData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => String(v)} />
+          <ChartCard title="Adoption" subtitle="" tooltip="AI coding assistant adoption rate over time by assistant.">
+            <GroupedBarChart data={adoptionTimeData} series={ADOPTION_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
-          <ChartCard title="Net Lines Added Per Contributor" subtitle="" tooltip="Average net lines of code added per active contributor, broken down by AI assistant.">
-            <StackedBarChart data={filterData(netLinesData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={formatYAxis} />
-          </ChartCard>
-        </div>
-
-        {/* Adoption & Acceptance rate by team */}
-        <div className="grid grid-cols-2 gap-5">
-          <ChartCard title="Adoption Rate by Team" subtitle="" tooltip="Breakdown of AI assistant adoption across teams, showing Windsurf vs Cursor usage.">
-            <StackedBarChart data={filterData(teamData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
-          </ChartCard>
-          <ChartCard title="Acceptance Rate" subtitle="" tooltip="Code suggestion acceptance rate by team, comparing Windsurf and Cursor assistants.">
-            <StackedBarChart data={filterData(acceptanceByTeamData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
+          <ChartCard title="Team Adoption" subtitle="" tooltip="AI coding assistant adoption breakdown by team.">
+            <GroupedBarChart data={teamAdoptionData} series={ADOPTION_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
         </div>
 

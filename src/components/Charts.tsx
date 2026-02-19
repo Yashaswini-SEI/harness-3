@@ -337,6 +337,51 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter }: 
   )
 }
 
+export function GroupedBarChart({ data, series, height = 420, yAxisFormatter }: StackedBarChartProps) {
+  const barSize = data.length > 8 ? 8 : data.length > 6 ? 12 : 16
+
+  return (
+    <>
+      <svg width="0" height="0">
+        <defs>
+          {series.map((s) => (
+            <filter key={s.dataKey} id={`grouped-shadow-${s.dataKey}`}>
+              <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor={s.color} floodOpacity="0.25" />
+            </filter>
+          ))}
+        </defs>
+      </svg>
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart data={data} margin={CHART_MARGIN} barGap={2}>
+          <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
+          <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
+          <YAxis
+            tickFormatter={yAxisFormatter ?? formatYAxis}
+            tick={TICK_STYLE}
+            axisLine={false}
+            tickLine={false}
+            width={48}
+          />
+          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }} />
+          <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
+          {series.map((s) => (
+            <Bar
+              key={s.dataKey}
+              dataKey={s.dataKey}
+              name={s.name}
+              fill={s.color}
+              radius={[4, 4, 0, 0]}
+              barSize={barSize}
+              style={{ filter: `url(#grouped-shadow-${s.dataKey})` }}
+              animationDuration={150}
+            />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </>
+  )
+}
+
 export function MetricCard({ data, height = 420, seriesName = 'Total Count' }: ChartProps) {
   const total = data.reduce((sum, d) => sum + d.value, 0)
 
