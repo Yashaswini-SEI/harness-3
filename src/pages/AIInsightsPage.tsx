@@ -147,7 +147,7 @@ function DonutMetric({ title, subtitle, data, value, color, trend }: {
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ gap: 1 }}>
-          <Text variant="heading-section" color="foreground-1" className="font-semibold">{value}</Text>
+          <Text variant="heading-section" color="foreground-1" className="font-semibold" style={{ marginTop: 6 }}>{value}</Text>
           <span className={`text-xs font-medium ${isPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
             {trend}
           </span>
