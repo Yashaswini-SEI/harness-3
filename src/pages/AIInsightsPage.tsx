@@ -346,7 +346,7 @@ export function AIInsightsPage() {
                 <Table.Row key={user.name}>
                   <Table.Cell>
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cn-2 text-sm font-medium text-foreground-2">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(0,109,234,0.15)] text-sm font-medium text-[#006DEA]">
                         {user.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div className="flex flex-col">
