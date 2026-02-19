@@ -39,7 +39,7 @@ function App() {
           <Link to="/canvas" className="rounded-cn-2 border border-subtle bg-surface-1 p-4 hover:border-borders-3 transition-colors no-underline">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cn-2">
-                <IconV2 name="layout-grid" size="sm" className="text-foreground-2" />
+                <IconV2 name="pin" size="sm" className="text-foreground-2" />
               </div>
               <div>
                 <Text variant="body-strong" color="foreground-1">Canvas</Text>
