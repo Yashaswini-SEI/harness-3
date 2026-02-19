@@ -98,24 +98,47 @@ const ASSISTANT_SERIES = [
   { dataKey: 'cursor', name: 'Cursor', color: CURSOR_COLOR },
 ]
 
+// ── Card title with hover info tooltip ──
+
+function CardTitle({ title, subtitle, tooltip }: { title: string; subtitle: string; tooltip?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <div className="flex items-center gap-1.5">
+        <Text variant="body-strong" color="foreground-1">{title}</Text>
+        {tooltip && (
+          <div className="relative opacity-0 transition-opacity group-hover/card:opacity-100">
+            <div className="group/tip">
+              <IconV2 name="info-circle" size="xs" className="text-foreground-4 cursor-help" />
+              <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                <div className="w-56 rounded-lg bg-cn-0 px-3 py-2 text-xs text-foreground-2 shadow-lg border border-borders-2">
+                  {tooltip}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      <Text variant="caption-normal" color="foreground-3">{subtitle}</Text>
+    </div>
+  )
+}
+
 // ── Donut metric card ──
 
-function DonutMetricCard({ title, subtitle, data, metric, color, trend, children }: {
+function DonutMetricCard({ title, subtitle, data, metric, color, trend, tooltip, children }: {
   title: string
   subtitle: string
   data: { name: string; value: number }[]
   metric: string
   color: string
   trend: string
+  tooltip?: string
   children?: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+    <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
       <div className="flex flex-col gap-4 p-5">
-        <div className="flex flex-col gap-0.5">
-          <Text variant="body-strong" color="foreground-1">{title}</Text>
-          <Text variant="caption-normal" color="foreground-3">{subtitle}</Text>
-        </div>
+        <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
         <DonutChart data={data} height={168} color={color} metric={metric} trend={trend} />
       </div>
       {children}
@@ -125,18 +148,16 @@ function DonutMetricCard({ title, subtitle, data, metric, color, trend, children
 
 // ── Chart card wrapper ──
 
-function ChartCard({ title, subtitle, children }: {
+function ChartCard({ title, subtitle, tooltip, children }: {
   title: string
   subtitle: string
+  tooltip?: string
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+    <div className="group/card flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
       <div className="flex items-start justify-between">
-        <div className="flex flex-col gap-0.5">
-          <Text variant="body-strong" color="foreground-1">{title}</Text>
-          <Text variant="caption-normal" color="foreground-3">{subtitle}</Text>
-        </div>
+        <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
         <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
           <IconV2 name="more-horizontal" size="sm" />
         </Button>
@@ -234,6 +255,7 @@ export function AIInsightsPage() {
           <DonutMetricCard
             title="AI Adoption Rate"
             subtitle="Last 12 months"
+            tooltip="Percentage of developers actively using AI coding assistants out of total developers on the team."
             data={adoptionData}
             metric="75%"
             color="#10B981"
@@ -258,6 +280,7 @@ export function AIInsightsPage() {
           <DonutMetricCard
             title="Usage: Acceptance Rate"
             subtitle="Last 12 months"
+            tooltip="Ratio of AI-suggested code lines that were accepted by developers versus total suggestions."
             data={acceptanceData}
             metric="70.6%"
             color="#10B981"
@@ -281,6 +304,7 @@ export function AIInsightsPage() {
           <DonutMetricCard
             title="Quality: Code Rework"
             subtitle="Last 12 months"
+            tooltip="Percentage of AI-generated code that required rework or was reverted within 30 days of being merged."
             data={reworkData}
             metric="19.8%"
             color="#EF4444"
@@ -305,20 +329,20 @@ export function AIInsightsPage() {
 
         {/* Daily Active Users + Net Lines charts */}
         <div className="grid grid-cols-2 gap-5">
-          <ChartCard title="Daily Active Users by Assistant" subtitle="Last 12 months">
+          <ChartCard title="Daily Active Users by Assistant" subtitle="Last 12 months" tooltip="Number of unique developers using each AI assistant per day, averaged weekly.">
             <StackedBarChart data={dailyActiveData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => String(v)} />
           </ChartCard>
-          <ChartCard title="Net Lines Added Per Contributor" subtitle="Last 12 months">
+          <ChartCard title="Net Lines Added Per Contributor" subtitle="Last 12 months" tooltip="Average net lines of code added per active contributor, broken down by AI assistant.">
             <StackedBarChart data={netLinesData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={formatYAxis} />
           </ChartCard>
         </div>
 
         {/* Adoption & Acceptance rate by team */}
         <div className="grid grid-cols-2 gap-5">
-          <ChartCard title="Adoption Rate by Team" subtitle="Last 12 months">
+          <ChartCard title="Adoption Rate by Team" subtitle="Last 12 months" tooltip="Breakdown of AI assistant adoption across teams, showing Windsurf vs Cursor usage.">
             <StackedBarChart data={teamData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
-          <ChartCard title="Acceptance Rate" subtitle="Last 12 months">
+          <ChartCard title="Acceptance Rate" subtitle="Last 12 months" tooltip="Code suggestion acceptance rate by team, comparing Windsurf and Cursor assistants.">
             <StackedBarChart data={acceptanceByTeamData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
         </div>
