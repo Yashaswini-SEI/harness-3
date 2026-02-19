@@ -100,21 +100,25 @@ const ASSISTANT_SERIES = [
 
 // ── Donut metric card ──
 
-function DonutMetricCard({ title, subtitle, data, metric, color, trend }: {
+function DonutMetricCard({ title, subtitle, data, metric, color, trend, children }: {
   title: string
   subtitle: string
   data: { name: string; value: number }[]
   metric: string
   color: string
   trend: string
+  children?: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
-      <div className="flex flex-col gap-0.5">
-        <Text variant="body-strong" color="foreground-1">{title}</Text>
-        <Text variant="caption-normal" color="foreground-3">{subtitle}</Text>
+    <div className="flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+      <div className="flex flex-col gap-4 p-5">
+        <div className="flex flex-col gap-0.5">
+          <Text variant="body-strong" color="foreground-1">{title}</Text>
+          <Text variant="caption-normal" color="foreground-3">{subtitle}</Text>
+        </div>
+        <DonutChart data={data} height={168} color={color} metric={metric} trend={trend} />
       </div>
-      <DonutChart data={data} height={168} color={color} metric={metric} trend={trend} />
+      {children}
     </div>
   )
 }
@@ -227,16 +231,15 @@ export function AIInsightsPage() {
 
         {/* Donut metrics row */}
         <div className="grid grid-cols-3 gap-5">
-          <div className="flex flex-col gap-5">
-            <DonutMetricCard
-              title="AI Adoption Rate"
-              subtitle="Last 12 months"
-              data={adoptionData}
-              metric="75%"
-              color="#10B981"
-              trend="+21%"
-            />
-            <div className="rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <DonutMetricCard
+            title="AI Adoption Rate"
+            subtitle="Last 12 months"
+            data={adoptionData}
+            metric="75%"
+            color="#10B981"
+            trend="+21%"
+          >
+            <div className="border-t border-borders-2">
               {[
                 { label: 'Total developers', value: '145', change: '+21%', positive: true },
                 { label: 'Active developers', value: '109', change: '+21%', positive: true },
@@ -251,7 +254,7 @@ export function AIInsightsPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </DonutMetricCard>
           <DonutMetricCard
             title="Usage: Acceptance Rate"
             subtitle="Last 12 months"
