@@ -13,48 +13,106 @@ import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
 import { DonutChart, StackedBarChart, formatYAxis } from '../components/Charts'
 
-// ── Donut chart data ──
+// ── Time range config ──
+// Shorter ranges show earlier/lower adoption, fewer users, less volume
 
-const adoptionData = [
-  { name: 'Adopted', value: 75 },
-  { name: 'Remaining', value: 25 },
-]
-const acceptanceData = [
-  { name: 'Accepted', value: 70.6 },
-  { name: 'Remaining', value: 29.4 },
-]
-const reworkData = [
-  { name: 'Rework', value: 19.8 },
-  { name: 'Remaining', value: 80.2 },
-]
+const TIME_RANGE_PROFILES: Record<string, {
+  scale: number           // multiplier for volume metrics (lines, users)
+  adoptionRate: number    // donut %
+  acceptanceRate: number
+  reworkRate: number
+  totalDevs: number
+  activeDevs: number
+  linesSuggested: number
+  linesAccepted: number
+  recentRework: number
+  legacyRework: number
+  adoptionTrend: string
+  acceptanceTrend: string
+  reworkTrend: string
+  devTrend: string
+  linesTrend: string
+  labels: string[]        // x-axis labels for time-series charts
+}> = {
+  '7D': {
+    scale: 0.12, adoptionRate: 71, acceptanceRate: 65.2, reworkRate: 22.4,
+    totalDevs: 138, activeDevs: 92, linesSuggested: 420, linesAccepted: 280,
+    recentRework: 16.8, legacyRework: 5.6,
+    adoptionTrend: '+1.2%', acceptanceTrend: '-0.8%', reworkTrend: '+2.1%',
+    devTrend: '+3%', linesTrend: '+5.2%',
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+  },
+  '1M': {
+    scale: 0.35, adoptionRate: 72, acceptanceRate: 67.1, reworkRate: 21.5,
+    totalDevs: 140, activeDevs: 98, linesSuggested: 1_180, linesAccepted: 810,
+    recentRework: 15.4, legacyRework: 6.1,
+    adoptionTrend: '+4.8%', acceptanceTrend: '+2.1%', reworkTrend: '+0.9%',
+    devTrend: '+8%', linesTrend: '+9.4%',
+    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+  },
+  '3M': {
+    scale: 0.55, adoptionRate: 73, acceptanceRate: 68.4, reworkRate: 20.8,
+    totalDevs: 142, activeDevs: 102, linesSuggested: 1_650, linesAccepted: 1_120,
+    recentRework: 14.2, legacyRework: 6.6,
+    adoptionTrend: '+9.5%', acceptanceTrend: '+4.7%', reworkTrend: '-1.2%',
+    devTrend: '+12%', linesTrend: '+14.1%',
+    labels: ['Dec', 'Jan', 'Feb'],
+  },
+  '6M': {
+    scale: 0.78, adoptionRate: 74, acceptanceRate: 69.8, reworkRate: 20.1,
+    totalDevs: 143, activeDevs: 106, linesSuggested: 1_980, linesAccepted: 1_380,
+    recentRework: 13.6, legacyRework: 6.5,
+    adoptionTrend: '+15.2%', acceptanceTrend: '+6.3%', reworkTrend: '-2.8%',
+    devTrend: '+17%', linesTrend: '+16.8%',
+    labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+  },
+  '12M': {
+    scale: 1, adoptionRate: 75, acceptanceRate: 70.6, reworkRate: 19.8,
+    totalDevs: 145, activeDevs: 109, linesSuggested: 2_338, linesAccepted: 1_650,
+    recentRework: 13.1, legacyRework: 6.7,
+    adoptionTrend: '+21%', acceptanceTrend: '+8.3%', reworkTrend: '-4.2%',
+    devTrend: '+21%', linesTrend: '+18.5%',
+    labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+  },
+  custom: {
+    scale: 1, adoptionRate: 75, acceptanceRate: 70.6, reworkRate: 19.8,
+    totalDevs: 145, activeDevs: 109, linesSuggested: 2_338, linesAccepted: 1_650,
+    recentRework: 13.1, legacyRework: 6.7,
+    adoptionTrend: '+21%', acceptanceTrend: '+8.3%', reworkTrend: '-4.2%',
+    devTrend: '+21%', linesTrend: '+18.5%',
+    labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+  },
+}
 
-// ── Daily active users data ──
+// Deterministic pseudo-random jitter from a seed string
+function jitter(seed: string, base: number, variance: number): number {
+  let h = 0
+  for (let i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0
+  const t = (Math.abs(h) % 1000) / 1000 // 0..1
+  return Math.round(base + (t - 0.5) * 2 * variance)
+}
 
-const dailyActiveData = [
-  { name: 'Jan 6', windsurf: 42, cursor: 28 },
-  { name: 'Jan 13', windsurf: 48, cursor: 31 },
-  { name: 'Jan 20', windsurf: 55, cursor: 35 },
-  { name: 'Jan 27', windsurf: 51, cursor: 38 },
-  { name: 'Feb 3', windsurf: 60, cursor: 42 },
-  { name: 'Feb 10', windsurf: 58, cursor: 45 },
-  { name: 'Feb 17', windsurf: 65, cursor: 48 },
-]
+// ── Base data generators ──
 
-// ── Net lines added data ──
+function generateTimeSeriesData(labels: string[], baseWindsurf: number, baseCursor: number, variance: number) {
+  return labels.map((name, i) => ({
+    name,
+    windsurf: jitter(`w${name}${i}`, baseWindsurf + i * (variance * 0.3), variance),
+    cursor: jitter(`c${name}${i}`, baseCursor + i * (variance * 0.2), variance),
+  }))
+}
 
-const netLinesData = [
-  { name: 'Jan 6', windsurf: 12400, cursor: 8200 },
-  { name: 'Jan 13', windsurf: 15800, cursor: 9100 },
-  { name: 'Jan 20', windsurf: 14200, cursor: 10500 },
-  { name: 'Jan 27', windsurf: 16900, cursor: 11800 },
-  { name: 'Feb 3', windsurf: 18200, cursor: 13200 },
-  { name: 'Feb 10', windsurf: 17400, cursor: 14600 },
-  { name: 'Feb 17', windsurf: 19800, cursor: 15100 },
-]
+// ── Team data (percentages scale slightly with time range) ──
 
-// ── Adoption & acceptance rate by team ──
+function generateTeamData(scale: number, base: typeof TEAM_BASE_DATA) {
+  return base.map(t => ({
+    name: t.name,
+    windsurf: Math.round(t.windsurf * (0.85 + 0.15 * scale)),
+    cursor: Math.round(t.cursor * (0.85 + 0.15 * scale)),
+  }))
+}
 
-const teamData = [
+const TEAM_BASE_DATA = [
   { name: 'Platform', windsurf: 82, cursor: 18 },
   { name: 'Product', windsurf: 65, cursor: 35 },
   { name: 'Mobile', windsurf: 58, cursor: 42 },
@@ -63,7 +121,7 @@ const teamData = [
   { name: 'Backend', windsurf: 78, cursor: 22 },
 ]
 
-const acceptanceByTeamData = [
+const ACCEPTANCE_BASE_DATA = [
   { name: 'Platform', windsurf: 76, cursor: 24 },
   { name: 'Product', windsurf: 68, cursor: 32 },
   { name: 'Mobile', windsurf: 62, cursor: 38 },
@@ -74,7 +132,7 @@ const acceptanceByTeamData = [
 
 // ── Active users table data ──
 
-const activeUsers = [
+const BASE_ACTIVE_USERS = [
   { name: 'Priya Sharma', email: 'p.sharma@sei.io', role: 'Staff Engineer', team: 'Product Engineering', assistant: 'Windsurf', lines: 5_320 },
   { name: 'Emily Rodriguez', email: 'e.rodriguez@sei.io', role: 'Staff Engineer', team: 'Product Engineering', assistant: 'Windsurf', lines: 5_120 },
   { name: 'Jessica Taylor', email: 'j.taylor@sei.io', role: 'Senior Software Engineer', team: 'Data Science', assistant: 'Windsurf', lines: 4_890 },
@@ -176,14 +234,56 @@ export function AIInsightsPage() {
   const [timeRange, setTimeRange] = useState('12M')
   const [assistantFilter, setAssistantFilter] = useState('all')
 
-  const filteredSeries = useMemo(
-    () => assistantFilter === 'all' ? ASSISTANT_SERIES : ASSISTANT_SERIES.filter(s => s.dataKey === assistantFilter),
-    [assistantFilter]
+  const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['12M']
+
+  const adoptionData = useMemo(() => [
+    { name: 'Adopted', value: profile.adoptionRate },
+    { name: 'Remaining', value: 100 - profile.adoptionRate },
+  ], [profile])
+
+  const acceptanceData = useMemo(() => [
+    { name: 'Accepted', value: profile.acceptanceRate },
+    { name: 'Remaining', value: +(100 - profile.acceptanceRate).toFixed(1) },
+  ], [profile])
+
+  const reworkData = useMemo(() => [
+    { name: 'Rework', value: profile.reworkRate },
+    { name: 'Remaining', value: +(100 - profile.reworkRate).toFixed(1) },
+  ], [profile])
+
+  const dailyActiveData = useMemo(
+    () => generateTimeSeriesData(profile.labels, Math.round(55 * profile.scale), Math.round(38 * profile.scale), Math.round(12 * profile.scale)),
+    [profile]
   )
+
+  const netLinesData = useMemo(
+    () => generateTimeSeriesData(profile.labels, Math.round(16000 * profile.scale), Math.round(11000 * profile.scale), Math.round(3000 * profile.scale)),
+    [profile]
+  )
+
+  const teamData = useMemo(() => generateTeamData(profile.scale, TEAM_BASE_DATA), [profile])
+  const acceptanceByTeamData = useMemo(() => generateTeamData(profile.scale, ACCEPTANCE_BASE_DATA), [profile])
+
+  const activeUsers = useMemo(
+    () => BASE_ACTIVE_USERS.map(u => ({ ...u, lines: Math.round(u.lines * profile.scale) })),
+    [profile]
+  )
+
+  const filterData = useMemo(() => {
+    if (assistantFilter === 'all') return (d: Record<string, string | number>[]) => d
+    return (d: Record<string, string | number>[]) =>
+      d.map(row => {
+        const filtered = { ...row }
+        for (const s of ASSISTANT_SERIES) {
+          if (s.dataKey !== assistantFilter) filtered[s.dataKey] = 0
+        }
+        return filtered
+      })
+  }, [assistantFilter])
 
   const filteredUsers = useMemo(
     () => assistantFilter === 'all' ? activeUsers : activeUsers.filter(u => u.assistant.toLowerCase() === assistantFilter),
-    [assistantFilter]
+    [assistantFilter, activeUsers]
   )
 
   useEffect(() => {
@@ -268,15 +368,15 @@ export function AIInsightsPage() {
             subtitle="Last 12 months"
             tooltip="Percentage of developers actively using AI coding assistants out of total developers on the team."
             data={adoptionData}
-            metric="75%"
+            metric={`${profile.adoptionRate}%`}
             color="#10B981"
-            trend="+21%"
+            trend={profile.adoptionTrend}
           >
             <div className="border-t border-borders-2">
               {[
-                { label: 'Total developers', value: '145', change: '+21%', positive: true },
-                { label: 'Active developers', value: '109', change: '+21%', positive: true },
-                { label: 'Inactive developers', value: '36', change: '+21%', positive: true },
+                { label: 'Total developers', value: String(profile.totalDevs), change: profile.devTrend, positive: true },
+                { label: 'Active developers', value: String(profile.activeDevs), change: profile.devTrend, positive: true },
+                { label: 'Inactive developers', value: String(profile.totalDevs - profile.activeDevs), change: profile.devTrend, positive: true },
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between border-b border-borders-2 px-4 py-3 last:border-b-0">
                   <Text variant="body-normal" color="foreground-3">{row.label}</Text>
@@ -293,14 +393,14 @@ export function AIInsightsPage() {
             subtitle="Last 12 months"
             tooltip="Ratio of AI-suggested code lines that were accepted by developers versus total suggestions."
             data={acceptanceData}
-            metric="70.6%"
+            metric={`${profile.acceptanceRate}%`}
             color="#10B981"
-            trend="+8.3%"
+            trend={profile.acceptanceTrend}
           >
             <div className="border-t border-borders-2">
               {[
-                { label: 'Lines suggested / Active Contrib...', value: '2,338', change: '+18.5%', positive: true },
-                { label: 'Lines accepted / Active Contrib...', value: '1,650', change: '+21%', positive: true },
+                { label: 'Lines suggested / Active Contrib...', value: profile.linesSuggested.toLocaleString(), change: profile.linesTrend, positive: true },
+                { label: 'Lines accepted / Active Contrib...', value: profile.linesAccepted.toLocaleString(), change: profile.devTrend, positive: true },
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between border-b border-borders-2 px-4 py-3 last:border-b-0">
                   <Text variant="body-normal" color="foreground-3">{row.label}</Text>
@@ -317,14 +417,14 @@ export function AIInsightsPage() {
             subtitle="Last 12 months"
             tooltip="Percentage of AI-generated code that required rework or was reverted within 30 days of being merged."
             data={reworkData}
-            metric="19.8%"
+            metric={`${profile.reworkRate}%`}
             color="#EF4444"
-            trend="-4.2%"
+            trend={profile.reworkTrend}
           >
             <div className="border-t border-borders-2">
               {[
-                { label: 'Recent rework in 30 days', value: '13.1%', change: '', positive: true },
-                { label: 'Legacy rework', value: '6.7%', change: '', positive: true },
+                { label: 'Recent rework in 30 days', value: `${profile.recentRework}%`, change: '', positive: true },
+                { label: 'Legacy rework', value: `${profile.legacyRework}%`, change: '', positive: true },
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between border-b border-borders-2 px-4 py-3 last:border-b-0">
                   <Text variant="body-normal" color="foreground-3">{row.label}</Text>
@@ -341,20 +441,20 @@ export function AIInsightsPage() {
         {/* Daily Active Users + Net Lines charts */}
         <div className="grid grid-cols-2 gap-5">
           <ChartCard title="Daily Active Users by Assistant" subtitle="Last 12 months" tooltip="Number of unique developers using each AI assistant per day, averaged weekly.">
-            <StackedBarChart data={dailyActiveData} series={filteredSeries} height={240} yAxisFormatter={(v) => String(v)} />
+            <StackedBarChart data={filterData(dailyActiveData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => String(v)} />
           </ChartCard>
           <ChartCard title="Net Lines Added Per Contributor" subtitle="Last 12 months" tooltip="Average net lines of code added per active contributor, broken down by AI assistant.">
-            <StackedBarChart data={netLinesData} series={filteredSeries} height={240} yAxisFormatter={formatYAxis} />
+            <StackedBarChart data={filterData(netLinesData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={formatYAxis} />
           </ChartCard>
         </div>
 
         {/* Adoption & Acceptance rate by team */}
         <div className="grid grid-cols-2 gap-5">
           <ChartCard title="Adoption Rate by Team" subtitle="Last 12 months" tooltip="Breakdown of AI assistant adoption across teams, showing Windsurf vs Cursor usage.">
-            <StackedBarChart data={teamData} series={filteredSeries} height={240} yAxisFormatter={(v) => `${v}%`} />
+            <StackedBarChart data={filterData(teamData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
           <ChartCard title="Acceptance Rate" subtitle="Last 12 months" tooltip="Code suggestion acceptance rate by team, comparing Windsurf and Cursor assistants.">
-            <StackedBarChart data={acceptanceByTeamData} series={filteredSeries} height={240} yAxisFormatter={(v) => `${v}%`} />
+            <StackedBarChart data={filterData(acceptanceByTeamData)} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
         </div>
 
