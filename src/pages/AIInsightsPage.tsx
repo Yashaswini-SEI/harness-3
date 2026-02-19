@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Text,
   Button,
@@ -174,6 +174,17 @@ export function AIInsightsPage() {
     document.documentElement.classList.contains('dark-std-low')
   )
   const [timeRange, setTimeRange] = useState('12M')
+  const [assistantFilter, setAssistantFilter] = useState('all')
+
+  const filteredSeries = useMemo(
+    () => assistantFilter === 'all' ? ASSISTANT_SERIES : ASSISTANT_SERIES.filter(s => s.dataKey === assistantFilter),
+    [assistantFilter]
+  )
+
+  const filteredUsers = useMemo(
+    () => assistantFilter === 'all' ? activeUsers : activeUsers.filter(u => u.assistant.toLowerCase() === assistantFilter),
+    [assistantFilter]
+  )
 
   useEffect(() => {
     const root = document.documentElement
@@ -228,7 +239,7 @@ export function AIInsightsPage() {
         </div>
 
         {/* Controls bar */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <Tabs.Root value={timeRange} onValueChange={setTimeRange}>
             <Tabs.List variant="outlined">
               <Tabs.Trigger value="7D">7D</Tabs.Trigger>
@@ -240,13 +251,13 @@ export function AIInsightsPage() {
             </Tabs.List>
           </Tabs.Root>
           <Select
-            value="all"
+            value={assistantFilter}
             options={[
               { label: 'All Assistants', value: 'all' },
               { label: 'Windsurf', value: 'windsurf' },
               { label: 'Cursor', value: 'cursor' },
             ]}
-            onChange={() => {}}
+            onChange={(val) => { if (val) setAssistantFilter(val) }}
           />
         </div>
 
@@ -330,20 +341,20 @@ export function AIInsightsPage() {
         {/* Daily Active Users + Net Lines charts */}
         <div className="grid grid-cols-2 gap-5">
           <ChartCard title="Daily Active Users by Assistant" subtitle="Last 12 months" tooltip="Number of unique developers using each AI assistant per day, averaged weekly.">
-            <StackedBarChart data={dailyActiveData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => String(v)} />
+            <StackedBarChart data={dailyActiveData} series={filteredSeries} height={240} yAxisFormatter={(v) => String(v)} />
           </ChartCard>
           <ChartCard title="Net Lines Added Per Contributor" subtitle="Last 12 months" tooltip="Average net lines of code added per active contributor, broken down by AI assistant.">
-            <StackedBarChart data={netLinesData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={formatYAxis} />
+            <StackedBarChart data={netLinesData} series={filteredSeries} height={240} yAxisFormatter={formatYAxis} />
           </ChartCard>
         </div>
 
         {/* Adoption & Acceptance rate by team */}
         <div className="grid grid-cols-2 gap-5">
           <ChartCard title="Adoption Rate by Team" subtitle="Last 12 months" tooltip="Breakdown of AI assistant adoption across teams, showing Windsurf vs Cursor usage.">
-            <StackedBarChart data={teamData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
+            <StackedBarChart data={teamData} series={filteredSeries} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
           <ChartCard title="Acceptance Rate" subtitle="Last 12 months" tooltip="Code suggestion acceptance rate by team, comparing Windsurf and Cursor assistants.">
-            <StackedBarChart data={acceptanceByTeamData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
+            <StackedBarChart data={acceptanceByTeamData} series={filteredSeries} height={240} yAxisFormatter={(v) => `${v}%`} />
           </ChartCard>
         </div>
 
@@ -366,7 +377,7 @@ export function AIInsightsPage() {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {activeUsers.map((user) => (
+              {filteredUsers.map((user) => (
                 <Table.Row key={user.name}>
                   <Table.Cell>
                     <div className="flex items-center gap-3">
