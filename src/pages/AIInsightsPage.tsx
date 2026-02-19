@@ -12,11 +12,11 @@ import {
 import {
   ResponsiveContainer,
   BarChart, Bar,
-  PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
+import { DonutChart } from '../components/Charts'
 
 // ── Donut chart data ──
 
@@ -113,46 +113,21 @@ const legendFormatter = (value: string) => <span style={{ color: '#4B5563' }}>{v
 
 // ── Donut metric card ──
 
-function DonutMetric({ title, subtitle, data, value, color, trend }: {
+function DonutMetricCard({ title, subtitle, data, metric, color, trend }: {
   title: string
   subtitle: string
   data: { name: string; value: number }[]
-  value: string
+  metric: string
   color: string
   trend: string
 }) {
-  const isPositive = trend.startsWith('+')
   return (
-    <div className="flex flex-col items-center gap-3 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
-      <Text variant="body-strong" color="foreground-1">{title}</Text>
-      <Text variant="caption-normal" color="foreground-3">{subtitle}</Text>
-      <div className="relative" style={{ width: 140, height: 140 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              cx="50%"
-              cy="50%"
-              innerRadius="70%"
-              outerRadius="95%"
-              startAngle={90}
-              endAngle={-270}
-              paddingAngle={0}
-              animationDuration={150}
-            >
-              <Cell fill={color} />
-              <Cell fill="var(--cn-border-2, #E5E7EB)" />
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
-        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ gap: 1 }}>
-          <Text variant="heading-section" color="foreground-1" className="font-semibold" style={{ marginTop: 6 }}>{value}</Text>
-          <span className={`text-xs font-medium ${isPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
-            {trend}
-          </span>
-        </div>
+    <div className="flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+      <div className="flex flex-col gap-0.5">
+        <Text variant="body-strong" color="foreground-1">{title}</Text>
+        <Text variant="caption-normal" color="foreground-3">{subtitle}</Text>
       </div>
+      <DonutChart data={data} height={140} color={color} metric={metric} trend={trend} />
     </div>
   )
 }
@@ -282,27 +257,27 @@ export function AIInsightsPage() {
 
         {/* Donut metrics row */}
         <div className="grid grid-cols-3 gap-5">
-          <DonutMetric
+          <DonutMetricCard
             title="AI Adoption Rate"
             subtitle="Last 12 months"
             data={adoptionData}
-            value="75%"
+            metric="75%"
             color="#10B981"
             trend="+21%"
           />
-          <DonutMetric
+          <DonutMetricCard
             title="Usage: Acceptance Rate"
             subtitle="Last 12 months"
             data={acceptanceData}
-            value="70.6%"
+            metric="70.6%"
             color="#10B981"
             trend="+8.3%"
           />
-          <DonutMetric
+          <DonutMetricCard
             title="Quality: Code Rework"
             subtitle="Last 12 months"
             data={reworkData}
-            value="19.8%"
+            metric="19.8%"
             color="#EF4444"
             trend="-4.2%"
           />

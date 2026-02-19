@@ -190,43 +190,75 @@ export function ScatterChart2({ data, height = 420, seriesName = 'Count' }: Char
   )
 }
 
-export function DonutChart({ data, height = 420, seriesName = 'Count' }: ChartProps) {
+export interface DonutChartProps extends ChartProps {
+  metric?: string
+  trend?: string
+  color?: string
+}
+
+export function DonutChart({ data, height = 420, seriesName = 'Count', metric, trend, color }: DonutChartProps) {
+  const isSingleColor = !!color
+  const isPositive = trend?.startsWith('+')
+
   return (
-    <>
-      <svg width="0" height="0">
-        <defs>
-          {DONUT_COLORS.map((color, i) => (
-            <filter key={i} id={`donut-shadow-${i}`}>
-              <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor={color} floodOpacity="0.35" />
-            </filter>
-          ))}
-        </defs>
-      </svg>
-      <ResponsiveContainer width="100%" height={height} style={{ overflow: 'visible' }}>
+    <div className="relative" style={{ height }}>
+      {!isSingleColor && (
+        <svg width="0" height="0">
+          <defs>
+            {DONUT_COLORS.map((c, i) => (
+              <filter key={i} id={`donut-shadow-${i}`}>
+                <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor={c} floodOpacity="0.35" />
+              </filter>
+            ))}
+          </defs>
+        </svg>
+      )}
+      <ResponsiveContainer width="100%" height="100%" style={{ overflow: 'visible' }}>
         <PieChart style={{ overflow: 'visible' }}>
           <Pie
-            data={data}
+            data={isSingleColor ? [{ name: data[0]?.name ?? '', value: data[0]?.value ?? 0 }, { name: 'Remaining', value: data[1]?.value ?? 0 }] : data}
             dataKey="value"
             nameKey="name"
             cx="50%"
             cy="50%"
-            innerRadius="55%"
-            outerRadius="80%"
-            paddingAngle={2}
+            innerRadius={isSingleColor ? '70%' : '55%'}
+            outerRadius={isSingleColor ? '95%' : '80%'}
+            startAngle={isSingleColor ? 90 : 0}
+            endAngle={isSingleColor ? -270 : 360}
+            paddingAngle={isSingleColor ? 0 : 2}
             animationDuration={150}
           >
-            {data.map((_, index) => {
-              const ci = index % DONUT_COLORS.length
-              return (
-                <Cell key={index} fill={DONUT_COLORS[ci]} style={{ filter: `url(#donut-shadow-${ci})` }} />
-              )
-            })}
+            {isSingleColor ? (
+              <>
+                <Cell fill={color} />
+                <Cell fill="var(--cn-border-2, #E5E7EB)" />
+              </>
+            ) : (
+              data.map((_, index) => {
+                const ci = index % DONUT_COLORS.length
+                return (
+                  <Cell key={index} fill={DONUT_COLORS[ci]} style={{ filter: `url(#donut-shadow-${ci})` }} />
+                )
+              })
+            )}
           </Pie>
           <Tooltip formatter={tooltipFormatter(seriesName)} contentStyle={TOOLTIP_STYLE} />
-          <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
+          {!isSingleColor && (
+            <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
+          )}
         </PieChart>
       </ResponsiveContainer>
-    </>
+      {metric && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ gap: 1 }}>
+          <span className="text-foreground-1 font-semibold" style={{ fontSize: 24, lineHeight: 1, marginTop: 6 }}>{metric}</span>
+          {trend && (
+            <span className={`text-xs font-medium ${isPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+              {trend}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 
