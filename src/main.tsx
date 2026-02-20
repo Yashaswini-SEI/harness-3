@@ -14,6 +14,7 @@ import { AIInsightsPage } from './pages/AIInsightsPage'
 import { BusinessAlignmentPage } from './pages/BusinessAlignmentPage'
 import { EfficiencyDoraPage } from './pages/EfficiencyDoraPage'
 import { SprintMetricsPage } from './pages/SprintMetricsPage'
+import { ProductivityPage } from './pages/ProductivityPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -29,6 +30,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/insights/harness/business-alignment" element={<BusinessAlignmentPage />} />
         <Route path="/insights/harness/efficiency-dora" element={<EfficiencyDoraPage />} />
         <Route path="/insights/harness/efficiency-sprint-metrics" element={<SprintMetricsPage />} />
+        <Route path="/insights/harness/productivity" element={<ProductivityPage />} />
         <Route path="/insights/harness/:slug" element={<HarnessReportPage />} />
         <Route path="/insights/custom/:id" element={<CustomInsightPage />} />
         <Route path="/insights/custom/:id/widget-builder" element={<WidgetBuilderPage />} />

@@ -17,6 +17,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   'widget-builder': 'Widget Builder',
   'efficiency-dora': 'DORA',
   'efficiency-sprint-metrics': 'Sprint Metrics',
+  productivity: 'Productivity',
   tables: 'Tables',
 }
 

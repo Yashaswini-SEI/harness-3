@@ -1,6 +1,5 @@
 import { Text, IconV2, StatusBadge } from '@harnessio/ui/components'
 
-
 export interface InsightMetricCardProps {
   label: string
   value: string
@@ -18,16 +17,14 @@ export function InsightMetricCard({
   value,
   subtitle,
   trend,
-  trendPositive: _trendPositive,
   description,
   badge,
   infoTooltip,
   noData,
 }: InsightMetricCardProps) {
-  void _trendPositive
-
   return (
     <div className="flex flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+      {/* Top row: label + badge */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Text variant="caption-normal" color="foreground-3">{label}</Text>
@@ -46,6 +43,7 @@ export function InsightMetricCard({
           <StatusBadge variant="outline" theme="muted" size="sm">{badge}</StatusBadge>
         )}
       </div>
+      {/* Middle: value + subtitle + trend */}
       <div className="flex items-baseline justify-between">
         <div className="flex items-baseline gap-1.5">
           <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 28, lineHeight: 1 }}>
@@ -59,6 +57,7 @@ export function InsightMetricCard({
           </span>
         )}
       </div>
+      {/* Bottom: description or no data */}
       {noData ? (
         <Text variant="caption-normal" color="foreground-4">No data available for the selected time period</Text>
       ) : description ? (
