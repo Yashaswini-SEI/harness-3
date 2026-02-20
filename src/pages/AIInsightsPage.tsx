@@ -94,15 +94,6 @@ function jitter(seed: string, base: number, variance: number): number {
 }
 
 
-// ── Team data (percentages scale slightly with time range) ──
-
-function generateTeamData(scale: number, base: typeof TEAM_BASE_DATA) {
-  return base.map(t => ({
-    name: t.name,
-    windsurf: Math.round(t.windsurf * (0.85 + 0.15 * scale)),
-    cursor: Math.round(t.cursor * (0.85 + 0.15 * scale)),
-  }))
-}
 
 const TEAM_BASE_DATA = [
   { name: 'Platform', windsurf: 82, cursor: 18 },
@@ -332,10 +323,6 @@ export function AIInsightsPage() {
     { name: 'Remaining', value: 100 - profile.adoptionRate },
   ], [profile])
 
-  const acceptanceData = useMemo(() => [
-    { name: 'Accepted', value: profile.acceptanceRate },
-    { name: 'Remaining', value: +(100 - profile.acceptanceRate).toFixed(1) },
-  ], [profile])
 
   const reworkData = useMemo(() => [
     { name: 'Rework', value: profile.reworkRate },
