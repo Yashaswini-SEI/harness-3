@@ -239,7 +239,7 @@ const harnessInsights = [
     thumb: thumb1,
   },
   {
-    id: 'dora',
+    id: 'efficiency-dora',
     title: 'DORA',
     description: 'DORA metrics measure software delivery performance.',
     tag: 'Efficiency',
