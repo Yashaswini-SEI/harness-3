@@ -7,10 +7,11 @@ import {
   DropdownMenu,
   IconV2,
   Pagination,
+  Select,
 } from '@harnessio/ui/components'
 import {
   ResponsiveContainer,
-  BarChart, Bar, Cell,
+  ComposedChart, Bar, Cell, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
 import { Nav2 } from '../components/Nav2'
@@ -41,6 +42,9 @@ export function SprintMetricsPage() {
   const [selectedSprintBar, setSelectedSprintBar] = useState<number | null>(null)
   const [sprintDrillPage, setSprintDrillPage] = useState(1)
   const [sprintDrillPageSize, setSprintDrillPageSize] = useState(10)
+  const [showTrendline, setShowTrendline] = useState(false)
+  const [viewBy, setViewBy] = useState('story-points')
+  const [grouped, setGrouped] = useState(false)
 
   useEffect(() => {
     const root = document.documentElement
@@ -52,7 +56,6 @@ export function SprintMetricsPage() {
   const TICK_STYLE = { fontSize: 12, fill: '#6B7280' }
   const AXIS_LINE = { stroke: '#E5E7EB' }
   const GRID_STROKE = 'var(--cn-border-2, #E5E7EB)'
-  const TOOLTIP_STYLE = { borderRadius: 8, fontSize: 13 }
   const LEGEND_STYLE = { fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }
   const CHART_MARGIN = { top: 8, right: 16, left: 0, bottom: 0 }
   const legendFormatter = (value: string) => <span style={{ color: '#4B5563' }}>{value}</span>
@@ -77,6 +80,29 @@ export function SprintMetricsPage() {
       deliveredCreep: Math.round(150 + Math.random() * 300),
     }))
   }, [timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Linear regression for trendline
+  function linearRegression(values: number[]): number[] {
+    const n = values.length
+    if (n === 0) return []
+    const xMean = (n - 1) / 2
+    const yMean = values.reduce((a, b) => a + b, 0) / n
+    let num = 0, den = 0
+    for (let i = 0; i < n; i++) {
+      num += (i - xMean) * (values[i] - yMean)
+      den += (i - xMean) * (i - xMean)
+    }
+    const slope = den !== 0 ? num / den : 0
+    const intercept = yMean - slope * xMean
+    return values.map((_, i) => Math.round((slope * i + intercept) * 100) / 100)
+  }
+
+  // Add trendline data (total of both stacked groups)
+  const sprintChartWithTrend = useMemo(() => {
+    const totals = sprintChartData.map(d => d.sprintCommit + d.sprintCreep + d.deliveredCommit + d.deliveredCreep)
+    const regression = linearRegression(totals)
+    return sprintChartData.map((d, i) => ({ ...d, _trend: regression[i] }))
+  }, [sprintChartData])
 
   const handleSprintBarClick = (index: number) => {
     setSelectedSprintBar(prev => prev === index ? null : index)
@@ -149,6 +175,30 @@ export function SprintMetricsPage() {
               <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
             </Tabs.List>
           </Tabs.Root>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setGrouped(!grouped)}
+          >
+            {grouped ? 'Ungroup by Sprint Metrics' : 'Group by Sprint Metrics'}
+          </Button>
+          <Select
+            value={viewBy}
+            options={[
+              { label: 'View by Story Points', value: 'story-points' },
+              { label: 'View by Work Item Count', value: 'work-item-count' },
+            ]}
+            onChange={(val) => setViewBy(val)}
+          />
+          <div className="ml-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowTrendline(!showTrendline)}
+            >
+              {showTrendline ? 'Hide Trendline' : 'Show Trendline'}
+            </Button>
+          </div>
         </div>
 
         {/* Metric cards — 4-col grid */}
@@ -334,8 +384,8 @@ export function SprintMetricsPage() {
               </defs>
             </svg>
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart
-                data={sprintChartData}
+              <ComposedChart
+                data={sprintChartWithTrend}
                 margin={CHART_MARGIN}
                 barGap={2}
                 onClick={(state: Record<string, unknown>) => {
@@ -347,7 +397,76 @@ export function SprintMetricsPage() {
                 <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
                 <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
                 <YAxis tickFormatter={formatYAxis} tick={TICK_STYLE} axisLine={false} tickLine={false} width={48} />
-                <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(0, 0, 0, 0.06)' }} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(0, 0, 0, 0.06)' }}
+                  wrapperStyle={{ outline: 'none' }}
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null
+                    const d = payload[0]?.payload as Record<string, number | string> | undefined
+                    if (!d) return null
+                    const sc = Number(d.sprintCommit) || 0
+                    const scr = Number(d.sprintCreep) || 0
+                    const dc = Number(d.deliveredCommit) || 0
+                    const dcr = Number(d.deliveredCreep) || 0
+                    return (
+                      <div style={{ minWidth: 440, backgroundColor: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, padding: '12px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                        <div className="mb-3 text-sm font-semibold text-foreground-1">{d.name}</div>
+                        <div style={{ display: 'flex', gap: 20 }}>
+                          {/* Planned column */}
+                          <div style={{ flex: 1 }}>
+                            <div className="mb-1 text-xs font-medium text-foreground-3">Planned</div>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: COMMIT_COLOR }} />
+                                  <span className="text-xs text-foreground-3">Sprint Commit</span>
+                                </div>
+                                <span className="text-xs text-foreground-1">{sc}</span>
+                              </div>
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: CREEP_COLOR }} />
+                                  <span className="text-xs text-foreground-3">Sprint Creep</span>
+                                </div>
+                                <span className="text-xs text-foreground-1">{scr}</span>
+                              </div>
+                              <div className="flex items-center justify-between gap-4 border-t border-borders-2 pt-1">
+                                <span className="text-xs font-medium text-foreground-2">Total</span>
+                                <span className="text-xs font-medium text-foreground-1">{sc + scr}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* Divider */}
+                          <div style={{ width: 1, backgroundColor: '#E5E7EB' }} />
+                          {/* Delivered column */}
+                          <div style={{ flex: 1 }}>
+                            <div className="mb-1 text-xs font-medium text-foreground-3">Delivered</div>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: DELIVERED_COMMIT_COLOR }} />
+                                  <span className="text-xs text-foreground-3">Delivered Commit</span>
+                                </div>
+                                <span className="text-xs text-foreground-1">{dc}</span>
+                              </div>
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: DELIVERED_CREEP_COLOR }} />
+                                  <span className="text-xs text-foreground-3">Delivered Creep</span>
+                                </div>
+                                <span className="text-xs text-foreground-1">{dcr}</span>
+                              </div>
+                              <div className="flex items-center justify-between gap-4 border-t border-borders-2 pt-1">
+                                <span className="text-xs font-medium text-foreground-2">Total</span>
+                                <span className="text-xs font-medium text-foreground-1">{dc + dcr}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  }}
+                />
                 <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
                 {/* Group 1: Sprint Commit + Sprint Creep (stacked) */}
                 <Bar dataKey="sprintCommit" name="Sprint Commit" fill={COMMIT_COLOR} stackId="planned" radius={[0, 0, 4, 4]} barSize={36} style={{ filter: 'url(#sprint-shadow-commit)' }} animationDuration={150} cursor="pointer">
@@ -371,7 +490,21 @@ export function SprintMetricsPage() {
                     <Cell key={i} fillOpacity={i === selectedSprintBar ? 1 : 0.3} />
                   ))}
                 </Bar>
-              </BarChart>
+                {showTrendline && (
+                  <Line
+                    type="linear"
+                    dataKey="_trend"
+                    name="Trend"
+                    stroke="#0E1218"
+                    strokeWidth={2}
+                    strokeDasharray="6 3"
+                    dot={false}
+                    activeDot={false}
+                    animationDuration={300}
+                    legendType="line"
+                  />
+                )}
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
 
