@@ -546,7 +546,7 @@ export function EfficiencyDoraPage() {
                         {/* Spacer */}
                         <div className="h-3" />
                         {/* Chevron arrow */}
-                        <div className="relative z-10" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))' }}>
+                        <div className="relative z-10" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))', marginLeft: 7 }}>
                           <div
                             className="flex flex-col justify-center gap-0.5 py-3"
                             style={{
