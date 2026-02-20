@@ -656,8 +656,8 @@ export function EfficiencyDoraPage() {
           {selectedStage != null && (() => {
             const maxLeadTime = Math.max(...stageDrilldownData.map(r => r.leadTimeDays))
             return (
-            <div className="p-5">
-              <div className="flex items-center pb-3">
+            <div className="px-5 pb-5 pt-2">
+              <div className="flex items-center pb-2">
                 <div className="flex items-center gap-1.5">
                   <Text variant="body-strong" color="foreground-1">
                     {stageData.filter(s => s.stageName)[selectedStage]?.stageName} — Ticket Breakdown
@@ -812,8 +812,8 @@ export function EfficiencyDoraPage() {
           </div>
 
           {/* Drilldown table */}
-          <div className="p-5">
-            <div className="flex items-center pb-3">
+          <div className="px-5 pb-5 pt-2">
+            <div className="flex items-center pb-2">
               <div className="flex items-center gap-1.5">
                 <Text variant="body-strong" color="foreground-1">Drill-down</Text>
               </div>
