@@ -361,6 +361,24 @@ export function AIInsightsPage() {
 
   const devTableData = devTab === 'inactive' ? INACTIVE_USERS : devTab === 'unlicensed' ? UNLICENSED_USERS : BASE_ACTIVE_USERS
 
+  const linesPerDevData = useMemo(
+    () => profile.labels.map((name, i) => ({
+      name,
+      windsurf: jitter(`lw${name}${i}`, Math.round(320 * profile.scale) + i * 15, 60),
+      cursor: jitter(`lc${name}${i}`, Math.round(240 * profile.scale) + i * 12, 45),
+    })),
+    [profile]
+  )
+
+  const acceptanceRateData = useMemo(
+    () => profile.labels.map((name, i) => ({
+      name,
+      windsurf: jitter(`arw${name}${i}`, Math.round(72 * profile.scale) + i, 8),
+      cursor: jitter(`arc${name}${i}`, Math.round(65 * profile.scale) + i, 6),
+    })),
+    [profile]
+  )
+
   const filteredUsers = useMemo(
     () => assistantFilter === 'all' ? devTableData : devTableData.filter(u => u.assistant.toLowerCase() === assistantFilter),
     [assistantFilter, devTableData]
@@ -669,6 +687,84 @@ export function AIInsightsPage() {
               className="!mt-cn-sm"
             />
           </div>
+        {/* Lines Added + Acceptance Rate charts */}
+        <div className="grid grid-cols-2 gap-5">
+          <div className="group/card flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-1.5">
+                <Text variant="body-strong" color="foreground-1">Lines Added per Active AI Developer</Text>
+                <div className="relative opacity-0 transition-opacity group-hover/card:opacity-100">
+                  <div className="group/tip">
+                    <IconV2 name="info-circle" size="xs" className="text-foreground-4 cursor-help" />
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                      <div className="w-80 rounded-lg bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg border border-borders-2 space-y-3">
+                        <div>
+                          <strong className="text-foreground-1">Definition</strong>
+                          <p className="mt-1">Average number of lines of code added per active AI-assisted developer during the selected time period.</p>
+                        </div>
+                        <div>
+                          <strong className="text-foreground-1">Computation</strong>
+                          <p className="mt-1">Lines Added per Active AI Developer = (Total Lines Added by AI-assisted Developers ÷ Number of Active AI-assisted Developers)</p>
+                        </div>
+                        <div>
+                          <strong className="text-foreground-1">What does this metric mean to me?</strong>
+                          <p className="mt-1">Helps quantify the throughput impact of AI assistance while providing directional insight into how AI adoption influences development velocity.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                <IconV2 name="more-horizontal" size="sm" />
+              </Button>
+            </div>
+            <GroupedBarChart data={linesPerDevData} series={ASSISTANT_SERIES} height={240} />
+          </div>
+          <div className="group/card flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-1.5">
+                <Text variant="body-strong" color="foreground-1">Acceptance Rate</Text>
+                <div className="relative opacity-0 transition-opacity group-hover/card:opacity-100">
+                  <div className="group/tip">
+                    <IconV2 name="info-circle" size="xs" className="text-foreground-4 cursor-help" />
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                      <div className="w-80 rounded-lg bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg border border-borders-2 space-y-3">
+                        <div>
+                          <strong className="text-foreground-1">Definition</strong>
+                          <p className="mt-1">Percentage of AI-suggested code that was accepted by developers during the selected time period.</p>
+                        </div>
+                        <div>
+                          <strong className="text-foreground-1">Computation</strong>
+                          <p className="mt-1">Acceptance Rate = (AI-Suggested Lines Accepted ÷ Total AI-Suggested Lines) × 100</p>
+                        </div>
+                        <div>
+                          <strong className="text-foreground-1">Breakdown</strong>
+                          <ul className="mt-1 list-disc pl-3.5 space-y-0.5">
+                            <li>Assistant-specific values show how often suggestions from each AI coding assistant are accepted</li>
+                            <li>Higher values indicate stronger alignment between AI suggestions and developer intent</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <strong className="text-foreground-1">How to read this</strong>
+                          <p className="mt-1">Use this metric to compare the effectiveness of different AI assistants over time. Interpret alongside quality and rework metrics to avoid optimizing for acceptance alone.</p>
+                        </div>
+                        <div>
+                          <strong className="text-foreground-1">What does this metric mean to me?</strong>
+                          <p className="mt-1">Acceptance rate is a leading indicator of AI usefulness and trust, helping teams understand how well AI suggestions fit real development workflows.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                <IconV2 name="more-horizontal" size="sm" />
+              </Button>
+            </div>
+            <GroupedBarChart data={acceptanceRateData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
+          </div>
+        </div>
         </div>
       </div>
     </div>
