@@ -7,7 +7,6 @@ import {
   Table,
   Select,
   StatusBadge,
-  Tag,
   Pagination,
   DropdownMenu,
 } from '@harnessio/ui/components'
@@ -266,6 +265,9 @@ export function EfficiencyDoraPage() {
   const [drillPageSize, setDrillPageSize] = useState(25)
   const [showTrendline, setShowTrendline] = useState(false)
   const [aggregation, setAggregation] = useState('mean')
+  const [selectedStage, setSelectedStage] = useState<number | null>(null)
+  const [stagedrillPage, setStagedrillPage] = useState(1)
+  const [stagedrillPageSize, setStagedrillPageSize] = useState(10)
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
@@ -381,6 +383,44 @@ export function EfficiencyDoraPage() {
     { iconType: 'flag', label: 'Done', stageName: '', stageColor: '', time: '' },
   ]
 
+  const STAGE_TICKET_POOL = useMemo(() => [
+    { workId: 'CCM-28146', summary: 'feat: [CCM-28146]: Add new recommendations api for azure & gcp', prs: 1, startDate: '2025-12-02 08:32:54', endDate: '2026-02-11 12:45:21', leadTimeDays: 72 },
+    { workId: 'CCM-28119', summary: 'fix: [CCM-28119]: Recommendations API not returning updated data', prs: 0, startDate: '2025-12-02 08:38:02', endDate: '2026-02-11 08:15:39', leadTimeDays: 71.98 },
+    { workId: 'CCM-27898', summary: 'feat: [CCM-27898]: Add cost anomaly detection for K8s workloads', prs: 4, startDate: '2025-11-15 10:12:33', endDate: '2026-01-28 14:50:12', leadTimeDays: 74.19 },
+    { workId: 'CCM-27654', summary: 'chore: [CCM-27654]: Migrate cloud cost dashboards to new viz framework', prs: 8, startDate: '2025-11-08 09:45:17', endDate: '2026-01-22 11:30:45', leadTimeDays: 75.07 },
+    { workId: 'CCM-28201', summary: 'fix: [CCM-28201]: Budget alert thresholds not triggering notifications', prs: 1, startDate: '2025-12-10 14:22:08', endDate: '2026-02-15 09:18:33', leadTimeDays: 66.79 },
+    { workId: 'CCM-27990', summary: 'feat: [CCM-27990]: Implement shared cost allocation rules engine', prs: 3, startDate: '2025-11-22 11:05:42', endDate: '2026-02-03 16:42:19', leadTimeDays: 73.23 },
+    { workId: 'CCM-28055', summary: 'fix: [CCM-28055]: AWS connector sync failing for gov-cloud regions', prs: 2, startDate: '2025-11-28 07:55:31', endDate: '2026-02-08 10:20:15', leadTimeDays: 72.1 },
+    { workId: 'CCM-27801', summary: 'feat: [CCM-27801]: Add perspective drill-down by namespace and label', prs: 5, startDate: '2025-11-12 13:18:44', endDate: '2026-01-25 08:55:02', leadTimeDays: 73.82 },
+    { workId: 'CCM-28310', summary: 'chore: [CCM-28310]: Upgrade BigQuery client library to v3.x', prs: 1, startDate: '2025-12-18 09:30:00', endDate: '2026-02-18 15:12:47', leadTimeDays: 62.24 },
+    { workId: 'CCM-27745', summary: 'feat: [CCM-27745]: Multi-cloud cost comparison report builder', prs: 6, startDate: '2025-11-05 16:42:11', endDate: '2026-01-20 12:08:33', leadTimeDays: 75.81 },
+    { workId: 'CCM-28088', summary: 'fix: [CCM-28088]: Idle cost calculation incorrect for spot instances', prs: 2, startDate: '2025-11-30 10:15:22', endDate: '2026-02-09 14:38:50', leadTimeDays: 71.18 },
+    { workId: 'CCM-27922', summary: 'feat: [CCM-27922]: Add tag-based cost allocation for ECS services', prs: 3, startDate: '2025-11-18 08:20:15', endDate: '2026-01-30 11:45:30', leadTimeDays: 73.14 },
+    { workId: 'CCM-28175', summary: 'fix: [CCM-28175]: Currency conversion rates not updating daily', prs: 1, startDate: '2025-12-05 15:48:33', endDate: '2026-02-13 09:22:17', leadTimeDays: 69.73 },
+    { workId: 'CCM-27855', summary: 'feat: [CCM-27855]: Implement FinOps scorecard with maturity metrics', prs: 7, startDate: '2025-11-14 11:30:05', endDate: '2026-01-27 16:15:42', leadTimeDays: 74.2 },
+    { workId: 'CCM-28260', summary: 'chore: [CCM-28260]: Optimize cost data ingestion pipeline throughput', prs: 2, startDate: '2025-12-14 07:10:48', endDate: '2026-02-16 13:55:20', leadTimeDays: 64.28 },
+    { workId: 'CCM-27968', summary: 'feat: [CCM-27968]: Add Databricks cost tracking integration', prs: 4, startDate: '2025-11-20 14:55:30', endDate: '2026-02-01 10:30:18', leadTimeDays: 72.82 },
+    { workId: 'CCM-28222', summary: 'fix: [CCM-28222]: Autostopping rules not applying to new instances', prs: 1, startDate: '2025-12-12 09:42:15', endDate: '2026-02-14 08:10:55', leadTimeDays: 63.94 },
+    { workId: 'CCM-27700', summary: 'feat: [CCM-27700]: Real-time cost anomaly Slack/Teams notifications', prs: 3, startDate: '2025-11-02 12:25:40', endDate: '2026-01-18 15:48:22', leadTimeDays: 77.14 },
+    { workId: 'CCM-28130', summary: 'fix: [CCM-28130]: GCP billing export missing committed use discounts', prs: 2, startDate: '2025-12-03 16:05:18', endDate: '2026-02-12 11:30:45', leadTimeDays: 70.81 },
+    { workId: 'CCM-27830', summary: 'feat: [CCM-27830]: Budget forecast accuracy improvement with ML model', prs: 5, startDate: '2025-11-13 10:48:22', endDate: '2026-01-26 14:22:08', leadTimeDays: 74.15 },
+  ], [])
+
+  const stageDrilldownData = useMemo(
+    () => seededShuffle(STAGE_TICKET_POOL, selectedStage != null ? (selectedStage + 1) * 5113 : 1),
+    [selectedStage, STAGE_TICKET_POOL]
+  )
+
+  const paginatedStageDrilldown = useMemo(() => {
+    const start = (stagedrillPage - 1) * stagedrillPageSize
+    return stageDrilldownData.slice(start, start + stagedrillPageSize)
+  }, [stageDrilldownData, stagedrillPage, stagedrillPageSize])
+
+  const handleStageClick = (index: number) => {
+    setSelectedStage(prev => prev === index ? null : index)
+    setStagedrillPage(1)
+  }
+
   return (
     <div className="flex min-h-screen bg-cn-3">
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
@@ -441,7 +481,7 @@ export function EfficiencyDoraPage() {
           />
           <div className="ml-auto">
             <Button
-              variant={showTrendline ? 'default' : 'outline'}
+              variant={showTrendline ? 'primary' : 'outline'}
               size="sm"
               onClick={() => setShowTrendline(!showTrendline)}
             >
@@ -544,6 +584,7 @@ export function EfficiencyDoraPage() {
 
           {/* Development stages visualization */}
           <div className="mx-5 mb-5 mt-3 rounded-lg bg-cn-2 p-5">
+            <Text variant="body-strong" color="foreground-1" className="mb-4">Lead time by stages</Text>
             {(() => {
               const stages = stageData.filter(s => s.stageName)
               const tipSize = 16
@@ -572,11 +613,15 @@ export function EfficiencyDoraPage() {
                         {/* Spacer */}
                         <div className="h-3" />
                         {/* Chevron arrow */}
-                        <div className="relative z-10" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))', marginLeft: 7 }}>
+                        <div
+                          className="relative z-10 cursor-pointer"
+                          style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))', marginLeft: 7 }}
+                          onClick={() => handleStageClick(i)}
+                        >
                           <div
-                            className="flex flex-col justify-center gap-0.5 py-3"
+                            className="flex flex-col justify-center gap-0.5 py-3 transition-colors"
                             style={{
-                              backgroundColor: '#fff',
+                              backgroundColor: selectedStage === i ? '#EFF6FF' : '#fff',
                               clipPath: isFirst ? clipFirst : clipMiddle,
                               paddingLeft: isFirst ? 16 : tipSize + 12,
                               paddingRight: tipSize + 8,
@@ -606,6 +651,103 @@ export function EfficiencyDoraPage() {
               )
             })()}
           </div>
+
+          {/* Stage drilldown table */}
+          {selectedStage != null && (() => {
+            const maxLeadTime = Math.max(...stageDrilldownData.map(r => r.leadTimeDays))
+            return (
+            <div className="p-5">
+              <div className="flex items-center pb-3">
+                <div className="flex items-center gap-1.5">
+                  <Text variant="body-strong" color="foreground-1">
+                    {stageData.filter(s => s.stageName)[selectedStage]?.stageName} — Ticket Breakdown
+                  </Text>
+                </div>
+                <div className="ml-auto">
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedStage(null)}>
+                    <IconV2 name="xmark" size="sm" />
+                  </Button>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <Table.Root variant="default" size="normal">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.Head>Work-ID</Table.Head>
+                      <Table.Head>Ticket Summary</Table.Head>
+                      <Table.Head>Pull Requests</Table.Head>
+                      <Table.Head>Start Date</Table.Head>
+                      <Table.Head>End Date</Table.Head>
+                      <Table.Head>Lead Time</Table.Head>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    {paginatedStageDrilldown.map((row) => {
+                      const barPct = maxLeadTime > 0 ? (row.leadTimeDays / maxLeadTime) * 100 : 0
+                      const leadDays = Math.floor(row.leadTimeDays)
+                      const leadHours = Math.round((row.leadTimeDays - leadDays) * 24)
+                      const leadLabel = leadHours > 0 ? `${leadDays}d ${leadHours}h` : `${leadDays}d`
+                      return (
+                      <Table.Row key={row.workId}>
+                        <Table.Cell>
+                          <span className="cursor-pointer text-xs font-medium" style={{ color: 'var(--cn-brand, #006DEA)', fontFamily: "'Inter', sans-serif" }}>{row.workId}</span>
+                        </Table.Cell>
+                        <Table.Cell className="max-w-[320px]">
+                          <Text variant="body-normal" color="foreground-1" className="truncate">{row.summary}</Text>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <span className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.prs} PRs</span>
+                        </Table.Cell>
+                        <Table.Cell className="whitespace-nowrap">
+                          <Text variant="body-normal" color="foreground-3">{row.startDate}</Text>
+                        </Table.Cell>
+                        <Table.Cell className="whitespace-nowrap">
+                          <Text variant="body-normal" color="foreground-3">{row.endDate}</Text>
+                        </Table.Cell>
+                        <Table.Cell style={{ minWidth: 160 }}>
+                          {(() => {
+                            const seed = row.workId
+                            const segments = [
+                              jitter(`${seed}-plan`, 25, 15),
+                              jitter(`${seed}-code`, 20, 12),
+                              jitter(`${seed}-rev`, 20, 10),
+                              jitter(`${seed}-bld`, 15, 8),
+                              jitter(`${seed}-dep`, 20, 10),
+                            ]
+                            const total = segments.reduce((a, b) => a + b, 0)
+                            const colors = [STAGE_COLORS.planning, STAGE_COLORS.coding, STAGE_COLORS.review, STAGE_COLORS.build, STAGE_COLORS.deploy]
+                            return (
+                              <div className="flex flex-col gap-1">
+                                <div className="flex h-2.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: '#F2F4F7', gap: 1 }}>
+                                  {segments.map((seg, si) => (
+                                    <div key={si} style={{ width: `${(seg / total) * barPct}%`, backgroundColor: colors[si], borderRadius: 9999 }} />
+                                  ))}
+                                </div>
+                                <Text variant="caption-normal" color="foreground-3">{leadLabel}</Text>
+                              </div>
+                            )
+                          })()}
+                        </Table.Cell>
+                      </Table.Row>
+                      )
+                    })}
+                  </Table.Body>
+                </Table.Root>
+              </div>
+              <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
+                <Pagination
+                  totalItems={stageDrilldownData.length}
+                  pageSize={stagedrillPageSize}
+                  currentPage={stagedrillPage}
+                  goToPage={setStagedrillPage}
+                  onPageSizeChange={(size) => { setStagedrillPageSize(size); setStagedrillPage(1) }}
+                  pageSizeOptions={[10, 20, 50]}
+                  className="!mt-cn-sm"
+                />
+              </div>
+            </div>
+            )
+          })()}
         </div>
 
         {/* Row 3: Deployment Frequency bar chart with drilldown */}
@@ -670,7 +812,7 @@ export function EfficiencyDoraPage() {
           </div>
 
           {/* Drilldown table */}
-          <div className="border-t border-borders-2 p-5">
+          <div className="p-5">
             <div className="flex items-center pb-3">
               <div className="flex items-center gap-1.5">
                 <Text variant="body-strong" color="foreground-1">Drill-down</Text>
