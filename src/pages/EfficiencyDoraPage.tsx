@@ -202,18 +202,24 @@ function GitHubIcon({ size = 22 }: { size?: number }) {
 function PipelineIcon({ size = 22 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="text-foreground-3">
-      <path d="M4 5h16M4 12h16M4 19h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      <circle cx="8" cy="5" r="2" fill="currentColor"/>
-      <circle cx="16" cy="12" r="2" fill="currentColor"/>
-      <circle cx="12" cy="19" r="2" fill="currentColor"/>
+      <path d="M7 8L3 12l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M17 8l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M3 12h7M14 12h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <rect x="10" y="9" width="4" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
     </svg>
   )
 }
 
 function FlagIcon({ size = 22 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="text-foreground-3">
-      <path d="M5 3v18M5 3h12l-3 4 3 4H5"/>
+    <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
+      <mask id="mask0_flag" style={{ maskType: 'alpha' as const }} maskUnits="userSpaceOnUse" x="2" y="2" width="18" height="18">
+        <path d="M3.34844 13.4265L4.29636 3.27963C4.32438 2.97967 4.58283 2.75 4.89234 2.75H18.6515C19.0034 2.75 19.2794 3.04404 19.2475 3.38508L18.3589 12.8968C18.3309 13.1968 18.0724 13.4265 17.763 13.4265H3.34844ZM3.34844 13.4265L2.75 19.25Z" fill="black"/>
+        <path d="M3.34844 13.4265L4.29636 3.27963C4.32438 2.97967 4.58283 2.75 4.89234 2.75H18.6515C19.0034 2.75 19.2794 3.04404 19.2475 3.38508L18.3589 12.8968C18.3309 13.1968 18.0724 13.4265 17.763 13.4265H3.34844ZM3.34844 13.4265L2.75 19.25" stroke="black" strokeWidth="1.22" strokeLinecap="round" strokeLinejoin="round"/>
+      </mask>
+      <g mask="url(#mask0_flag)">
+        <rect width="22" height="22" fill="#6B6F79"/>
+      </g>
     </svg>
   )
 }
@@ -349,9 +355,9 @@ export function EfficiencyDoraPage() {
   const stageData: { iconType: PhaseIconType; label: string; stageName: string; stageColor: string; time: string }[] = [
     { iconType: 'jira', label: 'To Do / Proposed', stageName: 'Planning', stageColor: STAGE_COLORS.planning, time: '4d days · 23h' },
     { iconType: 'jira', label: 'In Progress', stageName: 'Coding', stageColor: STAGE_COLORS.coding, time: '12h 55m' },
-    { iconType: 'github', label: 'First PR Created', stageName: 'Review', stageColor: STAGE_COLORS.review, time: '7h 21m' },
-    { iconType: 'github', label: 'Last PR Merged', stageName: 'Build', stageColor: STAGE_COLORS.build, time: '1d 13h' },
-    { iconType: 'pipeline', label: 'Last PR Merged', stageName: 'Deploy', stageColor: STAGE_COLORS.deploy, time: '69d 4h' },
+    { iconType: 'github', label: 'First Commit Created', stageName: 'Review', stageColor: STAGE_COLORS.review, time: '7h 21m' },
+    { iconType: 'github', label: 'First PR Approval', stageName: 'Build', stageColor: STAGE_COLORS.build, time: '1d 13h' },
+    { iconType: 'github', label: 'Last PR Merged', stageName: 'Deploy', stageColor: STAGE_COLORS.deploy, time: '69d 4h' },
     { iconType: 'flag', label: 'Done', stageName: '', stageColor: '', time: '' },
   ]
 
@@ -525,9 +531,11 @@ export function EfficiencyDoraPage() {
                     // Left edge of the arrow content area
                     const edgeOffset = isFirst ? 0 : tipSize
                     return (
-                      <div key={`${stage.stageName}-${i}`} className="flex flex-1 flex-col">
+                      <div key={`${stage.stageName}-${i}`} className="relative flex flex-1 flex-col">
+                        {/* Vertical line from icon to bottom of arrow */}
+                        <div className="absolute top-[22px] bottom-0 border-l border-cn-1" style={{ left: 1 }} />
                         {/* Phase icon + label */}
-                        <div className="pb-1" style={{ marginLeft: edgeOffset }}>
+                        <div className="relative z-10" style={{ marginLeft: edgeOffset }}>
                           <div className="flex items-center gap-1.5">
                             <PhaseIcon type={phase.iconType} />
                             <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap" style={{ fontSize: 11 }}>
@@ -535,10 +543,10 @@ export function EfficiencyDoraPage() {
                             </Text>
                           </div>
                         </div>
-                        {/* Vertical connector line — aligned to arrow's left edge */}
-                        <div className="mb-1 h-3 border-l border-cn-1" style={{ width: 0, marginLeft: 1 }} />
+                        {/* Spacer */}
+                        <div className="h-3" />
                         {/* Chevron arrow */}
-                        <div style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))' }}>
+                        <div className="relative z-10" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))' }}>
                           <div
                             className="flex flex-col justify-center gap-0.5 py-3"
                             style={{
@@ -559,14 +567,14 @@ export function EfficiencyDoraPage() {
                     )
                   })}
                   {/* Done phase — no arrow, just the icon/label with line */}
-                  <div className="flex flex-col pb-2">
-                    <div className="flex items-center gap-1.5">
+                  <div className="relative flex flex-col">
+                    <div className="absolute top-[22px] bottom-0 border-l border-cn-1" style={{ left: 1 }} />
+                    <div className="relative z-10 flex items-center gap-1.5">
                       <PhaseIcon type="flag" />
                       <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap" style={{ fontSize: 11 }}>
                         Done
                       </Text>
                     </div>
-                    <div className="mt-1 h-3 border-l border-cn-1" style={{ width: 0, marginLeft: 1 }} />
                   </div>
                 </div>
               )
