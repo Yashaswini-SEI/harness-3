@@ -1,13 +1,13 @@
-import { Text, IconV2 } from '@harnessio/ui/components'
+import { Text, IconV2, StatusBadge } from '@harnessio/ui/components'
 
-const BADGE_THEMES: Record<string, { bg: string; text: string }> = {
-  Work: { bg: '#EFF8FF', text: '#175CD3' },
-  Delivery: { bg: '#ECFDF3', text: '#027A48' },
-  Analysis: { bg: '#F9F5FF', text: '#6941C6' },
-  Elite: { bg: '#ECFDF3', text: '#027A48' },
-  High: { bg: '#EFF8FF', text: '#175CD3' },
-  Medium: { bg: '#FFFAEB', text: '#B54708' },
-  Low: { bg: '#FEF3F2', text: '#B42318' },
+const BADGE_THEME_MAP: Record<string, 'info' | 'success' | 'merged' | 'warning' | 'danger' | 'muted'> = {
+  Work: 'info',
+  Delivery: 'success',
+  Analysis: 'merged',
+  Elite: 'success',
+  High: 'info',
+  Medium: 'warning',
+  Low: 'danger',
 }
 
 export interface InsightMetricCardProps {
@@ -33,7 +33,7 @@ export function InsightMetricCard({
   infoTooltip,
   noData,
 }: InsightMetricCardProps) {
-  const badgeTheme = badge ? (BADGE_THEMES[badge] ?? BADGE_THEMES.Work) : null
+  const badgeTheme = badge ? (BADGE_THEME_MAP[badge] ?? 'muted') : null
 
   return (
     <div className="flex flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
@@ -51,35 +51,28 @@ export function InsightMetricCard({
             </div>
           )}
         </div>
-        {badgeTheme && (
-          <span
-            className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-            style={{ backgroundColor: badgeTheme.bg, color: badgeTheme.text }}
-          >
-            {badge}
+        {badge && badgeTheme && (
+          <StatusBadge variant="outline" theme={badgeTheme} size="sm">{badge}</StatusBadge>
+        )}
+      </div>
+      <div className="flex items-baseline justify-between">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 28, lineHeight: 1 }}>
+            {value}
+          </span>
+          {subtitle && <Text variant="body-normal" color="foreground-3">{subtitle}</Text>}
+        </div>
+        {!noData && trend && (
+          <span className={`text-xs ${trendPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+            {trend}
           </span>
         )}
       </div>
-      <div className="flex items-baseline gap-1.5">
-        <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 28, lineHeight: 1 }}>
-          {value}
-        </span>
-        {subtitle && <Text variant="body-normal" color="foreground-3">{subtitle}</Text>}
-      </div>
       {noData ? (
         <Text variant="caption-normal" color="foreground-4">No data available for the selected time period</Text>
-      ) : (
-        <div className="flex items-center gap-2">
-          {trend && (
-            <span className={`text-xs ${trendPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
-              {trend}
-            </span>
-          )}
-          {description && (
-            <Text variant="caption-normal" color="foreground-3">{description}</Text>
-          )}
-        </div>
-      )}
+      ) : description ? (
+        <Text variant="caption-normal" color="foreground-3">{description}</Text>
+      ) : null}
     </div>
   )
 }

@@ -95,6 +95,8 @@ export function SprintMetricsPage() {
             label="Sprint Commit"
             value="27"
             subtitle="tickets"
+            trend="↑ 3"
+            trendPositive
             badge="Work"
             infoTooltip="Total number of tickets committed at the start of the sprint."
           />
@@ -111,6 +113,8 @@ export function SprintMetricsPage() {
             label="Sprint Size"
             value="73"
             subtitle="story points"
+            trend="↑ 8%"
+            trendPositive
             badge="Delivery"
             infoTooltip="Total story points committed at the start of the sprint."
           />
@@ -118,6 +122,8 @@ export function SprintMetricsPage() {
             label="Average Sprint Size"
             value="2.21"
             subtitle="story points per ticket"
+            trend="↑ 5%"
+            trendPositive
             badge="Analysis"
             infoTooltip="Average story points per ticket in the sprint. Helps identify if work is being broken down into appropriately sized items."
           />
@@ -135,6 +141,8 @@ export function SprintMetricsPage() {
             label="Delivered Commit"
             value="22"
             subtitle="of 27 committed"
+            trend="↑ 2"
+            trendPositive
             badge="Delivery"
             infoTooltip="Number of committed tickets that were completed during the sprint."
           />
@@ -142,6 +150,8 @@ export function SprintMetricsPage() {
             label="Missed Commit"
             value="5"
             subtitle="of 27 committed"
+            trend="↓ 1"
+            trendPositive
             badge="Work"
             infoTooltip="Number of committed tickets that were not completed by sprint end."
           />
@@ -188,7 +198,6 @@ export function SprintMetricsPage() {
             subtitle="ratio"
             trend="↑ 0.03pts"
             trendPositive
-            description="22 of 27 committed tickets"
             badge="Work"
             infoTooltip="Ratio of completed work to committed work. A value of 1.0 means the team delivered exactly what was planned."
           />
@@ -197,6 +206,8 @@ export function SprintMetricsPage() {
             label="Churn Rate"
             value="13.5"
             subtitle="story points churned"
+            trend="↓ 12%"
+            trendPositive
             badge="Analysis"
             infoTooltip="Story points added or removed from the sprint after it began. Measures sprint scope instability."
           />
