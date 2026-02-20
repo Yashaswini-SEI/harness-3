@@ -1088,6 +1088,19 @@ export function EfficiencyDoraPage() {
             <ExportMenu />
           </div>
 
+          {/* Metric box */}
+          <div className="mx-5 mt-3 flex w-1/5 flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+            <div className="flex items-center justify-between">
+              <Text variant="caption-normal" color="foreground-3">Total Deployments</Text>
+              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#ECFDF3', color: '#027A48' }}>Elite</span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>21</span>
+              <Text variant="body-normal" color="foreground-3">(5.25/wk)</Text>
+            </div>
+            <span className="text-xs text-[#EF4444]">↘ 43.24%</span>
+          </div>
+
           <div className="p-5 pt-3">
             <svg width="0" height="0">
               <defs>
@@ -1224,11 +1237,31 @@ export function EfficiencyDoraPage() {
         {/* Row 4: Change Failure Rate */}
         <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
           <div className="flex items-start justify-between p-5 pb-0">
-            <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Change Failure Rate</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>The Change Failure Rate metric represents the percentage of deployments that cause a failure in production. The metric is defined in your Org Tree's Efficiency profile and automatically rolls up across teams for org-level visibility.</p>
+                    <p>The metric is calculated using the formula: Change Failure Rate = Deployments that caused a failure or incident in production / Total deployments</p>
+                  </div>
+                </div>
+              </div>
             </div>
             <ExportMenu />
           </div>
+
+          {/* Metric box */}
+          <div className="mx-5 mt-3 flex w-1/5 flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+            <div className="flex items-center justify-between">
+              <Text variant="caption-normal" color="foreground-3">Change Failure Rate</Text>
+              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#FEF3F2', color: '#B42318' }}>Low</span>
+            </div>
+            <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>147.62%</span>
+            <span className="text-xs text-[#EF4444]">↗ 506.88%</span>
+          </div>
+
           <div className="p-5 pt-3">
             <ResponsiveContainer width="100%" height={260}>
               <ComposedChart
@@ -1353,11 +1386,32 @@ export function EfficiencyDoraPage() {
         {/* Row 5: Mean Time to Restore */}
         <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
           <div className="flex items-start justify-between p-5 pb-0">
-            <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Mean Time to Restore</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>The Mean Time to Restore metric indicates how long it takes an organization to recover from a failure or incidents in production.</p>
+                    <p>The metric is defined in your Org Tree's Efficiency profile (source of failure) and automatically rolls up across teams for org-level visibility.</p>
+                    <p>The source of deployment is the same as defined in the Deployment frequency definition in the Efficiency profile.</p>
+                  </div>
+                </div>
+              </div>
             </div>
             <ExportMenu />
           </div>
+
+          {/* Metric box */}
+          <div className="mx-5 mt-3 flex w-1/5 flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+            <div className="flex items-center justify-between">
+              <Text variant="caption-normal" color="foreground-3">Mean Time to Restore</Text>
+              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#FEF3F2', color: '#B42318' }}>Low</span>
+            </div>
+            <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>44d 16h</span>
+            <span className="text-xs text-[#EF4444]">↘ 26.63%</span>
+          </div>
+
           <div className="p-5 pt-3">
             <ResponsiveContainer width="100%" height={260}>
               <ComposedChart
