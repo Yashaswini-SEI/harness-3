@@ -27,72 +27,14 @@ function jitter(seed: string, base: number, variance: number): number {
 
 const TIME_RANGE_PROFILES: Record<string, {
   scale: number
-  compliance: string
-  complianceTrend: string
-  newCapability: string
-  newCapabilityTrend: string
-  ktlo: string
-  ktloTrend: string
-  quality: string
-  qualityTrend: string
-  uncategorized: string
-  uncategorizedTrend: string
   labels: string[]
 }> = {
-  '7D': {
-    scale: 0.12,
-    compliance: '28.41%', complianceTrend: '-1.12%',
-    newCapability: '11.05%', newCapabilityTrend: '+0.38%',
-    ktlo: '27.80%', ktloTrend: '+0.64%',
-    quality: '32.74%', qualityTrend: '+0.22%',
-    uncategorized: '0%', uncategorizedTrend: '',
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  },
-  '1M': {
-    scale: 0.35,
-    compliance: '27.50%', complianceTrend: '-0.82%',
-    newCapability: '12.20%', newCapabilityTrend: '-0.55%',
-    ktlo: '27.10%', ktloTrend: '-0.33%',
-    quality: '33.20%', qualityTrend: '+0.15%',
-    uncategorized: '0%', uncategorizedTrend: '',
-    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-  },
-  '3M': {
-    scale: 0.55,
-    compliance: '26.90%', complianceTrend: '-0.71%',
-    newCapability: '12.80%', newCapabilityTrend: '-0.62%',
-    ktlo: '26.70%', ktloTrend: '-0.28%',
-    quality: '33.60%', qualityTrend: '-0.08%',
-    uncategorized: '0%', uncategorizedTrend: '',
-    labels: ['Dec', 'Jan', 'Feb'],
-  },
-  '6M': {
-    scale: 0.78,
-    compliance: '26.50%', complianceTrend: '-0.60%',
-    newCapability: '13.00%', newCapabilityTrend: '-0.70%',
-    ktlo: '26.40%', ktloTrend: '-0.22%',
-    quality: '34.10%', qualityTrend: '-0.05%',
-    uncategorized: '0%', uncategorizedTrend: '',
-    labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
-  },
-  '12M': {
-    scale: 1,
-    compliance: '26.19%', complianceTrend: '-0.53%',
-    newCapability: '13.10%', newCapabilityTrend: '-0.74%',
-    ktlo: '26.19%', ktloTrend: '-0.19%',
-    quality: '34.52%', qualityTrend: '-0.03%',
-    uncategorized: '0%', uncategorizedTrend: '',
-    labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
-  },
-  custom: {
-    scale: 1,
-    compliance: '26.19%', complianceTrend: '-0.53%',
-    newCapability: '13.10%', newCapabilityTrend: '-0.74%',
-    ktlo: '26.19%', ktloTrend: '-0.19%',
-    quality: '34.52%', qualityTrend: '-0.03%',
-    uncategorized: '0%', uncategorizedTrend: '',
-    labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
-  },
+  '7D': { scale: 0.12, labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] },
+  '1M': { scale: 0.35, labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'] },
+  '3M': { scale: 0.55, labels: ['Dec', 'Jan', 'Feb'] },
+  '6M': { scale: 0.78, labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'] },
+  '12M': { scale: 1, labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'] },
+  custom: { scale: 1, labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'] },
 }
 
 // ── Stacked bar series ──
@@ -112,6 +54,15 @@ const ALIGNMENT_SERIES = [
   { dataKey: 'quality', name: 'Quality Improvements', color: CATEGORY_COLORS.quality },
   { dataKey: 'uncategorized', name: 'Uncategorized', color: CATEGORY_COLORS.uncategorized },
 ]
+
+// Base values per metric type — produces different chart distributions
+const METRIC_TYPE_BASES: Record<string, { compliance: number; newCapability: number; ktlo: number; quality: number; uncategorized: number }> = {
+  'ticket-count': { compliance: 18, newCapability: 30, ktlo: 22, quality: 15, uncategorized: 8 },
+  'story-points': { compliance: 24, newCapability: 22, ktlo: 16, quality: 20, uncategorized: 6 },
+  'ticket-time-spent': { compliance: 14, newCapability: 26, ktlo: 28, quality: 18, uncategorized: 10 },
+}
+
+const SERIES_KEYS = ['compliance', 'newCapability', 'ktlo', 'quality', 'uncategorized'] as const
 
 // ── Ticket data pool ──
 
@@ -224,23 +175,40 @@ export function BusinessAlignmentPage() {
     document.documentElement.classList.contains('dark-std-low')
   )
   const [timeRange, setTimeRange] = useState('12M')
+  const [metricType, setMetricType] = useState('ticket-count')
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [drillPage, setDrillPage] = useState(1)
   const [drillPageSize, setDrillPageSize] = useState(10)
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['12M']
 
-  // Generate chart data from profile labels
-  const chartData = useMemo(
-    () => profile.labels.map((name, i) => ({
+  // Generate chart data from profile labels + metric type
+  const chartData = useMemo(() => {
+    const bases = METRIC_TYPE_BASES[metricType] ?? METRIC_TYPE_BASES['ticket-count']
+    return profile.labels.map((name, i) => ({
       name,
-      compliance: jitter(`comp${name}${i}`, Math.round(18 * profile.scale) + i, 5),
-      newCapability: jitter(`cap${name}${i}`, Math.round(30 * profile.scale) + i * 2, 8),
-      ktlo: jitter(`ktlo${name}${i}`, Math.round(22 * profile.scale) + i, 6),
-      quality: jitter(`qual${name}${i}`, Math.round(15 * profile.scale) + i, 4),
-      uncategorized: jitter(`uncat${name}${i}`, Math.round(8 * profile.scale), 3),
-    })),
-    [profile]
+      compliance: jitter(`comp${name}${i}${metricType}`, Math.round(bases.compliance * profile.scale) + i, 5),
+      newCapability: jitter(`cap${name}${i}${metricType}`, Math.round(bases.newCapability * profile.scale) + i * 2, 8),
+      ktlo: jitter(`ktlo${name}${i}${metricType}`, Math.round(bases.ktlo * profile.scale) + i, 6),
+      quality: jitter(`qual${name}${i}${metricType}`, Math.round(bases.quality * profile.scale) + i, 4),
+      uncategorized: jitter(`uncat${name}${i}${metricType}`, Math.round(bases.uncategorized * profile.scale), 3),
+    }))
+  }, [profile, metricType])
+
+  // Derive metric card percentages from chart totals
+  const metricValues = useMemo(() => {
+    const totals = Object.fromEntries(SERIES_KEYS.map(k => [k, chartData.reduce((s, d) => s + (d[k] as number), 0)])) as Record<typeof SERIES_KEYS[number], number>
+    const grand = Object.values(totals).reduce((a, b) => a + b, 0)
+    return Object.fromEntries(SERIES_KEYS.map(k => [k, grand > 0 ? ((totals[k] / grand) * 100).toFixed(2) + '%' : '0%'])) as Record<typeof SERIES_KEYS[number], string>
+  }, [chartData])
+
+  // Trends vary by metric type + time range
+  const metricTrends = useMemo(() =>
+    Object.fromEntries(SERIES_KEYS.map(k => {
+      const v = jitter(`trend-${k}-${metricType}-${timeRange}`, 0, 120) / 100
+      return [k, v === 0 ? '' : (v > 0 ? '+' : '') + v.toFixed(2) + '%']
+    })) as Record<typeof SERIES_KEYS[number], string>,
+    [metricType, timeRange]
   )
 
   const handleBarClick = (index: number) => {
@@ -248,16 +216,11 @@ export function BusinessAlignmentPage() {
     setDrillPage(1)
   }
 
-  // Bar detail tickets — seeded by selected bar index
-  const barDetailTickets = useMemo(() => {
-    if (selectedBarIndex == null) return []
-    return seededShuffle(TICKET_POOL, (selectedBarIndex + 1) * 7919).slice(0, 6 + (selectedBarIndex % 4))
-  }, [selectedBarIndex])
-
-  // Drilldown table — seeded by selected bar index so it "refreshes" on each click
+  // Drilldown table — seeded by selected bar + metric type so it "refreshes" on changes
+  const metricSeed = metricType === 'story-points' ? 7919 : metricType === 'ticket-time-spent' ? 15373 : 1
   const drilldownData = useMemo(
-    () => seededShuffle(TICKET_POOL, selectedBarIndex != null ? (selectedBarIndex + 1) * 4327 : 1),
-    [selectedBarIndex]
+    () => seededShuffle(TICKET_POOL, (selectedBarIndex != null ? (selectedBarIndex + 1) * 4327 : 1) + metricSeed),
+    [selectedBarIndex, metricSeed]
   )
 
   const paginatedDrilldown = useMemo(() => {
@@ -271,10 +234,10 @@ export function BusinessAlignmentPage() {
     root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
   }, [dark])
 
-  // Reset selected bar when time range changes
+  // Reset selected bar when time range or metric type changes
   useEffect(() => {
     setSelectedBarIndex(null)
-  }, [timeRange])
+  }, [timeRange, metricType])
 
   return (
     <div className="flex min-h-screen bg-cn-3">
@@ -288,7 +251,7 @@ export function BusinessAlignmentPage() {
           <div className="flex flex-col gap-1">
             <Text as="h1" variant="heading-hero" color="foreground-1">Business Alignment</Text>
             <Text variant="body-normal" color="foreground-3">
-              Track how engineering effort aligns with strategic business objectives.
+              Business alignment is the strategic fit between a company's software initiatives and its core business goals to maximize value and impact.
             </Text>
           </div>
           <div className="flex items-center gap-3">
@@ -334,15 +297,24 @@ export function BusinessAlignmentPage() {
               <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
             </Tabs.List>
           </Tabs.Root>
+          <Select
+            value={metricType}
+            options={[
+              { label: 'Showing Story Points', value: 'story-points' },
+              { label: 'Showing Ticket Count', value: 'ticket-count' },
+              { label: 'Showing Ticket Time Spent', value: 'ticket-time-spent' },
+            ]}
+            onChange={(val) => setMetricType(val)}
+          />
         </div>
 
         {/* Row 1: Metric cards */}
         <div className="grid grid-cols-5 gap-5">
-          <MetricCard label="Security and Compliance" value={profile.compliance} trend={profile.complianceTrend} color={CATEGORY_COLORS.compliance} />
-          <MetricCard label="New Capability" value={profile.newCapability} trend={profile.newCapabilityTrend} color={CATEGORY_COLORS.newCapability} />
-          <MetricCard label="KTLO" value={profile.ktlo} trend={profile.ktloTrend} color={CATEGORY_COLORS.ktlo} />
-          <MetricCard label="Quality Improvements" value={profile.quality} trend={profile.qualityTrend} color={CATEGORY_COLORS.quality} />
-          <MetricCard label="Uncategorized" value={profile.uncategorized} trend={profile.uncategorizedTrend} color={CATEGORY_COLORS.uncategorized} />
+          <MetricCard label="Security and Compliance" value={metricValues.compliance} trend={metricTrends.compliance} color={CATEGORY_COLORS.compliance} />
+          <MetricCard label="New Capability" value={metricValues.newCapability} trend={metricTrends.newCapability} color={CATEGORY_COLORS.newCapability} />
+          <MetricCard label="KTLO" value={metricValues.ktlo} trend={metricTrends.ktlo} color={CATEGORY_COLORS.ktlo} />
+          <MetricCard label="Quality Improvements" value={metricValues.quality} trend={metricTrends.quality} color={CATEGORY_COLORS.quality} />
+          <MetricCard label="Uncategorized" value={metricValues.uncategorized} trend={metricTrends.uncategorized} color={CATEGORY_COLORS.uncategorized} />
         </div>
 
         {/* Row 2: Interactive stacked bar chart */}
@@ -365,18 +337,50 @@ export function BusinessAlignmentPage() {
               selectedIndex={selectedBarIndex}
             />
           </div>
-          {/* Expanded detail table */}
-          {selectedBarIndex != null && (
-            <div className="border-t border-borders-2">
-              <div className="flex items-center justify-between px-5 py-3">
-                <Text variant="body-strong" color="foreground-1">
-                  Tickets for {chartData[selectedBarIndex]?.name}
-                </Text>
-                <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedBarIndex(null)}>
-                  <IconV2 name="xmark" size="sm" />
-                </Button>
+          {/* Drilldown table */}
+          <div className="border-t border-borders-2 p-5">
+            <div className="flex items-center pb-3">
+              <div className="flex items-center gap-1.5">
+                <Text variant="body-strong" color="foreground-1">Business Alignment Drilldown</Text>
+                <div className="relative opacity-0 transition-opacity group-hover/card:opacity-100">
+                  <div className="group/tip">
+                    <IconV2 name="info-circle" size="xs" className="text-foreground-4 cursor-help" />
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                      <div className="w-80 rounded-lg bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg border border-borders-2 space-y-3">
+                        <div>
+                          <strong className="text-foreground-1">Definition</strong>
+                          <p className="mt-1">Ticket-level view of engineering work categorized by business alignment, showing how individual efforts map to strategic objectives.</p>
+                        </div>
+                        <div>
+                          <strong className="text-foreground-1">How to read this</strong>
+                          <p className="mt-1">Each row represents a single ticket. Use the category filter to focus on specific alignment areas and identify uncategorized work that may need classification.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="overflow-x-auto px-5 pb-5">
+              <div className="ml-auto flex items-center gap-3">
+                <Select
+                  value=""
+                  options={[
+                    { label: 'All Categories', value: '' },
+                    { label: 'Data & Security Compliance', value: 'compliance' },
+                    { label: 'New Capability', value: 'new-capability' },
+                    { label: 'KTLO', value: 'ktlo' },
+                    { label: 'Quality Improvements', value: 'quality' },
+                    { label: 'Uncategorized', value: 'uncategorized' },
+                  ]}
+                  onChange={() => {}}
+                />
+                {selectedBarIndex != null && (
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedBarIndex(null)}>
+                    <IconV2 name="xmark" size="sm" />
+                  </Button>
+                )}
+              </div>
+            </div>
+              <div className="overflow-x-auto">
                 <Table.Root variant="default" size="normal">
                   <Table.Header>
                     <Table.Row>
@@ -386,11 +390,12 @@ export function BusinessAlignmentPage() {
                       <Table.Head>Team</Table.Head>
                       <Table.Head>Owner</Table.Head>
                       <Table.Head>Status</Table.Head>
-                      <Table.Head className="text-right">Effort</Table.Head>
+                      <Table.Head className="text-right">{metricType === 'ticket-time-spent' ? 'Time Spent' : metricType === 'story-points' ? 'Story Points' : 'Count'}</Table.Head>
+                      <Table.Head>Priority</Table.Head>
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
-                    {barDetailTickets.map((row) => (
+                    {paginatedDrilldown.map((row) => (
                       <Table.Row key={row.ticket}>
                         <Table.Cell>
                           <Text variant="body-normal" color="foreground-1" className="font-mono text-xs">{row.ticket}</Text>
@@ -402,121 +407,47 @@ export function BusinessAlignmentPage() {
                           <Tag variant="outline" theme="gray" size="sm" value={row.category} />
                         </Table.Cell>
                         <Table.Cell className="whitespace-nowrap">{row.team}</Table.Cell>
-                        <Table.Cell className="whitespace-nowrap">{row.owner}</Table.Cell>
+                        <Table.Cell>
+                          <div className="flex items-center gap-3">
+                            <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-sm font-medium text-[#006DEA]" style={{ width: 32, height: 32, borderRadius: '50%' }}>
+                              {row.owner.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.owner}</Text>
+                          </div>
+                        </Table.Cell>
                         <Table.Cell>
                           <StatusBadge variant="outline" theme={statusTheme(row.status)} size="sm">{row.status}</StatusBadge>
                         </Table.Cell>
-                        <Table.Cell className="text-right">{row.effort}</Table.Cell>
+                        <Table.Cell className="text-right">
+                          {metricType === 'story-points' ? row.effort
+                            : metricType === 'ticket-time-spent' ? (parseInt(row.effort) * 4) + 'h'
+                            : '1'}
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Tag
+                            variant="outline"
+                            theme={row.priority === 'Critical' ? 'red' : row.priority === 'High' ? 'yellow' : row.priority === 'Medium' ? 'blue' : 'gray'}
+                            size="sm"
+                            value={row.priority}
+                          />
+                        </Table.Cell>
                       </Table.Row>
                     ))}
                   </Table.Body>
                 </Table.Root>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Row 3: Business alignment drilldown table */}
-        <div className="group/card overflow-hidden rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
-          <div className="flex items-center pb-3">
-            <div className="flex items-center gap-1.5">
-              <Text variant="body-strong" color="foreground-1">Business Alignment Drilldown</Text>
-              <div className="relative opacity-0 transition-opacity group-hover/card:opacity-100">
-                <div className="group/tip">
-                  <IconV2 name="info-circle" size="xs" className="text-foreground-4 cursor-help" />
-                  <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
-                    <div className="w-80 rounded-lg bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg border border-borders-2 space-y-3">
-                      <div>
-                        <strong className="text-foreground-1">Definition</strong>
-                        <p className="mt-1">Ticket-level view of engineering work categorized by business alignment, showing how individual efforts map to strategic objectives.</p>
-                      </div>
-                      <div>
-                        <strong className="text-foreground-1">How to read this</strong>
-                        <p className="mt-1">Each row represents a single ticket. Use the category filter to focus on specific alignment areas and identify uncategorized work that may need classification.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
+                <Pagination
+                  totalItems={drilldownData.length}
+                  pageSize={drillPageSize}
+                  currentPage={drillPage}
+                  goToPage={setDrillPage}
+                  onPageSizeChange={(size) => { setDrillPageSize(size); setDrillPage(1) }}
+                  pageSizeOptions={[10, 20, 50]}
+                  className="!mt-cn-sm"
+                />
               </div>
             </div>
-            <div className="ml-auto">
-              <Select
-                value=""
-                options={[
-                  { label: 'All Categories', value: '' },
-                  { label: 'Data & Security Compliance', value: 'compliance' },
-                  { label: 'New Capability', value: 'new-capability' },
-                  { label: 'KTLO', value: 'ktlo' },
-                  { label: 'Quality Improvements', value: 'quality' },
-                  { label: 'Uncategorized', value: 'uncategorized' },
-                ]}
-                onChange={() => {}}
-              />
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <Table.Root variant="default" size="normal">
-              <Table.Header>
-                <Table.Row>
-                  <Table.Head>Ticket</Table.Head>
-                  <Table.Head>Title</Table.Head>
-                  <Table.Head>Category</Table.Head>
-                  <Table.Head>Team</Table.Head>
-                  <Table.Head>Owner</Table.Head>
-                  <Table.Head>Status</Table.Head>
-                  <Table.Head className="text-right">Effort</Table.Head>
-                  <Table.Head>Priority</Table.Head>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {paginatedDrilldown.map((row) => (
-                  <Table.Row key={row.ticket}>
-                    <Table.Cell>
-                      <Text variant="body-normal" color="foreground-1" className="font-mono text-xs">{row.ticket}</Text>
-                    </Table.Cell>
-                    <Table.Cell className="max-w-[300px]">
-                      <Text variant="body-normal" color="foreground-1" className="truncate">{row.title}</Text>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Tag variant="outline" theme="gray" size="sm" value={row.category} />
-                    </Table.Cell>
-                    <Table.Cell className="whitespace-nowrap">{row.team}</Table.Cell>
-                    <Table.Cell>
-                      <div className="flex items-center gap-3">
-                        <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-sm font-medium text-[#006DEA]" style={{ width: 32, height: 32, borderRadius: '50%' }}>
-                          {row.owner.split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.owner}</Text>
-                      </div>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <StatusBadge variant="outline" theme={statusTheme(row.status)} size="sm">{row.status}</StatusBadge>
-                    </Table.Cell>
-                    <Table.Cell className="text-right">{row.effort}</Table.Cell>
-                    <Table.Cell>
-                      <Tag
-                        variant="outline"
-                        theme={row.priority === 'Critical' ? 'red' : row.priority === 'High' ? 'yellow' : row.priority === 'Medium' ? 'blue' : 'gray'}
-                        size="sm"
-                        value={row.priority}
-                      />
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
-          </div>
-          <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
-            <Pagination
-              totalItems={drilldownData.length}
-              pageSize={drillPageSize}
-              currentPage={drillPage}
-              goToPage={setDrillPage}
-              onPageSizeChange={(size) => { setDrillPageSize(size); setDrillPage(1) }}
-              pageSizeOptions={[10, 20, 50]}
-              className="!mt-cn-sm"
-            />
-          </div>
         </div>
       </div>
     </div>

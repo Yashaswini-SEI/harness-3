@@ -319,7 +319,20 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter, on
         </defs>
       </svg>
       <ResponsiveContainer width="100%" height={height}>
-        <BarChart data={gappedData} margin={CHART_MARGIN}>
+        <BarChart
+          data={gappedData}
+          margin={CHART_MARGIN}
+          onClick={clickable ? (state: Record<string, unknown>) => {
+            const idx = state?.activeTooltipIndex
+            if (typeof idx === 'number') { onBarClick!(idx); return }
+            const label = state?.activeLabel
+            if (label != null) {
+              const i = data.findIndex(d => d.name === label)
+              if (i >= 0) onBarClick!(i)
+            }
+          } : undefined}
+          style={clickable ? { cursor: 'pointer' } : undefined}
+        >
           <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
           <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
           <YAxis
@@ -329,7 +342,7 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter, on
             tickLine={false}
             width={48}
           />
-          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(0, 0, 0, 0.03)' }} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={clickable ? { fill: 'rgba(0, 0, 0, 0.06)' } : { fill: 'rgba(0, 0, 0, 0.03)' }} />
           <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
           {series.map((s) => (
             <Bar

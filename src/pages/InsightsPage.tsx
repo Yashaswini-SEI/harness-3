@@ -276,7 +276,7 @@ const harnessInsights = [
   {
     id: 'business-alignment',
     title: 'Business Alignment',
-    description: 'Track how engineering effort aligns with strategic business objectives.',
+    description: "Business alignment is the strategic fit between a company's software initiatives and its core business goals to maximize value and impact.",
     tag: 'Alignment',
     thumb: thumb7,
   },
