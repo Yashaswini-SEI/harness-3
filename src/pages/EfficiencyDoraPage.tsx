@@ -526,17 +526,17 @@ export function EfficiencyDoraPage() {
                     const edgeOffset = isFirst ? 0 : tipSize
                     return (
                       <div key={`${stage.stageName}-${i}`} className="flex flex-1 flex-col">
-                        {/* Phase icon + label with connector line at arrow's left edge */}
-                        <div className="relative pb-2" style={{ marginLeft: edgeOffset }}>
+                        {/* Phase icon + label */}
+                        <div className="pb-1" style={{ marginLeft: edgeOffset }}>
                           <div className="flex items-center gap-1.5">
                             <PhaseIcon type={phase.iconType} />
                             <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap" style={{ fontSize: 11 }}>
                               {phase.label}
                             </Text>
                           </div>
-                          {/* Vertical connector line */}
-                          <div className="mt-1 h-3 border-l border-borders-2" style={{ width: 0, marginLeft: 11 }} />
                         </div>
+                        {/* Vertical connector line — aligned to arrow's left edge */}
+                        <div className="mb-1 h-3 border-l border-cn-1" style={{ width: 0, marginLeft: 1 }} />
                         {/* Chevron arrow */}
                         <div style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))' }}>
                           <div
@@ -566,7 +566,7 @@ export function EfficiencyDoraPage() {
                         Done
                       </Text>
                     </div>
-                    <div className="mt-1 h-3 border-l border-borders-2" style={{ width: 0, marginLeft: 11 }} />
+                    <div className="mt-1 h-3 border-l border-cn-1" style={{ width: 0, marginLeft: 1 }} />
                   </div>
                 </div>
               )
