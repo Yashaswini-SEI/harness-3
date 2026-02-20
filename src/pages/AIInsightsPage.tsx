@@ -160,7 +160,7 @@ function AISummaryPanel() {
   }, [])
 
   return (
-    <div className="relative overflow-hidden rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+    <div className="relative overflow-hidden rounded-cn-2 border border-borders-2 bg-surface-2 dark:bg-cn-1">
       {/* Animated gradient left border */}
       <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${loading ? 'ai-gradient-border' : 'ai-gradient-border-static'}`} />
 
