@@ -320,6 +320,7 @@ export function AIInsightsPage() {
   )
   const [timeRange, setTimeRange] = useState('12M')
   const [assistantFilter, setAssistantFilter] = useState('all')
+  const [compareTo, setCompareTo] = useState('')
   const [devTab, setDevTab] = useState('active')
   const [devPage, setDevPage] = useState(1)
   const [devPageSize, setDevPageSize] = useState(10)
@@ -462,6 +463,15 @@ export function AIInsightsPage() {
             ]}
             onChange={(val) => { if (val) setAssistantFilter(val) }}
           />
+          <Select
+            value={compareTo}
+            options={[
+              { label: 'Compare to', value: '' },
+              { label: 'PR Velocity per Dev', value: 'pr-velocity' },
+              { label: 'PR Cycle Time', value: 'pr-cycle-time' },
+            ]}
+            onChange={(val) => setCompareTo(val ?? '')}
+          />
         </div>
 
         {/* AI Summary */}
@@ -567,7 +577,7 @@ export function AIInsightsPage() {
         </div>
 
         {/* Active users table */}
-        <div className="group/card rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+        <div className="group/card overflow-hidden rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
           <div className="flex items-center pb-3">
             <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Developers</Text>
@@ -687,6 +697,8 @@ export function AIInsightsPage() {
               className="!mt-cn-sm"
             />
           </div>
+        </div>
+
         {/* Lines Added + Acceptance Rate charts */}
         <div className="grid grid-cols-2 gap-5">
           <div className="group/card flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
@@ -764,7 +776,6 @@ export function AIInsightsPage() {
             </div>
             <GroupedBarChart data={acceptanceRateData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </div>
-        </div>
         </div>
       </div>
     </div>
