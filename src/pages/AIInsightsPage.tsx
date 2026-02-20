@@ -8,6 +8,7 @@ import {
   Select,
   StatusBadge,
   Tag,
+  Pagination,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
@@ -320,6 +321,8 @@ export function AIInsightsPage() {
   const [timeRange, setTimeRange] = useState('12M')
   const [assistantFilter, setAssistantFilter] = useState('all')
   const [devTab, setDevTab] = useState('active')
+  const [devPage, setDevPage] = useState(1)
+  const [devPageSize, setDevPageSize] = useState(10)
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['12M']
 
@@ -362,6 +365,11 @@ export function AIInsightsPage() {
     () => assistantFilter === 'all' ? devTableData : devTableData.filter(u => u.assistant.toLowerCase() === assistantFilter),
     [assistantFilter, devTableData]
   )
+
+  const paginatedUsers = useMemo(() => {
+    const start = (devPage - 1) * devPageSize
+    return filteredUsers.slice(start, start + devPageSize)
+  }, [filteredUsers, devPage, devPageSize])
 
   useEffect(() => {
     const root = document.documentElement
@@ -580,7 +588,7 @@ export function AIInsightsPage() {
               </div>
             </div>
             <div className="ml-auto">
-              <Tabs.Root value={devTab} onValueChange={setDevTab}>
+              <Tabs.Root value={devTab} onValueChange={(v) => { setDevTab(v); setDevPage(1) }}>
                 <Tabs.List variant="outlined">
                   <Tabs.Trigger value="active">Active</Tabs.Trigger>
                   <Tabs.Trigger value="inactive">Inactive</Tabs.Trigger>
@@ -611,7 +619,7 @@ export function AIInsightsPage() {
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {filteredUsers.map((user) => (
+                {paginatedUsers.map((user) => (
                   <Table.Row key={user.name}>
                     <Table.Cell>
                       <div className="flex items-center gap-3">
@@ -649,6 +657,17 @@ export function AIInsightsPage() {
                 ))}
               </Table.Body>
             </Table.Root>
+          </div>
+          <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
+            <Pagination
+              totalItems={filteredUsers.length}
+              pageSize={devPageSize}
+              currentPage={devPage}
+              goToPage={setDevPage}
+              onPageSizeChange={(size) => { setDevPageSize(size); setDevPage(1) }}
+              pageSizeOptions={[10, 20, 50]}
+              className="!mt-cn-sm"
+            />
           </div>
         </div>
       </div>
