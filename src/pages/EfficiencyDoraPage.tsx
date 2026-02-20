@@ -14,7 +14,7 @@ import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
 import {
   ResponsiveContainer,
-  BarChart, Bar, Cell,
+  Bar, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   Line, ComposedChart,
 } from 'recharts'
@@ -287,12 +287,18 @@ export function EfficiencyDoraPage() {
   const [timeRange, setTimeRange] = useState('6M')
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [drillPage, setDrillPage] = useState(1)
-  const [drillPageSize, setDrillPageSize] = useState(25)
+  const [drillPageSize, setDrillPageSize] = useState(10)
   const [showTrendline, setShowTrendline] = useState(false)
   const [aggregation, setAggregation] = useState('mean')
   const [selectedStage, setSelectedStage] = useState<number | null>(null)
   const [stagedrillPage, setStagedrillPage] = useState(1)
   const [stagedrillPageSize, setStagedrillPageSize] = useState(10)
+  const [selectedCfrBar, setSelectedCfrBar] = useState<number | null>(null)
+  const [cfrDrillPage, setCfrDrillPage] = useState(1)
+  const [cfrDrillPageSize, setCfrDrillPageSize] = useState(10)
+  const [selectedMttrBar, setSelectedMttrBar] = useState<number | null>(null)
+  const [mttrDrillPage, setMttrDrillPage] = useState(1)
+  const [mttrDrillPageSize, setMttrDrillPageSize] = useState(10)
   const [expandedPrRows, setExpandedPrRows] = useState<Set<string>>(new Set())
   const [expandedCommitRows, setExpandedCommitRows] = useState<Set<string>>(new Set())
 
@@ -384,6 +390,58 @@ export function EfficiencyDoraPage() {
     const start = (drillPage - 1) * drillPageSize
     return drilldownData.slice(start, start + drillPageSize)
   }, [drilldownData, drillPage, drillPageSize])
+
+  // ── CFR drilldown data ──
+  const CFR_POOL = useMemo(() => [
+    { deploymentId: 'DEP-8821', pipeline: 'prod/api-gateway', failedAt: '2026-01-15 03:22', cause: 'Config drift in env variables', severity: 'Critical', resolvedIn: '4h 12m' },
+    { deploymentId: 'DEP-8790', pipeline: 'prod/billing-svc', failedAt: '2026-01-12 14:05', cause: 'Database migration timeout', severity: 'High', resolvedIn: '2h 30m' },
+    { deploymentId: 'DEP-8756', pipeline: 'prod/auth-service', failedAt: '2026-01-08 09:41', cause: 'Certificate expiry not detected', severity: 'Critical', resolvedIn: '6h 45m' },
+    { deploymentId: 'DEP-8734', pipeline: 'prod/web-frontend', failedAt: '2026-01-05 18:33', cause: 'CDN cache invalidation failure', severity: 'Medium', resolvedIn: '1h 15m' },
+    { deploymentId: 'DEP-8701', pipeline: 'prod/notification-svc', failedAt: '2025-12-30 11:20', cause: 'Message queue backpressure', severity: 'High', resolvedIn: '3h 50m' },
+    { deploymentId: 'DEP-8688', pipeline: 'prod/search-indexer', failedAt: '2025-12-28 07:15', cause: 'Elasticsearch cluster OOM', severity: 'Critical', resolvedIn: '5h 20m' },
+    { deploymentId: 'DEP-8655', pipeline: 'prod/payment-gateway', failedAt: '2025-12-22 22:48', cause: 'Third-party API version mismatch', severity: 'High', resolvedIn: '2h 10m' },
+    { deploymentId: 'DEP-8622', pipeline: 'prod/user-profile', failedAt: '2025-12-18 16:30', cause: 'Race condition in cache layer', severity: 'Medium', resolvedIn: '1h 40m' },
+    { deploymentId: 'DEP-8610', pipeline: 'prod/analytics-etl', failedAt: '2025-12-15 04:55', cause: 'Schema validation failure', severity: 'Low', resolvedIn: '45m' },
+    { deploymentId: 'DEP-8589', pipeline: 'prod/api-gateway', failedAt: '2025-12-12 13:10', cause: 'Rate limiter misconfiguration', severity: 'High', resolvedIn: '3h 5m' },
+    { deploymentId: 'DEP-8561', pipeline: 'prod/billing-svc', failedAt: '2025-12-08 08:22', cause: 'Deadlock in transaction handler', severity: 'Critical', resolvedIn: '7h 30m' },
+    { deploymentId: 'DEP-8540', pipeline: 'prod/auth-service', failedAt: '2025-12-05 19:45', cause: 'JWT signing key rotation fail', severity: 'Critical', resolvedIn: '4h 55m' },
+  ], [])
+
+  const cfrDrilldownData = useMemo(
+    () => seededShuffle(CFR_POOL, selectedCfrBar != null ? (selectedCfrBar + 1) * 6173 : 1),
+    [selectedCfrBar, CFR_POOL]
+  )
+
+  const handleCfrBarClick = (index: number) => {
+    setSelectedCfrBar(prev => prev === index ? null : index)
+    setCfrDrillPage(1)
+  }
+
+  // ── MTTR drilldown data ──
+  const MTTR_POOL = useMemo(() => [
+    { incidentId: 'INC-3042', service: 'api-gateway', detectedAt: '2026-01-15 03:22', restoredAt: '2026-01-15 07:34', duration: '4h 12m', rootCause: 'Config drift in env variables' },
+    { incidentId: 'INC-3028', service: 'billing-svc', detectedAt: '2026-01-12 14:05', restoredAt: '2026-01-12 16:35', duration: '2h 30m', rootCause: 'Database migration timeout' },
+    { incidentId: 'INC-3015', service: 'auth-service', detectedAt: '2026-01-08 09:41', restoredAt: '2026-01-08 16:26', duration: '6h 45m', rootCause: 'Certificate expiry not detected' },
+    { incidentId: 'INC-2998', service: 'web-frontend', detectedAt: '2026-01-05 18:33', restoredAt: '2026-01-05 19:48', duration: '1h 15m', rootCause: 'CDN cache invalidation failure' },
+    { incidentId: 'INC-2981', service: 'notification-svc', detectedAt: '2025-12-30 11:20', restoredAt: '2025-12-30 15:10', duration: '3h 50m', rootCause: 'Message queue backpressure' },
+    { incidentId: 'INC-2965', service: 'search-indexer', detectedAt: '2025-12-28 07:15', restoredAt: '2025-12-28 12:35', duration: '5h 20m', rootCause: 'Elasticsearch cluster OOM' },
+    { incidentId: 'INC-2948', service: 'payment-gateway', detectedAt: '2025-12-22 22:48', restoredAt: '2025-12-23 00:58', duration: '2h 10m', rootCause: 'Third-party API version mismatch' },
+    { incidentId: 'INC-2930', service: 'user-profile', detectedAt: '2025-12-18 16:30', restoredAt: '2025-12-18 18:10', duration: '1h 40m', rootCause: 'Race condition in cache layer' },
+    { incidentId: 'INC-2918', service: 'analytics-etl', detectedAt: '2025-12-15 04:55', restoredAt: '2025-12-15 05:40', duration: '45m', rootCause: 'Schema validation failure' },
+    { incidentId: 'INC-2901', service: 'api-gateway', detectedAt: '2025-12-12 13:10', restoredAt: '2025-12-12 16:15', duration: '3h 5m', rootCause: 'Rate limiter misconfiguration' },
+    { incidentId: 'INC-2885', service: 'billing-svc', detectedAt: '2025-12-08 08:22', restoredAt: '2025-12-08 15:52', duration: '7h 30m', rootCause: 'Deadlock in transaction handler' },
+    { incidentId: 'INC-2870', service: 'auth-service', detectedAt: '2025-12-05 19:45', restoredAt: '2025-12-06 00:40', duration: '4h 55m', rootCause: 'JWT signing key rotation fail' },
+  ], [])
+
+  const mttrDrilldownData = useMemo(
+    () => seededShuffle(MTTR_POOL, selectedMttrBar != null ? (selectedMttrBar + 1) * 7919 : 1),
+    [selectedMttrBar, MTTR_POOL]
+  )
+
+  const handleMttrBarClick = (index: number) => {
+    setSelectedMttrBar(prev => prev === index ? null : index)
+    setMttrDrillPage(1)
+  }
 
   const handleDeployBarClick = (index: number) => {
     setSelectedBarIndex(prev => prev === index ? null : index)
@@ -1002,7 +1060,7 @@ export function EfficiencyDoraPage() {
               </defs>
             </svg>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart
+              <ComposedChart
                 data={deployFreqData}
                 margin={CHART_MARGIN}
                 onClick={(state: Record<string, unknown>) => {
@@ -1041,7 +1099,21 @@ export function EfficiencyDoraPage() {
                     <Cell key={i} fillOpacity={i === selectedBarIndex ? 1 : 0.3} />
                   ))}
                 </Bar>
-              </BarChart>
+                {showTrendline && (
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    name="Trend"
+                    stroke="#0E1218"
+                    strokeWidth={2}
+                    strokeDasharray="6 3"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                    animationDuration={300}
+                    legendType="line"
+                  />
+                )}
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
 
@@ -1105,7 +1177,263 @@ export function EfficiencyDoraPage() {
                 currentPage={drillPage}
                 goToPage={setDrillPage}
                 onPageSizeChange={(size) => { setDrillPageSize(size); setDrillPage(1) }}
-                pageSizeOptions={[10, 25, 50]}
+                pageSizeOptions={[10, 20, 50]}
+                className="!mt-cn-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Row 4: Change Failure Rate */}
+        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <div className="flex items-start justify-between p-5 pb-0">
+            <div className="flex flex-col gap-0.5">
+              <Text variant="body-strong" color="foreground-1">Change Failure Rate</Text>
+            </div>
+            <ExportMenu />
+          </div>
+          <div className="p-5 pt-3">
+            <ResponsiveContainer width="100%" height={260}>
+              <ComposedChart
+                data={profile.labels.map((name, i) => ({
+                  name,
+                  value: jitter(`cfr-${name}${i}`, Math.round(15 * profile.scale), 10),
+                }))}
+                margin={CHART_MARGIN}
+                onClick={(state: Record<string, unknown>) => {
+                  const idx = state?.activeTooltipIndex
+                  if (typeof idx === 'number') { handleCfrBarClick(idx); return }
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
+                <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
+                <YAxis
+                  tickFormatter={(v: number) => `${v}%`}
+                  tick={TICK_STYLE}
+                  axisLine={false}
+                  tickLine={false}
+                  width={48}
+                />
+                <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value: number | undefined) => [`${value ?? 0}%`, 'Failure Rate']} />
+                <Bar
+                  dataKey="value"
+                  name="Failure Rate"
+                  fill="var(--cn-comp-data-viz-03-pink, lch(58% 70 350))"
+                  radius={[4, 4, 0, 0]}
+                  barSize={48}
+                  animationDuration={150}
+                  cursor="pointer"
+                >
+                  {selectedCfrBar != null && profile.labels.map((_, i) => (
+                    <Cell key={i} fillOpacity={i === selectedCfrBar ? 1 : 0.3} />
+                  ))}
+                </Bar>
+                {showTrendline && (
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    name="Trend"
+                    stroke="#0E1218"
+                    strokeWidth={2}
+                    strokeDasharray="6 3"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                    animationDuration={300}
+                    legendType="line"
+                  />
+                )}
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* CFR Drilldown table */}
+          <div className="px-5 pb-5 pt-2">
+            <div className="flex items-center pb-2">
+              <Text variant="body-strong" color="foreground-1">Failed Deployments</Text>
+              {selectedCfrBar != null && (
+                <div className="ml-auto">
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedCfrBar(null)}>
+                    <IconV2 name="xmark" size="sm" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="overflow-x-auto">
+              <Table.Root variant="default" size="normal">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head>Deployment ID</Table.Head>
+                    <Table.Head>Pipeline</Table.Head>
+                    <Table.Head>Failed At</Table.Head>
+                    <Table.Head>Cause</Table.Head>
+                    <Table.Head>Severity</Table.Head>
+                    <Table.Head>Resolved In</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {cfrDrilldownData.slice((cfrDrillPage - 1) * cfrDrillPageSize, cfrDrillPage * cfrDrillPageSize).map((row) => (
+                    <Table.Row key={row.deploymentId}>
+                      <Table.Cell>
+                        <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.deploymentId}</span>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <span className="rounded bg-cn-3 px-2 py-0.5 font-mono text-xs text-foreground-2">{row.pipeline}</span>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.failedAt}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="max-w-[250px]">
+                        <Text variant="body-normal" color="foreground-1" className="truncate">{row.cause}</Text>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <StatusBadge
+                          variant="outline"
+                          theme={row.severity === 'Critical' ? 'danger' : row.severity === 'High' ? 'warning' : row.severity === 'Medium' ? 'info' : 'muted'}
+                          size="sm"
+                        >
+                          {row.severity}
+                        </StatusBadge>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">{row.resolvedIn}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
+            </div>
+            <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
+              <Pagination
+                totalItems={cfrDrilldownData.length}
+                pageSize={cfrDrillPageSize}
+                currentPage={cfrDrillPage}
+                goToPage={setCfrDrillPage}
+                onPageSizeChange={(size) => { setCfrDrillPageSize(size); setCfrDrillPage(1) }}
+                pageSizeOptions={[10, 20, 50]}
+                className="!mt-cn-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Row 5: Mean Time to Restore */}
+        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <div className="flex items-start justify-between p-5 pb-0">
+            <div className="flex flex-col gap-0.5">
+              <Text variant="body-strong" color="foreground-1">Mean Time to Restore</Text>
+            </div>
+            <ExportMenu />
+          </div>
+          <div className="p-5 pt-3">
+            <ResponsiveContainer width="100%" height={260}>
+              <ComposedChart
+                data={profile.labels.map((name, i) => ({
+                  name,
+                  value: jitter(`mttr-${name}${i}`, Math.round(48 * profile.scale), 30),
+                }))}
+                margin={CHART_MARGIN}
+                onClick={(state: Record<string, unknown>) => {
+                  const idx = state?.activeTooltipIndex
+                  if (typeof idx === 'number') { handleMttrBarClick(idx); return }
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
+                <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
+                <YAxis
+                  tickFormatter={(v: number) => `${v}h`}
+                  tick={TICK_STYLE}
+                  axisLine={false}
+                  tickLine={false}
+                  width={48}
+                />
+                <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value: number | undefined) => [`${value ?? 0}h`, 'MTTR']} />
+                <Bar
+                  dataKey="value"
+                  name="MTTR"
+                  fill="var(--cn-comp-data-viz-04-green, lch(56% 78 125))"
+                  radius={[4, 4, 0, 0]}
+                  barSize={48}
+                  animationDuration={150}
+                  cursor="pointer"
+                >
+                  {selectedMttrBar != null && profile.labels.map((_, i) => (
+                    <Cell key={i} fillOpacity={i === selectedMttrBar ? 1 : 0.3} />
+                  ))}
+                </Bar>
+                {showTrendline && (
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    name="Trend"
+                    stroke="#0E1218"
+                    strokeWidth={2}
+                    strokeDasharray="6 3"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                    animationDuration={300}
+                    legendType="line"
+                  />
+                )}
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* MTTR Drilldown table */}
+          <div className="px-5 pb-5 pt-2">
+            <div className="flex items-center pb-2">
+              <Text variant="body-strong" color="foreground-1">Incidents</Text>
+              {selectedMttrBar != null && (
+                <div className="ml-auto">
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedMttrBar(null)}>
+                    <IconV2 name="xmark" size="sm" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="overflow-x-auto">
+              <Table.Root variant="default" size="normal">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head>Incident ID</Table.Head>
+                    <Table.Head>Service</Table.Head>
+                    <Table.Head>Detected At</Table.Head>
+                    <Table.Head>Restored At</Table.Head>
+                    <Table.Head>Duration</Table.Head>
+                    <Table.Head>Root Cause</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {mttrDrilldownData.slice((mttrDrillPage - 1) * mttrDrillPageSize, mttrDrillPage * mttrDrillPageSize).map((row) => (
+                    <Table.Row key={row.incidentId}>
+                      <Table.Cell>
+                        <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.incidentId}</span>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <span className="rounded bg-cn-3 px-2 py-0.5 font-mono text-xs text-foreground-2">{row.service}</span>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.detectedAt}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.restoredAt}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">{row.duration}</Table.Cell>
+                      <Table.Cell className="max-w-[250px]">
+                        <Text variant="body-normal" color="foreground-1" className="truncate">{row.rootCause}</Text>
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
+            </div>
+            <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
+              <Pagination
+                totalItems={mttrDrilldownData.length}
+                pageSize={mttrDrillPageSize}
+                currentPage={mttrDrillPage}
+                goToPage={setMttrDrillPage}
+                onPageSizeChange={(size) => { setMttrDrillPageSize(size); setMttrDrillPage(1) }}
+                pageSizeOptions={[10, 20, 50]}
                 className="!mt-cn-sm"
               />
             </div>
