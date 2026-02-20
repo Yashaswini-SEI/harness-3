@@ -512,52 +512,65 @@ export function EfficiencyDoraPage() {
 
           {/* Development stages visualization */}
           <div className="mx-5 mb-5 mt-3 rounded-lg bg-cn-2 p-5">
-            {/* Phase icons + labels row */}
-            <div className="relative flex items-start justify-between px-4">
-              {/* Connecting line */}
-              <div className="absolute left-[60px] right-[60px] top-[11px] border-t border-dashed border-borders-2" />
-              {stageData.map((stage, i) => (
-                <div key={`${stage.label}-${i}`} className="relative z-10 flex flex-col items-center gap-1">
-                  <PhaseIcon type={stage.iconType} />
-                  <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap text-center" style={{ fontSize: 11 }}>
-                    {stage.label}
-                  </Text>
-                </div>
-              ))}
-            </div>
-
-            {/* Stage details row — chevron arrows */}
-            <div className="mt-4 flex items-stretch gap-1">
-              {stageData.filter(s => s.stageName).map((stage, i) => {
-                const isFirst = i === 0
-                const tipSize = 16
-                const clipFirst = `polygon(0 0, calc(100% - ${tipSize}px) 0, 100% 50%, calc(100% - ${tipSize}px) 100%, 0 100%)`
-                const clipMiddle = `polygon(0 0, calc(100% - ${tipSize}px) 0, 100% 50%, calc(100% - ${tipSize}px) 100%, 0 100%, ${tipSize}px 50%)`
-                return (
-                  <div
-                    key={`${stage.stageName}-${i}`}
-                    className="flex-1"
-                    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))' }}
-                  >
-                    <div
-                      className="flex flex-col justify-center gap-0.5 py-3"
-                      style={{
-                        backgroundColor: '#fff',
-                        clipPath: isFirst ? clipFirst : clipMiddle,
-                        paddingLeft: isFirst ? 16 : tipSize + 12,
-                        paddingRight: tipSize + 8,
-                      }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block shrink-0 rounded-sm" style={{ width: 8, height: 8, backgroundColor: stage.stageColor }} />
-                        <Text variant="caption-normal" color="foreground-3">{stage.stageName}</Text>
+            {(() => {
+              const stages = stageData.filter(s => s.stageName)
+              const tipSize = 16
+              const clipFirst = `polygon(0 0, calc(100% - ${tipSize}px) 0, 100% 50%, calc(100% - ${tipSize}px) 100%, 0 100%)`
+              const clipMiddle = `polygon(0 0, calc(100% - ${tipSize}px) 0, 100% 50%, calc(100% - ${tipSize}px) 100%, 0 100%, ${tipSize}px 50%)`
+              return (
+                <div className="flex items-stretch gap-1">
+                  {stages.map((stage, i) => {
+                    const isFirst = i === 0
+                    const phase = stageData[i]
+                    // Left edge of the arrow content area
+                    const edgeOffset = isFirst ? 0 : tipSize
+                    return (
+                      <div key={`${stage.stageName}-${i}`} className="flex flex-1 flex-col">
+                        {/* Phase icon + label with connector line at arrow's left edge */}
+                        <div className="relative pb-2" style={{ marginLeft: edgeOffset }}>
+                          <div className="flex items-center gap-1.5">
+                            <PhaseIcon type={phase.iconType} />
+                            <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap" style={{ fontSize: 11 }}>
+                              {phase.label}
+                            </Text>
+                          </div>
+                          {/* Vertical connector line */}
+                          <div className="mt-1 h-3 border-l border-borders-2" style={{ width: 0, marginLeft: 11 }} />
+                        </div>
+                        {/* Chevron arrow */}
+                        <div style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))' }}>
+                          <div
+                            className="flex flex-col justify-center gap-0.5 py-3"
+                            style={{
+                              backgroundColor: '#fff',
+                              clipPath: isFirst ? clipFirst : clipMiddle,
+                              paddingLeft: isFirst ? 16 : tipSize + 12,
+                              paddingRight: tipSize + 8,
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="inline-block shrink-0 rounded-sm" style={{ width: 8, height: 8, backgroundColor: stage.stageColor }} />
+                              <Text variant="caption-normal" color="foreground-3">{stage.stageName}</Text>
+                            </div>
+                            <Text variant="body-normal" color="foreground-1" className="pl-4 font-semibold">{stage.time}</Text>
+                          </div>
+                        </div>
                       </div>
-                      <Text variant="body-normal" color="foreground-1" className="pl-4 font-semibold">{stage.time}</Text>
+                    )
+                  })}
+                  {/* Done phase — no arrow, just the icon/label with line */}
+                  <div className="flex flex-col pb-2">
+                    <div className="flex items-center gap-1.5">
+                      <PhaseIcon type="flag" />
+                      <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap" style={{ fontSize: 11 }}>
+                        Done
+                      </Text>
                     </div>
+                    <div className="mt-1 h-3 border-l border-borders-2" style={{ width: 0, marginLeft: 11 }} />
                   </div>
-                )
-              })}
-            </div>
+                </div>
+              )
+            })()}
           </div>
         </div>
 
