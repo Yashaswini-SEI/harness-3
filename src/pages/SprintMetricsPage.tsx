@@ -93,8 +93,8 @@ export function SprintMetricsPage() {
           {/* Row 1 */}
           <InsightMetricCard
             label="Sprint Commit"
-            value="27"
-            subtitle="tickets"
+            value="2401.1"
+            subtitle="story points"
             trend="↑ 3"
             trendPositive
             badge="Work"
@@ -102,8 +102,8 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Sprint Creep"
-            value="5"
-            subtitle="tickets"
+            value="2855.5"
+            subtitle="story points"
             trend="↓ 3"
             trendPositive
             badge="Work"
@@ -111,7 +111,7 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Sprint Size"
-            value="73"
+            value="5256.6"
             subtitle="story points"
             trend="↑ 8%"
             trendPositive
@@ -120,8 +120,8 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Average Sprint Size"
-            value="2.21"
-            subtitle="story points per ticket"
+            value="73.01"
+            subtitle="story points"
             trend="↑ 5%"
             trendPositive
             badge="Analysis"
@@ -130,7 +130,7 @@ export function SprintMetricsPage() {
           {/* Row 2 */}
           <InsightMetricCard
             label="Scope Creep"
-            value="18.52%"
+            value="118.92%"
             subtitle="of total work"
             trend="↓ 33%"
             trendPositive
@@ -139,8 +139,8 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Delivered Commit"
-            value="22"
-            subtitle="of 27 committed"
+            value="1887.1"
+            subtitle="story points"
             trend="↑ 2"
             trendPositive
             badge="Delivery"
@@ -148,8 +148,8 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Missed Commit"
-            value="5"
-            subtitle="of 27 committed"
+            value="514"
+            subtitle="story points"
             trend="↓ 1"
             trendPositive
             badge="Work"
@@ -157,8 +157,8 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Delivered Creep"
-            value="4"
-            subtitle="of 5 creep tickets"
+            value="2482"
+            subtitle="story points"
             trend="↑ 33%"
             trendPositive
             badge="Delivery"
@@ -167,8 +167,8 @@ export function SprintMetricsPage() {
           {/* Row 3 */}
           <InsightMetricCard
             label="Missed Creep"
-            value="1"
-            subtitle="of 5 creep tickets"
+            value="373.5"
+            subtitle="story points"
             trend="↓ 33%"
             trendPositive
             badge="Work"
@@ -176,7 +176,7 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Work Delivered"
-            value="59.5"
+            value="4369.1"
             subtitle="story points"
             trend="↑ 4%"
             trendPositive
@@ -185,8 +185,8 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Sprint Velocity"
-            value="59.5"
-            subtitle="points per sprint"
+            value="60.68"
+            subtitle="story points per sprint"
             trend="↑ 4%"
             trendPositive
             badge="Analysis"
@@ -194,7 +194,7 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Total Delivered Work vs Committed Work"
-            value="0.82"
+            value="1.82"
             subtitle="ratio"
             trend="↑ 0.03pts"
             trendPositive
@@ -204,8 +204,8 @@ export function SprintMetricsPage() {
           {/* Row 4 */}
           <InsightMetricCard
             label="Churn Rate"
-            value="13.5"
-            subtitle="story points churned"
+            value="126.5%"
+            subtitle=""
             trend="↓ 12%"
             trendPositive
             badge="Analysis"
@@ -213,8 +213,8 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Predictability Range"
-            value="72.73%"
-            subtitle="of sprints in range"
+            value="1.18"
+            subtitle="story points"
             trend="↑ 33%"
             trendPositive
             badge="Analysis"
@@ -222,8 +222,8 @@ export function SprintMetricsPage() {
           />
           <InsightMetricCard
             label="Predictability %"
-            value="81.48%"
-            subtitle="commit done ratio"
+            value="40.48%"
+            subtitle=""
             trend="↑ 4%"
             trendPositive
             badge="Analysis"
