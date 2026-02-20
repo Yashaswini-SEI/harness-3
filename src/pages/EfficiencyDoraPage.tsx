@@ -1259,7 +1259,7 @@ export function EfficiencyDoraPage() {
               <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#FEF3F2', color: '#B42318' }}>Low</span>
             </div>
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>147.62%</span>
-            <span className="text-xs text-[#EF4444]">↗ 506.88%</span>
+            <Text variant="caption-normal" color="foreground-3">31 failures · 21 deployments</Text>
           </div>
 
           <div className="p-5 pt-3">
@@ -1409,7 +1409,7 @@ export function EfficiencyDoraPage() {
               <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#FEF3F2', color: '#B42318' }}>Low</span>
             </div>
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>44d 16h</span>
-            <span className="text-xs text-[#EF4444]">↘ 26.63%</span>
+            <Text variant="caption-normal" color="foreground-3">118 tickets</Text>
           </div>
 
           <div className="p-5 pt-3">
