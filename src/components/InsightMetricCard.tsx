@@ -1,14 +1,5 @@
 import { Text, IconV2, StatusBadge } from '@harnessio/ui/components'
 
-const BADGE_THEME_MAP: Record<string, 'info' | 'success' | 'merged' | 'warning' | 'danger' | 'muted'> = {
-  Work: 'info',
-  Delivery: 'success',
-  Analysis: 'merged',
-  Elite: 'success',
-  High: 'info',
-  Medium: 'warning',
-  Low: 'danger',
-}
 
 export interface InsightMetricCardProps {
   label: string
@@ -27,13 +18,13 @@ export function InsightMetricCard({
   value,
   subtitle,
   trend,
-  trendPositive,
+  trendPositive: _trendPositive,
   description,
   badge,
   infoTooltip,
   noData,
 }: InsightMetricCardProps) {
-  const badgeTheme = badge ? (BADGE_THEME_MAP[badge] ?? 'muted') : null
+  void _trendPositive
 
   return (
     <div className="flex flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
@@ -51,8 +42,8 @@ export function InsightMetricCard({
             </div>
           )}
         </div>
-        {badge && badgeTheme && (
-          <StatusBadge variant="outline" theme={badgeTheme} size="sm">{badge}</StatusBadge>
+        {badge && (
+          <StatusBadge variant="outline" theme="muted" size="sm">{badge}</StatusBadge>
         )}
       </div>
       <div className="flex items-baseline justify-between">
@@ -63,7 +54,7 @@ export function InsightMetricCard({
           {subtitle && <Text variant="body-normal" color="foreground-3">{subtitle}</Text>}
         </div>
         {!noData && trend && (
-          <span className={`text-xs ${trendPositive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+          <span className={`text-xs ${trend.includes('↓') || trend.includes('↘') ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
             {trend}
           </span>
         )}
