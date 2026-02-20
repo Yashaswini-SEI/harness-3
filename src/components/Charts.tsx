@@ -28,8 +28,21 @@ const AXIS_LINE = { stroke: '#E5E7EB' }
 const GRID_STROKE = 'var(--cn-border-2, #E5E7EB)'
 const TOOLTIP_STYLE = { borderRadius: 8, fontSize: 13 }
 const LEGEND_STYLE = { fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }
-const BLUE = 'var(--cn-comp-data-viz-01-blue, #2DA6FF)'
-const DONUT_COLORS = ['#2DA6FF', '#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6']
+const BLUE = 'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))'
+const DONUT_COLORS = [
+  'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))',
+  'var(--cn-comp-data-viz-02-purple, lch(58% 95 320))',
+  'var(--cn-comp-data-viz-03-pink, lch(58% 70 350))',
+  'var(--cn-comp-data-viz-04-green, lch(56% 78 125))',
+  'var(--cn-comp-data-viz-05-indigo, lch(51% 77.5 280))',
+  'var(--cn-comp-data-viz-06-brown, lch(49% 40 38))',
+  'var(--cn-comp-data-viz-07-cyan, lch(72% 58 195))',
+  'var(--cn-comp-data-viz-08-orange, lch(58% 90 52))',
+  'var(--cn-comp-data-viz-09-forest, lch(36% 60 150))',
+  'var(--cn-comp-data-viz-10-red, lch(48% 76 32))',
+  'var(--cn-comp-data-viz-11-yellow, lch(77% 100 76))',
+  'var(--cn-comp-data-viz-12-gray, lch(76% 6.5 272))',
+]
 
 // ── Shared helpers ──
 
@@ -282,14 +295,17 @@ export interface StackedBarChartProps {
   series: StackedBarSeries[]
   height?: number
   yAxisFormatter?: (value: number) => string
+  onBarClick?: (index: number) => void
+  selectedIndex?: number | null
 }
 
-export function StackedBarChart({ data, series, height = 420, yAxisFormatter }: StackedBarChartProps) {
+export function StackedBarChart({ data, series, height = 420, yAxisFormatter, onBarClick, selectedIndex }: StackedBarChartProps) {
   const maxTotal = Math.max(...data.map(d =>
     series.reduce((sum, s) => sum + (Number(d[s.dataKey]) || 0), 0)
   ))
   const gap = Math.round(maxTotal * 0.015) || 1
   const gappedData = data.map(d => ({ ...d, _gap: gap }))
+  const clickable = !!onBarClick
 
   return (
     <>
@@ -325,7 +341,13 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter }: 
               radius={[4, 4, 4, 4]}
               style={{ filter: `url(#stacked-shadow-${s.dataKey})` }}
               animationDuration={150}
-            />
+              cursor={clickable ? 'pointer' : undefined}
+              onClick={clickable ? (_: unknown, index: number) => onBarClick!(index) : undefined}
+            >
+              {selectedIndex != null && gappedData.map((_, i) => (
+                <Cell key={i} fillOpacity={i === selectedIndex ? 1 : 0.3} />
+              ))}
+            </Bar>
           )).flatMap((bar, i) =>
             i < series.length - 1
               ? [bar, <Bar key={`_gap_${i}`} dataKey="_gap" stackId="a" fill="transparent" legendType="none" tooltipType="none" animationDuration={0} />]

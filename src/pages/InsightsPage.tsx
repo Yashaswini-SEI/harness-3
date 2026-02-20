@@ -28,6 +28,7 @@ import thumb3 from '../assets/dashboard-thumbnails/3-light.svg'
 import thumb4 from '../assets/dashboard-thumbnails/4-light.svg'
 import thumb5 from '../assets/dashboard-thumbnails/5-light.svg'
 import thumb6 from '../assets/dashboard-thumbnails/6-light.svg'
+import thumb7 from '../assets/dashboard-thumbnails/7-light.svg'
 
 const S = ExecutionState.SUCCESS
 
@@ -271,6 +272,13 @@ const harnessInsights = [
     description: 'Measures teamwork through code reviews, contributions, and communication patterns.',
     tag: 'Productivity',
     thumb: thumb6,
+  },
+  {
+    id: 'business-alignment',
+    title: 'Business Alignment',
+    description: 'Track how engineering effort aligns with strategic business objectives.',
+    tag: 'Alignment',
+    thumb: thumb7,
   },
 ]
 
