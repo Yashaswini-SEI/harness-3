@@ -169,28 +169,64 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier }: {
   )
 }
 
-// ── Development stage card ──
+// ── Phase icons (inline SVGs for brand logos) ──
 
-function StageCard({ icon, label, stages }: { icon: string; label: string; stages: { name: string; color: string; time: string }[] }) {
+function JiraIcon({ size = 22 }: { size?: number }) {
   return (
-    <div className="flex flex-1 flex-col items-center gap-3 rounded-cn-2 border border-borders-2 bg-white p-4 dark:bg-cn-1">
-      <div className="flex flex-col items-center gap-1">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cn-3">
-          <IconV2 name={icon as never} size="sm" className="text-foreground-3" />
-        </div>
-        <Text variant="caption-normal" color="foreground-3" className="text-center">{label}</Text>
-      </div>
-      <div className="flex w-full flex-col gap-2">
-        {stages.map((s) => (
-          <div key={s.name} className="flex items-center gap-2">
-            <span className="inline-block shrink-0 rounded-sm" style={{ width: 8, height: 8, backgroundColor: s.color }} />
-            <Text variant="caption-normal" color="foreground-3" className="flex-1">{s.name}</Text>
-            <Text variant="caption-normal" color="foreground-1" className="font-medium">{s.time}</Text>
-          </div>
-        ))}
-      </div>
-    </div>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path d="M12.005 2C12.005 5.376 14.592 8.124 17.834 8.124H19.09V9.44C19.09 12.816 21.678 15.564 24.92 15.564V3.06C24.92 2.475 24.445 2 23.86 2H12.005Z" transform="scale(0.85) translate(1.5, 1.5)" fill="#2684FF"/>
+      <path d="M8.87 5.2C8.87 8.576 11.458 11.324 14.7 11.324H15.956V12.64C15.956 16.016 18.544 18.764 21.786 18.764V6.26C21.786 5.675 21.311 5.2 20.726 5.2H8.87Z" transform="scale(0.85) translate(1.5, 1.5)" fill="url(#jira-grad-1)"/>
+      <path d="M5.74 8.4C5.74 11.776 8.328 14.524 11.57 14.524H12.826V15.84C12.826 19.216 15.414 21.964 18.656 21.964V9.46C18.656 8.875 18.181 8.4 17.596 8.4H5.74Z" transform="scale(0.85) translate(1.5, 1.5)" fill="url(#jira-grad-2)"/>
+      <defs>
+        <linearGradient id="jira-grad-1" x1="21.13" y1="5.27" x2="13.2" y2="12.61" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#0052CC"/>
+          <stop offset="1" stopColor="#2684FF"/>
+        </linearGradient>
+        <linearGradient id="jira-grad-2" x1="18.04" y1="8.44" x2="9.64" y2="15.52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#0052CC"/>
+          <stop offset="1" stopColor="#2684FF"/>
+        </linearGradient>
+      </defs>
+    </svg>
   )
+}
+
+function GitHubIcon({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="text-foreground-1">
+      <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+    </svg>
+  )
+}
+
+function PipelineIcon({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="text-foreground-3">
+      <path d="M4 5h16M4 12h16M4 19h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="8" cy="5" r="2" fill="currentColor"/>
+      <circle cx="16" cy="12" r="2" fill="currentColor"/>
+      <circle cx="12" cy="19" r="2" fill="currentColor"/>
+    </svg>
+  )
+}
+
+function FlagIcon({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="text-foreground-3">
+      <path d="M5 3v18M5 3h12l-3 4 3 4H5"/>
+    </svg>
+  )
+}
+
+type PhaseIconType = 'jira' | 'github' | 'pipeline' | 'flag'
+
+function PhaseIcon({ type }: { type: PhaseIconType }) {
+  switch (type) {
+    case 'jira': return <JiraIcon />
+    case 'github': return <GitHubIcon />
+    case 'pipeline': return <PipelineIcon />
+    case 'flag': return <FlagIcon />
+  }
 }
 
 // ── Main page ──
@@ -202,7 +238,7 @@ export function EfficiencyDoraPage() {
   const [timeRange, setTimeRange] = useState('6M')
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [drillPage, setDrillPage] = useState(1)
-  const [drillPageSize, setDrillPageSize] = useState(10)
+  const [drillPageSize, setDrillPageSize] = useState(25)
   const [showTrendline, setShowTrendline] = useState(false)
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
@@ -309,44 +345,15 @@ export function EfficiencyDoraPage() {
     setSelectedBarIndex(null)
   }, [timeRange])
 
-  // ── Development stage data ──
-  const stageData = useMemo(() => [
-    {
-      icon: 'clipboard-list',
-      label: 'To Do / Proposed',
-      stages: [
-        { name: 'Planning', color: STAGE_COLORS.planning, time: '4d days · 23h' },
-      ],
-    },
-    {
-      icon: 'clock',
-      label: 'In Progress',
-      stages: [
-        { name: 'Coding', color: STAGE_COLORS.coding, time: '12h 55m' },
-      ],
-    },
-    {
-      icon: 'code-branch',
-      label: 'First PR Created',
-      stages: [
-        { name: 'Review', color: STAGE_COLORS.review, time: '7h 21m' },
-      ],
-    },
-    {
-      icon: 'merge',
-      label: 'Last PR Merged',
-      stages: [
-        { name: 'Build', color: STAGE_COLORS.build, time: '1d 13h' },
-      ],
-    },
-    {
-      icon: 'rocket',
-      label: 'Done',
-      stages: [
-        { name: 'Deploy', color: STAGE_COLORS.deploy, time: '69d 4h' },
-      ],
-    },
-  ], [])
+  // ── Development stage data (matches Figma phases) ──
+  const stageData: { iconType: PhaseIconType; label: string; stageName: string; stageColor: string; time: string }[] = [
+    { iconType: 'jira', label: 'To Do / Proposed', stageName: 'Planning', stageColor: STAGE_COLORS.planning, time: '4d days · 23h' },
+    { iconType: 'jira', label: 'In Progress', stageName: 'Coding', stageColor: STAGE_COLORS.coding, time: '12h 55m' },
+    { iconType: 'github', label: 'First PR Created', stageName: 'Review', stageColor: STAGE_COLORS.review, time: '7h 21m' },
+    { iconType: 'github', label: 'Last PR Merged', stageName: 'Build', stageColor: STAGE_COLORS.build, time: '1d 13h' },
+    { iconType: 'pipeline', label: 'Last PR Merged', stageName: 'Deploy', stageColor: STAGE_COLORS.deploy, time: '69d 4h' },
+    { iconType: 'flag', label: 'Done', stageName: '', stageColor: '', time: '' },
+  ]
 
   return (
     <div className="flex min-h-screen bg-cn-3">
@@ -504,18 +511,52 @@ export function EfficiencyDoraPage() {
           </div>
 
           {/* Development stages visualization */}
-          <div className="px-5 pb-5 pt-3">
-            <div className="flex gap-3">
+          <div className="mx-5 mb-5 mt-3 rounded-lg bg-cn-2 p-5">
+            {/* Phase icons + labels row */}
+            <div className="relative flex items-start justify-between px-4">
+              {/* Connecting line */}
+              <div className="absolute left-[60px] right-[60px] top-[11px] border-t border-dashed border-borders-2" />
               {stageData.map((stage, i) => (
-                <div key={stage.label} className="flex flex-1 items-center gap-0">
-                  <StageCard icon={stage.icon} label={stage.label} stages={stage.stages} />
-                  {i < stageData.length - 1 && (
-                    <div className="flex shrink-0 items-center px-1">
-                      <IconV2 name="nav-arrow-right" size="sm" className="text-foreground-4" />
-                    </div>
-                  )}
+                <div key={`${stage.label}-${i}`} className="relative z-10 flex flex-col items-center gap-1">
+                  <PhaseIcon type={stage.iconType} />
+                  <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap text-center" style={{ fontSize: 11 }}>
+                    {stage.label}
+                  </Text>
                 </div>
               ))}
+            </div>
+
+            {/* Stage details row — chevron arrows */}
+            <div className="mt-4 flex items-stretch gap-1">
+              {stageData.filter(s => s.stageName).map((stage, i) => {
+                const isFirst = i === 0
+                const tipSize = 16
+                const clipFirst = `polygon(0 0, calc(100% - ${tipSize}px) 0, 100% 50%, calc(100% - ${tipSize}px) 100%, 0 100%)`
+                const clipMiddle = `polygon(0 0, calc(100% - ${tipSize}px) 0, 100% 50%, calc(100% - ${tipSize}px) 100%, 0 100%, ${tipSize}px 50%)`
+                return (
+                  <div
+                    key={`${stage.stageName}-${i}`}
+                    className="flex-1"
+                    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))' }}
+                  >
+                    <div
+                      className="flex flex-col justify-center gap-0.5 py-3"
+                      style={{
+                        backgroundColor: '#fff',
+                        clipPath: isFirst ? clipFirst : clipMiddle,
+                        paddingLeft: isFirst ? 16 : tipSize + 12,
+                        paddingRight: tipSize + 8,
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block shrink-0 rounded-sm" style={{ width: 8, height: 8, backgroundColor: stage.stageColor }} />
+                        <Text variant="caption-normal" color="foreground-3">{stage.stageName}</Text>
+                      </div>
+                      <Text variant="body-normal" color="foreground-1" className="pl-4 font-semibold">{stage.time}</Text>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>
@@ -627,7 +668,7 @@ export function EfficiencyDoraPage() {
                         <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.pipelineName}</Text>
                       </Table.Cell>
                       <Table.Cell>
-                        <StatusBadge variant="outline" theme="success" size="sm">{row.status}</StatusBadge>
+                        <StatusBadge variant="outline" theme="success" size="sm" icon="check">{row.status}</StatusBadge>
                       </Table.Cell>
                       <Table.Cell className="whitespace-nowrap">{row.environment}</Table.Cell>
                       <Table.Cell className="whitespace-nowrap">{row.service}</Table.Cell>
@@ -638,12 +679,12 @@ export function EfficiencyDoraPage() {
             </div>
             <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
               <Pagination
-                totalItems={drilldownData.length}
+                totalItems={5075}
                 pageSize={drillPageSize}
                 currentPage={drillPage}
                 goToPage={setDrillPage}
                 onPageSizeChange={(size) => { setDrillPageSize(size); setDrillPage(1) }}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[10, 25, 50]}
                 className="!mt-cn-sm"
               />
             </div>
