@@ -125,6 +125,31 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 
 // ── Metric card ──
 
+// ── Copy button with tooltip ──
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <span className="relative inline-flex">
+      <IconV2
+        name="copy"
+        size="xs"
+        className="cursor-pointer hover:text-foreground-4" style={{ color: '#A3ABB8' }}
+        onClick={() => {
+          navigator.clipboard.writeText(text)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 1500)
+        }}
+      />
+      {copied && (
+        <span className="absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded bg-foreground-1 px-2 py-1 text-[10px] text-white shadow">
+          Copied!
+        </span>
+      )}
+    </span>
+  )
+}
+
 // ── Export dropdown menu ──
 
 function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
@@ -268,6 +293,8 @@ export function EfficiencyDoraPage() {
   const [selectedStage, setSelectedStage] = useState<number | null>(null)
   const [stagedrillPage, setStagedrillPage] = useState(1)
   const [stagedrillPageSize, setStagedrillPageSize] = useState(10)
+  const [expandedPrRows, setExpandedPrRows] = useState<Set<string>>(new Set())
+  const [expandedCommitRows, setExpandedCommitRows] = useState<Set<string>>(new Set())
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
@@ -416,8 +443,90 @@ export function EfficiencyDoraPage() {
     return stageDrilldownData.slice(start, start + stagedrillPageSize)
   }, [stageDrilldownData, stagedrillPage, stagedrillPageSize])
 
+  const togglePrRow = (workId: string) => {
+    setExpandedPrRows(prev => {
+      const next = new Set(prev)
+      if (next.has(workId)) next.delete(workId)
+      else next.add(workId)
+      return next
+    })
+  }
+
+  const PR_AUTHORS = ['Arvind S.', 'Abdul A.', 'David W.', 'Conor M.', 'Matthew S.', 'Harsh S.', 'Alex C.', 'Sarah K.']
+  const PR_STATUSES = ['Merged', 'Merged', 'Merged', 'Open', 'Merged']
+
+  function generatePrDetails(workId: string, prCount: number) {
+    const details = []
+    for (let p = 0; p < prCount; p++) {
+      const prNum = jitter(`${workId}-pr-${p}`, 400, 350)
+      const filesChanged = jitter(`${workId}-files-${p}`, 8, 7)
+      const comments = jitter(`${workId}-comments-${p}`, 4, 4)
+      const reviewHours = jitter(`${workId}-revtime-${p}`, 12, 10)
+      const authorIdx = Math.abs(jitter(`${workId}-author-${p}`, 0, 100)) % PR_AUTHORS.length
+      const statusIdx = Math.abs(jitter(`${workId}-status-${p}`, 0, 100)) % PR_STATUSES.length
+      details.push({
+        prId: `PR-${Math.abs(prNum)}`,
+        title: `${workId.toLowerCase()}: ${p === 0 ? 'main implementation' : p === 1 ? 'tests and validation' : p === 2 ? 'docs and cleanup' : `follow-up change ${p}`}`,
+        author: PR_AUTHORS[authorIdx],
+        status: PR_STATUSES[statusIdx],
+        filesChanged: Math.max(1, Math.abs(filesChanged)),
+        comments: Math.max(0, Math.abs(comments)),
+        reviewTime: `${Math.max(1, Math.abs(reviewHours))}h`,
+      })
+    }
+    return details
+  }
+
+  const toggleCommitRow = (prId: string) => {
+    setExpandedCommitRows(prev => {
+      const next = new Set(prev)
+      if (next.has(prId)) next.delete(prId)
+      else next.add(prId)
+      return next
+    })
+  }
+
+  const COMMIT_MESSAGES = [
+    'refactor: extract helper functions',
+    'feat: add input validation',
+    'fix: handle edge case for empty response',
+    'chore: update dependencies',
+    'test: add unit tests for new logic',
+    'fix: resolve merge conflict',
+    'feat: implement error boundary',
+    'style: fix linting issues',
+    'docs: update inline comments',
+    'perf: optimize database query',
+  ]
+
+  function generateCommitDetails(prId: string, filesChanged: number) {
+    const commitCount = Math.max(1, Math.min(filesChanged, jitter(`${prId}-cc`, 4, 3)))
+    const details = []
+    for (let c = 0; c < Math.abs(commitCount); c++) {
+      const msgIdx = Math.abs(jitter(`${prId}-msg-${c}`, 0, 100)) % COMMIT_MESSAGES.length
+      const hash = Math.abs(jitter(`${prId}-hash-${c}`, 9999999, 9000000)).toString(16).slice(0, 7)
+      const additions = Math.max(1, Math.abs(jitter(`${prId}-add-${c}`, 25, 22)))
+      const deletions = Math.max(0, Math.abs(jitter(`${prId}-del-${c}`, 10, 9)))
+      const filesCount = Math.max(1, Math.abs(jitter(`${prId}-fc-${c}`, 3, 2)))
+      const authorIdx = Math.abs(jitter(`${prId}-cauth-${c}`, 0, 100)) % PR_AUTHORS.length
+      const hoursAgo = Math.max(1, Math.abs(jitter(`${prId}-time-${c}`, 48, 46)))
+      details.push({
+        hash,
+        message: COMMIT_MESSAGES[msgIdx],
+        author: PR_AUTHORS[authorIdx],
+        additions,
+        deletions,
+        filesChanged: filesCount,
+        time: hoursAgo < 24 ? `${hoursAgo}h ago` : `${Math.floor(hoursAgo / 24)}d ago`,
+      })
+    }
+    return details
+  }
+
   const handleStageClick = (index: number) => {
     setSelectedStage(prev => prev === index ? null : index)
+    setExpandedPrRows(new Set())
+    setExpandedCommitRows(new Set())
     setStagedrillPage(1)
   }
 
@@ -687,16 +796,26 @@ export function EfficiencyDoraPage() {
                       const leadDays = Math.floor(row.leadTimeDays)
                       const leadHours = Math.round((row.leadTimeDays - leadDays) * 24)
                       const leadLabel = leadHours > 0 ? `${leadDays}d ${leadHours}h` : `${leadDays}d`
-                      return (
+                      return (<>
                       <Table.Row key={row.workId}>
                         <Table.Cell>
-                          <span className="cursor-pointer text-xs font-medium" style={{ color: 'var(--cn-brand, #006DEA)', fontFamily: "'Inter', sans-serif" }}>{row.workId}</span>
+                          <span className="cursor-pointer text-xs" style={{ color: 'var(--cn-brand, #006DEA)', fontFamily: "'Inter', sans-serif" }}>{row.workId}</span>
                         </Table.Cell>
                         <Table.Cell className="max-w-[320px]">
                           <Text variant="body-normal" color="foreground-1" className="truncate">{row.summary}</Text>
                         </Table.Cell>
                         <Table.Cell>
-                          <span className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.prs} PRs</span>
+                          {row.prs > 0 ? (
+                            <span
+                              className="cursor-pointer text-sm"
+                              style={{ color: 'var(--cn-brand, #006DEA)' }}
+                              onClick={() => togglePrRow(row.workId)}
+                            >
+                              {row.prs} PRs {expandedPrRows.has(row.workId) ? '▾' : '▸'}
+                            </span>
+                          ) : (
+                            <Text variant="body-normal" color="foreground-3">0 PRs</Text>
+                          )}
                         </Table.Cell>
                         <Table.Cell className="whitespace-nowrap">
                           <Text variant="body-normal" color="foreground-3">{row.startDate}</Text>
@@ -729,7 +848,120 @@ export function EfficiencyDoraPage() {
                           })()}
                         </Table.Cell>
                       </Table.Row>
-                      )
+                      {expandedPrRows.has(row.workId) && row.prs > 0 && (
+                        <Table.Row>
+                          <Table.Cell colSpan={6} className="!p-0">
+                            <div className="bg-cn-2 px-8 py-3">
+                              <Table.Root variant="default" size="normal">
+                                <Table.Header>
+                                  <Table.Row>
+                                    <Table.Head>PR</Table.Head>
+                                    <Table.Head>Title</Table.Head>
+                                    <Table.Head>Author</Table.Head>
+                                    <Table.Head>Status</Table.Head>
+                                    <Table.Head className="text-right">Files Changed</Table.Head>
+                                    <Table.Head className="text-right">Comments</Table.Head>
+                                    <Table.Head className="text-right">Review Time</Table.Head>
+                                  </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                  {generatePrDetails(row.workId, row.prs).map((pr) => (<>
+                                    <Table.Row key={pr.prId}>
+                                      <Table.Cell>
+                                        <span
+                                          className="cursor-pointer text-xs"
+                                          style={{ color: 'var(--cn-brand, #006DEA)' }}
+                                          onClick={() => toggleCommitRow(pr.prId)}
+                                        >
+                                          {pr.prId} {expandedCommitRows.has(pr.prId) ? '▾' : '▸'}
+                                        </span>
+                                      </Table.Cell>
+                                      <Table.Cell className="max-w-[250px]">
+                                        <Text variant="body-normal" color="foreground-1" className="truncate">{pr.title}</Text>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <div className="flex items-center gap-2">
+                                          <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-xs font-medium text-[#006DEA]" style={{ width: 24, height: 24, borderRadius: '50%' }}>
+                                            {pr.author.split(' ').map(n => n[0]).join('')}
+                                          </div>
+                                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{pr.author}</Text>
+                                        </div>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <StatusBadge
+                                          variant="outline"
+                                          theme={pr.status === 'Merged' ? 'success' : 'warning'}
+                                          size="sm"
+                                        >
+                                          {pr.status}
+                                        </StatusBadge>
+                                      </Table.Cell>
+                                      <Table.Cell className="text-right">{pr.filesChanged}</Table.Cell>
+                                      <Table.Cell className="text-right">{pr.comments}</Table.Cell>
+                                      <Table.Cell className="text-right whitespace-nowrap">{pr.reviewTime}</Table.Cell>
+                                    </Table.Row>
+                                    {expandedCommitRows.has(pr.prId) && (
+                                      <Table.Row>
+                                        <Table.Cell colSpan={7} className="!p-0">
+                                          <div className="bg-cn-3 px-8 py-3">
+                                            <Table.Root variant="default" size="normal">
+                                              <Table.Header>
+                                                <Table.Row>
+                                                  <Table.Head>Commit</Table.Head>
+                                                  <Table.Head>Message</Table.Head>
+                                                  <Table.Head>Author</Table.Head>
+                                                  <Table.Head className="text-right">Additions</Table.Head>
+                                                  <Table.Head className="text-right">Deletions</Table.Head>
+                                                  <Table.Head className="text-right">Files</Table.Head>
+                                                  <Table.Head className="text-right">Time</Table.Head>
+                                                </Table.Row>
+                                              </Table.Header>
+                                              <Table.Body>
+                                                {generateCommitDetails(pr.prId, pr.filesChanged).map((commit) => (
+                                                  <Table.Row key={commit.hash}>
+                                                    <Table.Cell>
+                                                      <div className="flex items-center gap-1.5">
+                                                        <span className="font-mono text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{commit.hash}</span>
+                                                        <CopyButton text={commit.hash} />
+                                                      </div>
+                                                    </Table.Cell>
+                                                    <Table.Cell className="max-w-[220px]">
+                                                      <Text variant="body-normal" color="foreground-1" className="truncate">{commit.message}</Text>
+                                                    </Table.Cell>
+                                                    <Table.Cell>
+                                                      <div className="flex items-center gap-2">
+                                                        <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-xs font-medium text-[#006DEA]" style={{ width: 20, height: 20, borderRadius: '50%', fontSize: 9 }}>
+                                                          {commit.author.split(' ').map(n => n[0]).join('')}
+                                                        </div>
+                                                        <Text variant="caption-normal" color="foreground-1" className="whitespace-nowrap">{commit.author}</Text>
+                                                      </div>
+                                                    </Table.Cell>
+                                                    <Table.Cell className="text-right">
+                                                      <span className="text-xs text-[#10B981]">+{commit.additions}</span>
+                                                    </Table.Cell>
+                                                    <Table.Cell className="text-right">
+                                                      <span className="text-xs text-[#EF4444]">-{commit.deletions}</span>
+                                                    </Table.Cell>
+                                                    <Table.Cell className="text-right">{commit.filesChanged}</Table.Cell>
+                                                    <Table.Cell className="text-right whitespace-nowrap">
+                                                      <Text variant="caption-normal" color="foreground-3">{commit.time}</Text>
+                                                    </Table.Cell>
+                                                  </Table.Row>
+                                                ))}
+                                              </Table.Body>
+                                            </Table.Root>
+                                          </div>
+                                        </Table.Cell>
+                                      </Table.Row>
+                                    )}
+                                  </>))}
+                                </Table.Body>
+                              </Table.Root>
+                            </div>
+                          </Table.Cell>
+                        </Table.Row>
+                      )}
+                      </>)
                     })}
                   </Table.Body>
                 </Table.Root>
