@@ -55,6 +55,24 @@ const formatYAxis = (value: number) => {
   return String(value)
 }
 
+// ── Linear regression helper ──
+
+function linearRegression(values: number[]): number[] {
+  const n = values.length
+  if (n === 0) return []
+  const xMean = (n - 1) / 2
+  const yMean = values.reduce((a, b) => a + b, 0) / n
+  let num = 0
+  let den = 0
+  for (let i = 0; i < n; i++) {
+    num += (i - xMean) * (values[i] - yMean)
+    den += (i - xMean) * (i - xMean)
+  }
+  const slope = den !== 0 ? num / den : 0
+  const intercept = yMean - slope * xMean
+  return values.map((_, i) => Math.round((slope * i + intercept) * 100) / 100)
+}
+
 // ── Stage / segment colors ──
 
 const STAGE_COLORS = {
@@ -323,12 +341,11 @@ export function EfficiencyDoraPage() {
     return leadTimeRaw.map(d => ({ ...d, _gap: gap }))
   }, [leadTimeRaw])
 
-  // Trendline: total hours per period
+  // Trendline: linear regression of total hours per period
   const trendlineData = useMemo(() => {
-    return leadTimeData.map(d => ({
-      ...d,
-      _trend: d.planning + d.coding + d.review + d.build + d.deploy - d._gap * 4,
-    }))
+    const totals = leadTimeData.map(d => d.planning + d.coding + d.review + d.build + d.deploy - d._gap * 4)
+    const regression = linearRegression(totals)
+    return leadTimeData.map((d, i) => ({ ...d, _trend: regression[i] }))
   }, [leadTimeData])
 
   // ── Top-level DORA metrics (static from design) ──
@@ -374,10 +391,32 @@ export function EfficiencyDoraPage() {
 
   // ── Deployment frequency chart data ──
   const deployFreqData = useMemo(() => {
-    return profile.labels.map((name, i) => ({
+    const raw = profile.labels.map((name, i) => ({
       name,
       value: jitter(`deploy-freq-${name}${i}`, Math.round(400 * profile.scale), 200),
     }))
+    const regression = linearRegression(raw.map(d => d.value))
+    return raw.map((d, i) => ({ ...d, _trend: regression[i] }))
+  }, [profile])
+
+  // ── CFR chart data ──
+  const cfrChartData = useMemo(() => {
+    const raw = profile.labels.map((name, i) => ({
+      name,
+      value: jitter(`cfr-${name}${i}`, Math.round(15 * profile.scale), 10),
+    }))
+    const regression = linearRegression(raw.map(d => d.value))
+    return raw.map((d, i) => ({ ...d, _trend: regression[i] }))
+  }, [profile])
+
+  // ── MTTR chart data ──
+  const mttrChartData = useMemo(() => {
+    const raw = profile.labels.map((name, i) => ({
+      name,
+      value: jitter(`mttr-${name}${i}`, Math.round(48 * profile.scale), 30),
+    }))
+    const regression = linearRegression(raw.map(d => d.value))
+    return raw.map((d, i) => ({ ...d, _trend: regression[i] }))
   }, [profile])
 
   // ── Deployment drilldown ──
@@ -393,18 +432,16 @@ export function EfficiencyDoraPage() {
 
   // ── CFR drilldown data ──
   const CFR_POOL = useMemo(() => [
-    { deploymentId: 'DEP-8821', pipeline: 'prod/api-gateway', failedAt: '2026-01-15 03:22', cause: 'Config drift in env variables', severity: 'Critical', resolvedIn: '4h 12m' },
-    { deploymentId: 'DEP-8790', pipeline: 'prod/billing-svc', failedAt: '2026-01-12 14:05', cause: 'Database migration timeout', severity: 'High', resolvedIn: '2h 30m' },
-    { deploymentId: 'DEP-8756', pipeline: 'prod/auth-service', failedAt: '2026-01-08 09:41', cause: 'Certificate expiry not detected', severity: 'Critical', resolvedIn: '6h 45m' },
-    { deploymentId: 'DEP-8734', pipeline: 'prod/web-frontend', failedAt: '2026-01-05 18:33', cause: 'CDN cache invalidation failure', severity: 'Medium', resolvedIn: '1h 15m' },
-    { deploymentId: 'DEP-8701', pipeline: 'prod/notification-svc', failedAt: '2025-12-30 11:20', cause: 'Message queue backpressure', severity: 'High', resolvedIn: '3h 50m' },
-    { deploymentId: 'DEP-8688', pipeline: 'prod/search-indexer', failedAt: '2025-12-28 07:15', cause: 'Elasticsearch cluster OOM', severity: 'Critical', resolvedIn: '5h 20m' },
-    { deploymentId: 'DEP-8655', pipeline: 'prod/payment-gateway', failedAt: '2025-12-22 22:48', cause: 'Third-party API version mismatch', severity: 'High', resolvedIn: '2h 10m' },
-    { deploymentId: 'DEP-8622', pipeline: 'prod/user-profile', failedAt: '2025-12-18 16:30', cause: 'Race condition in cache layer', severity: 'Medium', resolvedIn: '1h 40m' },
-    { deploymentId: 'DEP-8610', pipeline: 'prod/analytics-etl', failedAt: '2025-12-15 04:55', cause: 'Schema validation failure', severity: 'Low', resolvedIn: '45m' },
-    { deploymentId: 'DEP-8589', pipeline: 'prod/api-gateway', failedAt: '2025-12-12 13:10', cause: 'Rate limiter misconfiguration', severity: 'High', resolvedIn: '3h 5m' },
-    { deploymentId: 'DEP-8561', pipeline: 'prod/billing-svc', failedAt: '2025-12-08 08:22', cause: 'Deadlock in transaction handler', severity: 'Critical', resolvedIn: '7h 30m' },
-    { deploymentId: 'DEP-8540', pipeline: 'prod/auth-service', failedAt: '2025-12-05 19:45', cause: 'JWT signing key rotation fail', severity: 'Critical', resolvedIn: '4h 55m' },
+    { executionPipelineId: '20876', owner: 'nextgenuiqa', status: 'Failed', startDate: '2026-02-11 18:55:16', endDate: '2026-02-11 19:00:38', pipelineName: 'PROD/Harness/Golden_H...' },
+    { executionPipelineId: '20865', owner: 'NGManagerqa', status: 'Failed', startDate: '2026-02-11 15:27:21', endDate: '2026-02-11 15:28:20', pipelineName: 'PROD/Harness/Golden_H...' },
+    { executionPipelineId: '20830', owner: 'nextgenuiqa', status: 'Failed', startDate: '2026-02-09 12:48:46', endDate: '2026-02-09 12:53:00', pipelineName: 'PROD/Harness/Golden_H...' },
+    { executionPipelineId: '20811', owner: 'Kiruthika Meena Ravic...', status: 'Failed', startDate: '2026-02-07 01:13:06', endDate: '2026-02-07 01:15:10', pipelineName: 'PROD/Harness/Golden_H...' },
+    { executionPipelineId: '20810', owner: 'Kiruthika Meena Ravic...', status: 'Failed', startDate: '2026-02-07 01:09:36', endDate: '2026-02-07 01:11:48', pipelineName: 'PROD/Harness/Golden_H...' },
+    { executionPipelineId: '20809', owner: 'Kiruthika Meena Ravic...', status: 'Failed', startDate: '2026-02-07 01:05:16', endDate: '2026-02-07 01:07:36', pipelineName: 'PROD/Harness/Golden_H...' },
+    { executionPipelineId: '20808', owner: 'NGManagerqa', status: 'Failed', startDate: '2026-02-07 00:58:06', endDate: '2026-02-07 01:04:12', pipelineName: 'PROD/Harness/Golden_H...' },
+    { executionPipelineId: '20772', owner: 'NGManagerqa', status: 'Failed', startDate: '2026-02-05 12:40:11', endDate: '2026-02-05 12:47:14', pipelineName: 'PROD/Harness/Golden_H...' },
+    { executionPipelineId: '20771', owner: 'nextgenuiqa', status: 'Failed', startDate: '2026-02-05 12:06:06', endDate: '2026-02-05 12:07:11', pipelineName: 'PROD/Harness/Golden_H...' },
+    { executionPipelineId: '20759', owner: 'nextgenuiqa', status: 'Failed', startDate: '2026-02-04 23:58:03', endDate: '2026-02-05 00:02:35', pipelineName: 'PROD/Harness/Golden_H...' },
   ], [])
 
   const cfrDrilldownData = useMemo(
@@ -419,18 +456,18 @@ export function EfficiencyDoraPage() {
 
   // ── MTTR drilldown data ──
   const MTTR_POOL = useMemo(() => [
-    { incidentId: 'INC-3042', service: 'api-gateway', detectedAt: '2026-01-15 03:22', restoredAt: '2026-01-15 07:34', duration: '4h 12m', rootCause: 'Config drift in env variables' },
-    { incidentId: 'INC-3028', service: 'billing-svc', detectedAt: '2026-01-12 14:05', restoredAt: '2026-01-12 16:35', duration: '2h 30m', rootCause: 'Database migration timeout' },
-    { incidentId: 'INC-3015', service: 'auth-service', detectedAt: '2026-01-08 09:41', restoredAt: '2026-01-08 16:26', duration: '6h 45m', rootCause: 'Certificate expiry not detected' },
-    { incidentId: 'INC-2998', service: 'web-frontend', detectedAt: '2026-01-05 18:33', restoredAt: '2026-01-05 19:48', duration: '1h 15m', rootCause: 'CDN cache invalidation failure' },
-    { incidentId: 'INC-2981', service: 'notification-svc', detectedAt: '2025-12-30 11:20', restoredAt: '2025-12-30 15:10', duration: '3h 50m', rootCause: 'Message queue backpressure' },
-    { incidentId: 'INC-2965', service: 'search-indexer', detectedAt: '2025-12-28 07:15', restoredAt: '2025-12-28 12:35', duration: '5h 20m', rootCause: 'Elasticsearch cluster OOM' },
-    { incidentId: 'INC-2948', service: 'payment-gateway', detectedAt: '2025-12-22 22:48', restoredAt: '2025-12-23 00:58', duration: '2h 10m', rootCause: 'Third-party API version mismatch' },
-    { incidentId: 'INC-2930', service: 'user-profile', detectedAt: '2025-12-18 16:30', restoredAt: '2025-12-18 18:10', duration: '1h 40m', rootCause: 'Race condition in cache layer' },
-    { incidentId: 'INC-2918', service: 'analytics-etl', detectedAt: '2025-12-15 04:55', restoredAt: '2025-12-15 05:40', duration: '45m', rootCause: 'Schema validation failure' },
-    { incidentId: 'INC-2901', service: 'api-gateway', detectedAt: '2025-12-12 13:10', restoredAt: '2025-12-12 16:15', duration: '3h 5m', rootCause: 'Rate limiter misconfiguration' },
-    { incidentId: 'INC-2885', service: 'billing-svc', detectedAt: '2025-12-08 08:22', restoredAt: '2025-12-08 15:52', duration: '7h 30m', rootCause: 'Deadlock in transaction handler' },
-    { incidentId: 'INC-2870', service: 'auth-service', detectedAt: '2025-12-05 19:45', restoredAt: '2025-12-06 00:40', duration: '4h 55m', rootCause: 'JWT signing key rotation fail' },
+    { ticketId: 'CCM-16141', summary: 'Not updating cost category name refere...', owner: 'Sahildeep Singh', status: 'Duplicate', startTime: '2024-02-01 18:1...', endTime: '2026-02-04 13:1...', resolutionTime: '733d 18h' },
+    { ticketId: 'CCM-20059', summary: 'Disable special characters on search fun...', owner: 'Mauro Javier Giam...', status: 'Can Not Repr...', startTime: '2024-11-04 09:2...', endTime: '2026-01-20 12:3...', resolutionTime: '442d 3h' },
+    { ticketId: 'CCM-22466', summary: 'Terraform resources for autostopping do...', owner: 'Sujeesh Madathil', status: 'Duplicate', startTime: '2025-04-16 20:0...', endTime: '2026-02-11 10:2...', resolutionTime: '300d 14h' },
+    { ticketId: 'CCM-24636', summary: 'Governance Recommendation label is sh...', owner: 'Rajarshee Chatterjee', status: 'Duplicate', startTime: '2025-08-01 03:2...', endTime: '2026-01-19 14:4...', resolutionTime: '171d 11h' },
+    { ticketId: 'CCM-25059', summary: 'Discrepancy between the Spend Till Dat...', owner: 'Sumit Kumar', status: 'Not a Bug', startTime: '2025-08-20 15:1...', endTime: '2026-01-22 16:2...', resolutionTime: '155d 1h' },
+    { ticketId: 'CCM-25076', summary: 'While creating budgets if the user enters ...', owner: 'Rajarshee Chatterjee', status: 'Done', startTime: '2025-08-20 18:2...', endTime: '2026-02-11 10:0...', resolutionTime: '174d 15h' },
+    { ticketId: 'CCM-25152', summary: 'Specify Scope not in right place', owner: 'Rajarshee Chatterjee', status: 'Done', startTime: '2025-08-22 19:1...', endTime: '2026-02-11 13:14...', resolutionTime: '172d 17h' },
+    { ticketId: 'CCM-25183', summary: 'It is difficult to select December month w...', owner: 'Rajarshee Chatterjee', status: 'Done', startTime: '2025-08-25 18:4...', endTime: '2026-02-11 13:17...', resolutionTime: '169d 18h' },
+    { ticketId: 'CCM-25286', summary: 'On the Cost Category Shared Costs scre...', owner: 'Rajarshee Chatterjee', status: 'Done', startTime: '2025-08-27 22:1...', endTime: '2026-02-09 17:0...', resolutionTime: '165d 18h' },
+    { ticketId: 'CCM-25389', summary: 'Spend-till-date and forecasted cost valu...', owner: 'Rajarshee Chatterjee', status: 'Done', startTime: '2025-09-02 14:1...', endTime: '2026-01-29 05:5...', resolutionTime: '148d 15h' },
+    { ticketId: 'CCM-25501', summary: 'Budget notification not triggering for ov...', owner: 'Sumit Kumar', status: 'Done', startTime: '2025-09-10 11:3...', endTime: '2026-02-05 08:2...', resolutionTime: '147d 20h' },
+    { ticketId: 'CCM-25688', summary: 'Perspective filter not applying to nested...', owner: 'Sahildeep Singh', status: 'Done', startTime: '2025-09-18 09:4...', endTime: '2026-01-30 14:1...', resolutionTime: '134d 4h' },
   ], [])
 
   const mttrDrilldownData = useMemo(
@@ -715,14 +752,14 @@ export function EfficiencyDoraPage() {
                 )}
                 {showTrendline && (
                   <Line
-                    type="monotone"
+                    type="linear"
                     dataKey="_trend"
                     name="Trend"
                     stroke="#0E1218"
                     strokeWidth={2}
                     strokeDasharray="6 3"
                     dot={false}
-                    activeDot={{ r: 4 }}
+                    activeDot={false}
                     animationDuration={300}
                     legendType="line"
                   />
@@ -1101,14 +1138,14 @@ export function EfficiencyDoraPage() {
                 </Bar>
                 {showTrendline && (
                   <Line
-                    type="monotone"
-                    dataKey="value"
+                    type="linear"
+                    dataKey="_trend"
                     name="Trend"
                     stroke="#0E1218"
                     strokeWidth={2}
                     strokeDasharray="6 3"
                     dot={false}
-                    activeDot={{ r: 4 }}
+                    activeDot={false}
                     animationDuration={300}
                     legendType="line"
                   />
@@ -1195,10 +1232,7 @@ export function EfficiencyDoraPage() {
           <div className="p-5 pt-3">
             <ResponsiveContainer width="100%" height={260}>
               <ComposedChart
-                data={profile.labels.map((name, i) => ({
-                  name,
-                  value: jitter(`cfr-${name}${i}`, Math.round(15 * profile.scale), 10),
-                }))}
+                data={cfrChartData}
                 margin={CHART_MARGIN}
                 onClick={(state: Record<string, unknown>) => {
                   const idx = state?.activeTooltipIndex
@@ -1231,14 +1265,14 @@ export function EfficiencyDoraPage() {
                 </Bar>
                 {showTrendline && (
                   <Line
-                    type="monotone"
-                    dataKey="value"
+                    type="linear"
+                    dataKey="_trend"
                     name="Trend"
                     stroke="#0E1218"
                     strokeWidth={2}
                     strokeDasharray="6 3"
                     dot={false}
-                    activeDot={{ r: 4 }}
+                    activeDot={false}
                     animationDuration={300}
                     legendType="line"
                   />
@@ -1250,7 +1284,7 @@ export function EfficiencyDoraPage() {
           {/* CFR Drilldown table */}
           <div className="px-5 pb-5 pt-2">
             <div className="flex items-center pb-2">
-              <Text variant="body-strong" color="foreground-1">Failed Deployments</Text>
+              <Text variant="body-strong" color="foreground-1">Drill-down</Text>
               {selectedCfrBar != null && (
                 <div className="ml-auto">
                   <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedCfrBar(null)}>
@@ -1263,39 +1297,40 @@ export function EfficiencyDoraPage() {
               <Table.Root variant="default" size="normal">
                 <Table.Header>
                   <Table.Row>
-                    <Table.Head>Deployment ID</Table.Head>
-                    <Table.Head>Pipeline</Table.Head>
-                    <Table.Head>Failed At</Table.Head>
-                    <Table.Head>Cause</Table.Head>
-                    <Table.Head>Severity</Table.Head>
-                    <Table.Head>Resolved In</Table.Head>
+                    <Table.Head>Execution Pipeline ID</Table.Head>
+                    <Table.Head>Owners</Table.Head>
+                    <Table.Head>Status</Table.Head>
+                    <Table.Head>Start Date</Table.Head>
+                    <Table.Head>End Date</Table.Head>
+                    <Table.Head>Pipeline Name</Table.Head>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
                   {cfrDrilldownData.slice((cfrDrillPage - 1) * cfrDrillPageSize, cfrDrillPage * cfrDrillPageSize).map((row) => (
-                    <Table.Row key={row.deploymentId}>
+                    <Table.Row key={row.executionPipelineId}>
                       <Table.Cell>
-                        <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.deploymentId}</span>
-                      </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap">
-                        <span className="rounded bg-cn-3 px-2 py-0.5 font-mono text-xs text-foreground-2">{row.pipeline}</span>
-                      </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap">
-                        <Text variant="body-normal" color="foreground-3">{row.failedAt}</Text>
-                      </Table.Cell>
-                      <Table.Cell className="max-w-[250px]">
-                        <Text variant="body-normal" color="foreground-1" className="truncate">{row.cause}</Text>
+                        <Text variant="body-normal" color="foreground-1" className="text-xs">{row.executionPipelineId}</Text>
                       </Table.Cell>
                       <Table.Cell>
-                        <StatusBadge
-                          variant="outline"
-                          theme={row.severity === 'Critical' ? 'danger' : row.severity === 'High' ? 'warning' : row.severity === 'Medium' ? 'info' : 'muted'}
-                          size="sm"
-                        >
-                          {row.severity}
-                        </StatusBadge>
+                        <div className="flex items-center gap-3">
+                          <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-sm font-medium text-[#006DEA]" style={{ width: 32, height: 32, borderRadius: '50%' }}>
+                            {row.owner.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.owner}</Text>
+                        </div>
                       </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap">{row.resolvedIn}</Table.Cell>
+                      <Table.Cell>
+                        <StatusBadge variant="outline" theme="danger" size="sm">{row.status}</StatusBadge>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.startDate}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.endDate}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-1">{row.pipelineName}</Text>
+                      </Table.Cell>
                     </Table.Row>
                   ))}
                 </Table.Body>
@@ -1326,10 +1361,7 @@ export function EfficiencyDoraPage() {
           <div className="p-5 pt-3">
             <ResponsiveContainer width="100%" height={260}>
               <ComposedChart
-                data={profile.labels.map((name, i) => ({
-                  name,
-                  value: jitter(`mttr-${name}${i}`, Math.round(48 * profile.scale), 30),
-                }))}
+                data={mttrChartData}
                 margin={CHART_MARGIN}
                 onClick={(state: Record<string, unknown>) => {
                   const idx = state?.activeTooltipIndex
@@ -1362,14 +1394,14 @@ export function EfficiencyDoraPage() {
                 </Bar>
                 {showTrendline && (
                   <Line
-                    type="monotone"
-                    dataKey="value"
+                    type="linear"
+                    dataKey="_trend"
                     name="Trend"
                     stroke="#0E1218"
                     strokeWidth={2}
                     strokeDasharray="6 3"
                     dot={false}
-                    activeDot={{ r: 4 }}
+                    activeDot={false}
                     animationDuration={300}
                     legendType="line"
                   />
@@ -1381,7 +1413,7 @@ export function EfficiencyDoraPage() {
           {/* MTTR Drilldown table */}
           <div className="px-5 pb-5 pt-2">
             <div className="flex items-center pb-2">
-              <Text variant="body-strong" color="foreground-1">Incidents</Text>
+              <Text variant="body-strong" color="foreground-1">Drill-down</Text>
               {selectedMttrBar != null && (
                 <div className="ml-auto">
                   <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedMttrBar(null)}>
@@ -1394,33 +1426,48 @@ export function EfficiencyDoraPage() {
               <Table.Root variant="default" size="normal">
                 <Table.Header>
                   <Table.Row>
-                    <Table.Head>Incident ID</Table.Head>
-                    <Table.Head>Service</Table.Head>
-                    <Table.Head>Detected At</Table.Head>
-                    <Table.Head>Restored At</Table.Head>
-                    <Table.Head>Duration</Table.Head>
-                    <Table.Head>Root Cause</Table.Head>
+                    <Table.Head>Ticket ID</Table.Head>
+                    <Table.Head>Summary</Table.Head>
+                    <Table.Head>Owner</Table.Head>
+                    <Table.Head>Status</Table.Head>
+                    <Table.Head>Start Time</Table.Head>
+                    <Table.Head>End Time</Table.Head>
+                    <Table.Head>Resolution Time</Table.Head>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
                   {mttrDrilldownData.slice((mttrDrillPage - 1) * mttrDrillPageSize, mttrDrillPage * mttrDrillPageSize).map((row) => (
-                    <Table.Row key={row.incidentId}>
+                    <Table.Row key={row.ticketId}>
                       <Table.Cell>
-                        <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.incidentId}</span>
+                        <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.ticketId}</span>
                       </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap">
-                        <span className="rounded bg-cn-3 px-2 py-0.5 font-mono text-xs text-foreground-2">{row.service}</span>
-                      </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap">
-                        <Text variant="body-normal" color="foreground-3">{row.detectedAt}</Text>
-                      </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap">
-                        <Text variant="body-normal" color="foreground-3">{row.restoredAt}</Text>
-                      </Table.Cell>
-                      <Table.Cell className="whitespace-nowrap">{row.duration}</Table.Cell>
                       <Table.Cell className="max-w-[250px]">
-                        <Text variant="body-normal" color="foreground-1" className="truncate">{row.rootCause}</Text>
+                        <Text variant="body-normal" color="foreground-1" className="truncate">{row.summary}</Text>
                       </Table.Cell>
+                      <Table.Cell>
+                        <div className="flex items-center gap-3">
+                          <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-sm font-medium text-[#006DEA]" style={{ width: 32, height: 32, borderRadius: '50%' }}>
+                            {row.owner.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.owner}</Text>
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <StatusBadge
+                          variant="outline"
+                          theme={row.status === 'Done' ? 'success' : row.status === 'Duplicate' ? 'muted' : 'warning'}
+                          size="sm"
+                        >
+                          {row.status}
+                        </StatusBadge>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.startTime}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.endTime}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">{row.resolutionTime}</Table.Cell>
                     </Table.Row>
                   ))}
                 </Table.Body>
