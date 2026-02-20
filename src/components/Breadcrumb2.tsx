@@ -15,6 +15,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   canvas: 'Canvas',
   custom: 'Custom',
   'widget-builder': 'Widget Builder',
+  'efficiency-dora': 'DORA',
   tables: 'Tables',
 }
 
