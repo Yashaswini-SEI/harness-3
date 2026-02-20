@@ -9,6 +9,7 @@ import {
   StatusBadge,
   Tag,
   Pagination,
+  DropdownMenu,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
@@ -124,6 +125,24 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 }
 
 // ── Metric card ──
+
+// ── Export dropdown menu ──
+
+function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <Button variant={variant} size="sm" iconOnly ignoreIconOnlyTooltip>
+          <IconV2 name="more-horizontal" size="sm" />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="end">
+        <DropdownMenu.Item>Export PDF</DropdownMenu.Item>
+        <DropdownMenu.Item>Export CSV</DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  )
+}
 
 const TIER_THEMES: Record<string, { bg: string; text: string }> = {
   Elite: { bg: '#ECFDF3', text: '#027A48' },
@@ -246,6 +265,7 @@ export function EfficiencyDoraPage() {
   const [drillPage, setDrillPage] = useState(1)
   const [drillPageSize, setDrillPageSize] = useState(25)
   const [showTrendline, setShowTrendline] = useState(false)
+  const [aggregation, setAggregation] = useState('mean')
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
@@ -377,9 +397,7 @@ export function EfficiencyDoraPage() {
             </Text>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-              <IconV2 name="more-horizontal" size="sm" />
-            </Button>
+            <ExportMenu variant="outline" />
           </div>
         </div>
 
@@ -399,7 +417,7 @@ export function EfficiencyDoraPage() {
           </div>
         </div>
 
-        {/* Time range tabs */}
+        {/* Time range tabs + aggregation + trendline */}
         <div className="flex items-center gap-3">
           <Tabs.Root value={timeRange} onValueChange={setTimeRange}>
             <Tabs.List variant="outlined">
@@ -411,6 +429,25 @@ export function EfficiencyDoraPage() {
               <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
             </Tabs.List>
           </Tabs.Root>
+          <Select
+            value={aggregation}
+            options={[
+              { label: 'Mean', value: 'mean' },
+              { label: 'Median', value: 'median' },
+              { label: 'P90', value: 'p90' },
+              { label: 'P95', value: 'p95' },
+            ]}
+            onChange={(val) => setAggregation(val)}
+          />
+          <div className="ml-auto">
+            <Button
+              variant={showTrendline ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setShowTrendline(!showTrendline)}
+            >
+              Show Trendline
+            </Button>
+          </div>
         </div>
 
         {/* Row 1: 4 DORA Metric Cards */}
@@ -427,18 +464,7 @@ export function EfficiencyDoraPage() {
             <div className="flex flex-col gap-0.5">
               <Text variant="body-strong" color="foreground-1">Lead Time for Changes</Text>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={showTrendline ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowTrendline(!showTrendline)}
-              >
-                Show Trendline
-              </Button>
-              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                <IconV2 name="more-horizontal" size="sm" />
-              </Button>
-            </div>
+            <ExportMenu />
           </div>
 
           {/* Segmented stacked bar chart */}
@@ -507,7 +533,7 @@ export function EfficiencyDoraPage() {
                 {doraMetrics.leadTime} (Average) · {avgSegments.totalTickets} tickets
               </Text>
             </div>
-            <div className="flex h-8 w-full" style={{ gap: 3 }}>
+            <div className="flex w-full" style={{ gap: 3, height: 22 }}>
               <div style={{ width: `${avgSegments.planning}%`, backgroundColor: STAGE_COLORS.planning, borderRadius: 4 }} className="transition-all" />
               <div style={{ width: `${avgSegments.coding}%`, backgroundColor: STAGE_COLORS.coding, borderRadius: 4 }} className="transition-all" />
               <div style={{ width: `${avgSegments.review}%`, backgroundColor: STAGE_COLORS.review, borderRadius: 4 }} className="transition-all" />
@@ -529,11 +555,11 @@ export function EfficiencyDoraPage() {
                     const isFirst = i === 0
                     const phase = stageData[i]
                     // Left edge of the arrow content area
-                    const edgeOffset = isFirst ? 0 : tipSize
+                    const edgeOffset = isFirst ? 7 : tipSize
                     return (
                       <div key={`${stage.stageName}-${i}`} className="relative flex flex-1 flex-col">
                         {/* Vertical line from icon to bottom of arrow */}
-                        <div className="absolute top-[22px] bottom-0 border-l border-cn-1" style={{ left: 1 }} />
+                        <div className="absolute top-0 bottom-0 border-l border-cn-2" style={{ left: 1 }} />
                         {/* Phase icon + label */}
                         <div className="relative z-10" style={{ marginLeft: edgeOffset }}>
                           <div className="flex items-center gap-1.5">
@@ -568,8 +594,8 @@ export function EfficiencyDoraPage() {
                   })}
                   {/* Done phase — no arrow, just the icon/label with line */}
                   <div className="relative flex flex-col">
-                    <div className="absolute top-[22px] bottom-0 border-l border-cn-1" style={{ left: 1 }} />
-                    <div className="relative z-10 flex items-center gap-1.5">
+                    <div className="absolute top-0 bottom-0 border-l border-cn-2" style={{ left: 1 }} />
+                    <div className="relative z-10 flex items-center gap-1.5" style={{ marginLeft: 16 }}>
                       <PhaseIcon type="flag" />
                       <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap" style={{ fontSize: 11 }}>
                         Done
@@ -588,9 +614,7 @@ export function EfficiencyDoraPage() {
             <div className="flex flex-col gap-0.5">
               <Text variant="body-strong" color="foreground-1">Deployment Frequency</Text>
             </div>
-            <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-              <IconV2 name="more-horizontal" size="sm" />
-            </Button>
+            <ExportMenu />
           </div>
 
           <div className="p-5 pt-3">
