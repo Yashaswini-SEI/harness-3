@@ -488,9 +488,9 @@ export function EfficiencyDoraPage() {
           </div>
 
           {/* Average lead time horizontal bar */}
-          <div className="px-5 pb-2">
-            <div className="mb-2 flex items-center gap-2">
-              <Text variant="caption-normal" color="foreground-1" className="font-medium">
+          <div className="mx-5 mb-2 rounded-lg bg-cn-2 p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <Text variant="body-normal" color="foreground-1" className="font-medium">
                 {doraMetrics.leadTime} (Average) · {avgSegments.totalTickets} tickets
               </Text>
             </div>
