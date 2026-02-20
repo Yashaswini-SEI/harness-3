@@ -115,17 +115,29 @@ const TEAM_BASE_DATA = [
 // ── Active users table data ──
 
 const BASE_ACTIVE_USERS = [
-  { name: 'Priya Sharma', email: 'p.sharma@sei.io', role: 'Staff Engineer', team: 'Product Engineering', assistant: 'Windsurf', lines: 5_320 },
-  { name: 'Emily Rodriguez', email: 'e.rodriguez@sei.io', role: 'Staff Engineer', team: 'Product Engineering', assistant: 'Windsurf', lines: 5_120 },
-  { name: 'Jessica Taylor', email: 'j.taylor@sei.io', role: 'Senior Software Engineer', team: 'Data Science', assistant: 'Windsurf', lines: 4_890 },
-  { name: 'James Chen', email: 'j.chen@sei.io', role: 'Senior Software Engineer', team: 'Platform Engineering', assistant: 'Cursor', lines: 4_650 },
-  { name: 'Sarah Chen', email: 's.chen@sei.io', role: 'Staff Engineer', team: 'Platform Engineering', assistant: 'Cursor', lines: 4_320 },
-  { name: 'David Park', email: 'd.park@sei.io', role: 'Software Engineer', team: 'Product Engineering', assistant: 'Cursor', lines: 4_100 },
-  { name: 'Ryan O\'Connor', email: 'r.oconnor@sei.io', role: 'Software Engineer', team: 'Product Engineering', assistant: 'Cursor', lines: 3_950 },
-  { name: 'Marcus Williams', email: 'm.williams@sei.io', role: 'Senior Software Engineer', team: 'Product Engineering', assistant: 'Cursor', lines: 3_800 },
-  { name: 'Olivia Martinez', email: 'o.martinez@sei.io', role: 'Software Engineer', team: 'Data Science', assistant: 'Cursor', lines: 3_500 },
-  { name: 'Daniel Patel', email: 'd.patel@sei.io', role: 'Software Engineer', team: 'Mobile Development', assistant: 'Cursor', lines: 2_970 },
-  { name: 'Michael Zhang', email: 'm.zhang@sei.io', role: 'Software Engineer', team: 'Quality Engineering', assistant: 'Cursor', lines: 2_890 },
+  { name: 'Harshil Garg', email: 'harshil.garg@harness.io', team: 'diana hughes', activeDays: 1, codingDays: 23, assistant: 'Cursor', linesSuggested: 722, linesAccepted: 142, acceptanceRate: '19.67%', prMerged: 21, newWork: '80.25%', legacyRework: '0%', recentRework: '19.75%', features: 37, defects: 'NA', avgPrCycle: '22h 6m' },
+  { name: 'Mahesh Sankaran', email: 'mahesh.sankaran@harness.io', team: 'dominic wallace', activeDays: 1, codingDays: 23, assistant: 'Cursor', linesSuggested: 227, linesAccepted: 227, acceptanceRate: '100%', prMerged: 29, newWork: '93.50%', legacyRework: '0%', recentRework: '6.50%', features: 4, defects: 7, avgPrCycle: '1d 9h' },
+  { name: 'Rajarshee Chatterjee', email: 'rajarshee.chatterjee@harness.io', team: 'samantha wright', activeDays: 2, codingDays: 21, assistant: 'Cursor', linesSuggested: 966, linesAccepted: 966, acceptanceRate: '100%', prMerged: 42, newWork: '80.59%', legacyRework: '0%', recentRework: '19.41%', features: 15, defects: 21, avgPrCycle: '2d 20h' },
+  { name: 'Shashwat Pandey', email: 'shashwat.pandey@harness.io', team: 'samantha wright', activeDays: 2, codingDays: 19, assistant: 'Cursor', linesSuggested: 1_515, linesAccepted: 1_496, acceptanceRate: '98.75%', prMerged: 22, newWork: '91.64%', legacyRework: '0%', recentRework: '8.36%', features: 13, defects: 3, avgPrCycle: '1d 8h' },
+  { name: 'Karthik Nayak', email: 'karthik.nayak@harness.io', team: 'gabriel martinez', activeDays: 0, codingDays: 18, assistant: 'Windsurf', linesSuggested: 0, linesAccepted: 0, acceptanceRate: '0%', prMerged: 16, newWork: '98.94%', legacyRework: '0%', recentRework: '1.06%', features: 16, defects: 2, avgPrCycle: '17h 8m' },
+  { name: 'Meet Rathod', email: 'rathod.meetsatish@harness.io', team: 'marcus thompson', activeDays: 0, codingDays: 18, assistant: 'Windsurf', linesSuggested: 0, linesAccepted: 0, acceptanceRate: '0%', prMerged: 10, newWork: '84.73%', legacyRework: '0%', recentRework: '15.27%', features: 11, defects: 7, avgPrCycle: '1d 11h' },
+  { name: 'Challa Reddy', email: 'challa.reddy@harness.io', team: 'gabriel martinez', activeDays: 2, codingDays: 17, assistant: 'Windsurf', linesSuggested: 1_151, linesAccepted: 1_114, acceptanceRate: '96.79%', prMerged: 12, newWork: '85.06%', legacyRework: '0%', recentRework: '14.94%', features: 9, defects: 2, avgPrCycle: '16h 45m' },
+  { name: 'Arjun Singh', email: 'arjun.singh@harness.io', team: 'gabriel martinez', activeDays: 1, codingDays: 17, assistant: 'Windsurf', linesSuggested: 496, linesAccepted: 496, acceptanceRate: '100%', prMerged: 28, newWork: '93.64%', legacyRework: '0%', recentRework: '6.36%', features: 6, defects: 1, avgPrCycle: '1d 20h' },
+  { name: 'Jyoti Arora', email: 'jyoti.arora@harness.io', team: 'dominic wallace', activeDays: 2, codingDays: 16, assistant: 'Cursor', linesSuggested: 0, linesAccepted: 0, acceptanceRate: '0%', prMerged: 24, newWork: '88.52%', legacyRework: '0%', recentRework: '11.48%', features: 6, defects: 24, avgPrCycle: '1d 15h' },
+  { name: 'Riyas P', email: 'riyas.yash@harness.io', team: 'Direct Reports of...', activeDays: 2, codingDays: 15, assistant: 'Cursor', linesSuggested: 728, linesAccepted: 689, acceptanceRate: '94.64%', prMerged: 13, newWork: '92.68%', legacyRework: '0%', recentRework: '7.32%', features: 36, defects: 'NA', avgPrCycle: '1d 17h' },
+]
+
+const INACTIVE_USERS = [
+  { name: 'Vikram Patel', email: 'vikram.patel@harness.io', team: 'samantha wright', activeDays: 0, codingDays: 0, assistant: 'Cursor', linesSuggested: 0, linesAccepted: 0, acceptanceRate: '0%', prMerged: 0, newWork: '0%', legacyRework: '0%', recentRework: '0%', features: 0, defects: 0, avgPrCycle: 'NA' },
+  { name: 'Sneha Gupta', email: 'sneha.gupta@harness.io', team: 'dominic wallace', activeDays: 0, codingDays: 0, assistant: 'Windsurf', linesSuggested: 0, linesAccepted: 0, acceptanceRate: '0%', prMerged: 0, newWork: '0%', legacyRework: '0%', recentRework: '0%', features: 0, defects: 0, avgPrCycle: 'NA' },
+  { name: 'Amit Desai', email: 'amit.desai@harness.io', team: 'gabriel martinez', activeDays: 0, codingDays: 2, assistant: 'Cursor', linesSuggested: 14, linesAccepted: 3, acceptanceRate: '21.43%', prMerged: 0, newWork: '0%', legacyRework: '0%', recentRework: '0%', features: 0, defects: 0, avgPrCycle: 'NA' },
+  { name: 'Priya Nair', email: 'priya.nair@harness.io', team: 'marcus thompson', activeDays: 0, codingDays: 1, assistant: 'Windsurf', linesSuggested: 0, linesAccepted: 0, acceptanceRate: '0%', prMerged: 0, newWork: '0%', legacyRework: '0%', recentRework: '0%', features: 0, defects: 0, avgPrCycle: 'NA' },
+]
+
+const UNLICENSED_USERS = [
+  { name: 'Rohan Mehta', email: 'rohan.mehta@harness.io', team: 'diana hughes', activeDays: 3, codingDays: 12, assistant: 'Unassigned', linesSuggested: 0, linesAccepted: 0, acceptanceRate: '0%', prMerged: 8, newWork: '76.30%', legacyRework: '0%', recentRework: '23.70%', features: 5, defects: 3, avgPrCycle: '2d 4h' },
+  { name: 'Deepa Krishnan', email: 'deepa.krishnan@harness.io', team: 'samantha wright', activeDays: 2, codingDays: 9, assistant: 'Unassigned', linesSuggested: 0, linesAccepted: 0, acceptanceRate: '0%', prMerged: 5, newWork: '82.14%', legacyRework: '0%', recentRework: '17.86%', features: 3, defects: 2, avgPrCycle: '1d 22h' },
+  { name: 'Sanjay Iyer', email: 'sanjay.iyer@harness.io', team: 'gabriel martinez', activeDays: 1, codingDays: 7, assistant: 'Unassigned', linesSuggested: 0, linesAccepted: 0, acceptanceRate: '0%', prMerged: 4, newWork: '91.20%', legacyRework: '0%', recentRework: '8.80%', features: 2, defects: 1, avgPrCycle: '3d 1h' },
 ]
 
 // ── Chart constants ──
@@ -307,6 +319,7 @@ export function AIInsightsPage() {
   )
   const [timeRange, setTimeRange] = useState('12M')
   const [assistantFilter, setAssistantFilter] = useState('all')
+  const [devTab, setDevTab] = useState('active')
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['12M']
 
@@ -343,14 +356,11 @@ export function AIInsightsPage() {
     [profile]
   )
 
-  const activeUsers = useMemo(
-    () => BASE_ACTIVE_USERS.map(u => ({ ...u, lines: Math.round(u.lines * profile.scale) })),
-    [profile]
-  )
+  const devTableData = devTab === 'inactive' ? INACTIVE_USERS : devTab === 'unlicensed' ? UNLICENSED_USERS : BASE_ACTIVE_USERS
 
   const filteredUsers = useMemo(
-    () => assistantFilter === 'all' ? activeUsers : activeUsers.filter(u => u.assistant.toLowerCase() === assistantFilter),
-    [assistantFilter, activeUsers]
+    () => assistantFilter === 'all' ? devTableData : devTableData.filter(u => u.assistant.toLowerCase() === assistantFilter),
+    [assistantFilter, devTableData]
   )
 
   useEffect(() => {
@@ -531,52 +541,115 @@ export function AIInsightsPage() {
         </div>
 
         {/* Active users table */}
-        <div className="rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
-          <div className="pb-3">
-            <Text variant="body-strong" color="foreground-1">Active users in team</Text>
-            <Text variant="body-normal" color="foreground-3" className="mt-0.5">
-              Team members actively using AI coding assistances with detailed productivity metrics
-            </Text>
-          </div>
-          <Table.Root variant="default" size="normal">
-            <Table.Header>
-              <Table.Row>
-                <Table.Head>User</Table.Head>
-                <Table.Head>Role</Table.Head>
-                <Table.Head>Team</Table.Head>
-                <Table.Head>Assistant</Table.Head>
-                <Table.Head className="text-right">Lines</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {filteredUsers.map((user) => (
-                <Table.Row key={user.name}>
-                  <Table.Cell>
-                    <div className="flex items-center gap-3">
-                      <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-sm font-medium text-[#006DEA]" style={{ width: 32, height: 32, borderRadius: '50%' }}>
-                        {user.name.split(' ').map(n => n[0]).join('')}
+        <div className="group/card rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+          <div className="flex items-center pb-3">
+            <div className="flex items-center gap-1.5">
+              <Text variant="body-strong" color="foreground-1">Developers</Text>
+              <div className="relative opacity-0 transition-opacity group-hover/card:opacity-100">
+                <div className="group/tip">
+                  <IconV2 name="info-circle" size="xs" className="text-foreground-4 cursor-help" />
+                  <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                    <div className="w-96 rounded-lg bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg border border-borders-2 space-y-3">
+                      <div>
+                        <strong className="text-foreground-1">Definition</strong>
+                        <p className="mt-1">Developer-level usage and productivity metrics for all developers across teams under the currently selected node, showing how each individual is contributing to the codebase and interacting with AI coding assistants.</p>
                       </div>
-                      <div className="flex flex-col">
-                        <Text variant="body-normal" color="foreground-1">{user.name}</Text>
-                        <Text variant="caption-normal" color="foreground-4">{user.email}</Text>
+                      <div>
+                        <strong className="text-foreground-1">How to read this</strong>
+                        <p className="mt-1">Each row represents a single developer. Metrics are aggregated over the selected duration and can be sorted to compare usage, productivity, and outcomes across individuals.</p>
+                        <p className="mt-1"><strong className="text-foreground-1">Assistant</strong> — Indicates the AI coding assistant associated with the developer: Named assistants (e.g., Cursor, Windsurf) reflect an active license. <em>All</em> indicates multiple assistants. <em>Unassigned</em> indicates no active AI assistant license detected.</p>
+                      </div>
+                      <div>
+                        <strong className="text-foreground-1">Key metrics</strong>
+                        <ul className="mt-1 list-disc pl-3.5 space-y-0.5">
+                          <li><strong>Days Active:</strong> Number of days the developer had SCM activity in the selected period</li>
+                          <li><strong>Lines Added:</strong> Total lines of code added by the developer</li>
+                          <li><strong>Lines Suggested:</strong> Total lines suggested by the AI assistant</li>
+                          <li><strong>Acceptance %:</strong> Percentage of AI-suggested lines accepted by the developer</li>
+                          <li><strong>PRs:</strong> Number of pull requests merged</li>
+                          <li><strong>Work Resolved:</strong> Number of work items completed and closed</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <strong className="text-foreground-1">What does this metric mean to me?</strong>
+                        <p className="mt-1">Provides visibility into individual-level AI usage and productivity patterns, helping teams understand adoption, impact, and areas for enablement — without optimizing for raw output alone.</p>
                       </div>
                     </div>
-                  </Table.Cell>
-                  <Table.Cell>{user.role}</Table.Cell>
-                  <Table.Cell>{user.team}</Table.Cell>
-                  <Table.Cell>
-                    <Tag
-                      variant="outline"
-                      theme={user.assistant === 'Windsurf' ? 'blue' : 'purple'}
-                      size="sm"
-                      value={user.assistant}
-                    />
-                  </Table.Cell>
-                  <Table.Cell className="text-right">{user.lines.toLocaleString()}</Table.Cell>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="ml-auto">
+              <Tabs.Root value={devTab} onValueChange={setDevTab}>
+                <Tabs.List variant="outlined">
+                  <Tabs.Trigger value="active">Active</Tabs.Trigger>
+                  <Tabs.Trigger value="inactive">Inactive</Tabs.Trigger>
+                  <Tabs.Trigger value="unlicensed">Unlicensed</Tabs.Trigger>
+                </Tabs.List>
+              </Tabs.Root>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <Table.Root variant="default" size="normal">
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head>User</Table.Head>
+                  <Table.Head>Team</Table.Head>
+                  <Table.Head className="text-right">Active Days</Table.Head>
+                  <Table.Head className="text-right">Coding Days</Table.Head>
+                  <Table.Head>Assistant</Table.Head>
+                  <Table.Head className="text-right">Lines Suggested</Table.Head>
+                  <Table.Head className="text-right">Lines Accepted</Table.Head>
+                  <Table.Head className="text-right">Acceptance Rate</Table.Head>
+                  <Table.Head className="text-right">PR Merged</Table.Head>
+                  <Table.Head className="text-right">New Work</Table.Head>
+                  <Table.Head className="text-right">Legacy Rework</Table.Head>
+                  <Table.Head className="text-right">Recent Rework</Table.Head>
+                  <Table.Head className="text-right">Features</Table.Head>
+                  <Table.Head className="text-right">Defects</Table.Head>
+                  <Table.Head className="text-right">Avg PR Cycle</Table.Head>
                 </Table.Row>
-              ))}
-            </Table.Body>
-          </Table.Root>
+              </Table.Header>
+              <Table.Body>
+                {filteredUsers.map((user) => (
+                  <Table.Row key={user.name}>
+                    <Table.Cell>
+                      <div className="flex items-center gap-3">
+                        <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-sm font-medium text-[#006DEA]" style={{ width: 32, height: 32, borderRadius: '50%' }}>
+                          {user.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div className="flex flex-col">
+                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{user.name}</Text>
+                          <Text variant="caption-normal" color="foreground-4" className="whitespace-nowrap">{user.email}</Text>
+                        </div>
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell className="whitespace-nowrap">{user.team}</Table.Cell>
+                    <Table.Cell className="text-right">{user.activeDays}</Table.Cell>
+                    <Table.Cell className="text-right">{user.codingDays}</Table.Cell>
+                    <Table.Cell>
+                      <Tag
+                        variant="outline"
+                        theme={user.assistant === 'Windsurf' ? 'blue' : 'purple'}
+                        size="sm"
+                        value={user.assistant}
+                      />
+                    </Table.Cell>
+                    <Table.Cell className="text-right">{user.linesSuggested.toLocaleString()}</Table.Cell>
+                    <Table.Cell className="text-right">{user.linesAccepted.toLocaleString()}</Table.Cell>
+                    <Table.Cell className="text-right">{user.acceptanceRate}</Table.Cell>
+                    <Table.Cell className="text-right">{user.prMerged}</Table.Cell>
+                    <Table.Cell className="text-right">{user.newWork}</Table.Cell>
+                    <Table.Cell className="text-right">{user.legacyRework}</Table.Cell>
+                    <Table.Cell className="text-right">{user.recentRework}</Table.Cell>
+                    <Table.Cell className="text-right">{user.features}</Table.Cell>
+                    <Table.Cell className="text-right">{user.defects}</Table.Cell>
+                    <Table.Cell className="text-right whitespace-nowrap">{user.avgPrCycle}</Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Root>
+          </div>
         </div>
       </div>
     </div>
