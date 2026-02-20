@@ -481,11 +481,11 @@ export function EfficiencyDoraPage() {
           />
           <div className="ml-auto">
             <Button
-              variant={showTrendline ? 'primary' : 'outline'}
+              variant="outline"
               size="sm"
               onClick={() => setShowTrendline(!showTrendline)}
             >
-              Show Trendline
+              {showTrendline ? 'Hide Trendline' : 'Show Trendline'}
             </Button>
           </div>
         </div>
