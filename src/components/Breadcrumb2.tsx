@@ -11,9 +11,13 @@ interface Breadcrumb2Props {
 }
 
 const SEGMENT_LABELS: Record<string, string> = {
+  module: 'Module',
+  sei: 'SEI',
   insights: 'Insights',
-  config: 'Config',
+  configuration: 'Configuration',
   'org-tree': 'Org Trees',
+  profile: 'Profile',
+  efficiency: 'Efficiency',
   custom: 'Custom',
   'widget-builder': 'Widget Builder',
   'efficiency-dora': 'DORA',

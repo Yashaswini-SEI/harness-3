@@ -16,6 +16,7 @@ import { EfficiencyDoraPage } from './pages/EfficiencyDoraPage'
 import { SprintMetricsPage } from './pages/SprintMetricsPage'
 import { ProductivityPage } from './pages/ProductivityPage'
 import { ComponentGallery } from './pages/ComponentGallery'
+import { EfficiencyProfilePage } from './pages/EfficiencyProfilePage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -26,16 +27,17 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/tables" element={<TableGallery />} />
           <Route path="/gallery" element={<ComponentGallery />} />
         </Route>
-        <Route path="/insights" element={<InsightsPage />} />
-        <Route path="/config/org-tree" element={<OrgTreePage />} />
-        <Route path="/insights/harness/ai-insights" element={<AIInsightsPage />} />
-        <Route path="/insights/harness/business-alignment" element={<BusinessAlignmentPage />} />
-        <Route path="/insights/harness/efficiency-dora" element={<EfficiencyDoraPage />} />
-        <Route path="/insights/harness/efficiency-sprint-metrics" element={<SprintMetricsPage />} />
-        <Route path="/insights/harness/productivity" element={<ProductivityPage />} />
-        <Route path="/insights/harness/:slug" element={<HarnessReportPage />} />
-        <Route path="/insights/custom/:id" element={<CustomInsightPage />} />
-        <Route path="/insights/custom/:id/widget-builder" element={<WidgetBuilderPage />} />
+        <Route path="/module/sei/insights" element={<InsightsPage />} />
+        <Route path="/module/sei/insights/harness/ai-insights" element={<AIInsightsPage />} />
+        <Route path="/module/sei/insights/harness/business-alignment" element={<BusinessAlignmentPage />} />
+        <Route path="/module/sei/insights/harness/efficiency-dora" element={<EfficiencyDoraPage />} />
+        <Route path="/module/sei/insights/harness/efficiency-sprint-metrics" element={<SprintMetricsPage />} />
+        <Route path="/module/sei/insights/harness/productivity" element={<ProductivityPage />} />
+        <Route path="/module/sei/insights/harness/:slug" element={<HarnessReportPage />} />
+        <Route path="/module/sei/insights/custom/:id" element={<CustomInsightPage />} />
+        <Route path="/module/sei/insights/custom/:id/widget-builder" element={<WidgetBuilderPage />} />
+        <Route path="/module/sei/configuration/org-tree" element={<OrgTreePage />} />
+        <Route path="/module/sei/configuration/profile/efficiency" element={<EfficiencyProfilePage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

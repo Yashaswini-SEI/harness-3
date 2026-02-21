@@ -643,7 +643,7 @@ export function InsightsPage() {
               {harnessInsightsOpen && (
                 <div className="grid grid-cols-3 gap-3">
                   {filteredInsights.map((insight) => (
-                    <Link key={insight.id} to={`/insights/harness/${insight.id}`} className="rounded-lg no-underline">
+                    <Link key={insight.id} to={`/module/sei/insights/harness/${insight.id}`} className="rounded-lg no-underline">
                       <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2 cursor-pointer">
                         <Card.Content>
                           <div className="flex gap-4">
@@ -675,7 +675,7 @@ export function InsightsPage() {
               </Text>
               {hasCustomInsight ? (
                 <div className="grid grid-cols-3 gap-3">
-                  <a href="/insights/custom/1" className="rounded-lg">
+                  <a href="/module/sei/insights/custom/1" className="rounded-lg">
                     <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2 cursor-pointer">
                       <Card.Content>
                         <div className="flex gap-4">

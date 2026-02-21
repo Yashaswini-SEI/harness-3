@@ -2,15 +2,16 @@ import { IconV2, Text } from '@harnessio/ui/components'
 import { Link } from 'react-router-dom'
 
 const pages = [
-  { path: '/insights', icon: 'dashboard', title: 'Insights', description: 'Dashboard listing with search, filters, and create flow' },
-  { path: '/config/org-tree', icon: 'pin', title: 'Org Trees', description: 'Organization tree configuration with profile mapping' },
-  { path: '/insights/custom/1', icon: 'bar-vertical', title: 'Custom Insight', description: 'Single insight view with widget chart and time range controls' },
-  { path: '/insights/custom/1/widget-builder', icon: 'settings', title: 'Widget Builder', description: 'Query builder with 7 chart types, datasource selection, and criteria config' },
-  { path: '/insights/harness/business-alignment', icon: 'bar-vertical', title: 'Business Alignment', description: 'Work categorization with stacked bar chart and drilldown table' },
-  { path: '/insights/harness/efficiency-dora', icon: 'clock', title: 'DORA Metrics', description: 'Lead time, deployment frequency, change failure rate, and MTTR' },
-  { path: '/insights/harness/efficiency-sprint-metrics', icon: 'flag', title: 'Sprint Metrics', description: '15 sprint metric cards with grouped bar chart and drilldown' },
-  { path: '/insights/harness/productivity', icon: 'code-branch', title: 'Productivity', description: 'PR velocity, cycle time, work completed, coding days, and code rework' },
-  { path: '/insights/harness/ai-insights', icon: 'sparkle', title: 'AI Insights', description: 'AI-powered engineering insights and recommendations' },
+  { path: '/module/sei/insights', icon: 'dashboard', title: 'Insights', description: 'Dashboard listing with search, filters, and create flow' },
+  { path: '/module/sei/configuration/org-tree', icon: 'pin', title: 'Org Trees', description: 'Organization tree configuration with profile mapping' },
+  { path: '/module/sei/configuration/profile/efficiency', icon: 'settings', title: 'Efficiency Profile', description: 'Configure metrics, weights, and settings for efficiency scoring' },
+  { path: '/module/sei/insights/custom/1', icon: 'bar-vertical', title: 'Custom Insight', description: 'Single insight view with widget chart and time range controls' },
+  { path: '/module/sei/insights/custom/1/widget-builder', icon: 'settings', title: 'Widget Builder', description: 'Query builder with 7 chart types, datasource selection, and criteria config' },
+  { path: '/module/sei/insights/harness/business-alignment', icon: 'bar-vertical', title: 'Business Alignment', description: 'Work categorization with stacked bar chart and drilldown table' },
+  { path: '/module/sei/insights/harness/efficiency-dora', icon: 'clock', title: 'DORA Metrics', description: 'Lead time, deployment frequency, change failure rate, and MTTR' },
+  { path: '/module/sei/insights/harness/efficiency-sprint-metrics', icon: 'flag', title: 'Sprint Metrics', description: '15 sprint metric cards with grouped bar chart and drilldown' },
+  { path: '/module/sei/insights/harness/productivity', icon: 'code-branch', title: 'Productivity', description: 'PR velocity, cycle time, work completed, coding days, and code rework' },
+  { path: '/module/sei/insights/harness/ai-insights', icon: 'sparkle', title: 'AI Insights', description: 'AI-powered engineering insights and recommendations' },
 ]
 
 const galleries = [

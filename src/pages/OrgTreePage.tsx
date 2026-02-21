@@ -127,9 +127,16 @@ const orgTreeData: OrgTreeRow[] = [
   },
 ]
 
-function ProfileLink({ value }: { value: string | null }) {
+function ProfileLink({ value, href }: { value: string | null; href?: string }) {
   if (!value) {
     return <Text variant="body-normal" color="foreground-4">&ndash;</Text>
+  }
+  if (href) {
+    return (
+      <a href={href} className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }}>
+        {value}
+      </a>
+    )
   }
   return (
     <button className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }}>
@@ -312,7 +319,7 @@ export function OrgTreePage() {
                   <Text variant="body-normal" color="foreground-3">{row.teams}</Text>
                 </Table.Cell>
                 <Table.Cell>
-                  <ProfileLink value={row.efficiencyProfile} />
+                  <ProfileLink value={row.efficiencyProfile} href="/module/sei/configuration/profile/efficiency" />
                 </Table.Cell>
                 <Table.Cell>
                   <ProfileLink value={row.productivityProfile} />

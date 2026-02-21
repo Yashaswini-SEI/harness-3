@@ -380,8 +380,8 @@ export function WidgetBuilderPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={() => navigate(`/insights/custom/${id}`)}>Cancel</Button>
-          <Button size="sm" onClick={() => navigate(`/insights/custom/${id}`, { state: { widgetAdded: true } })}>Add Widget</Button>
+          <Button variant="outline" size="sm" onClick={() => navigate(`/module/sei/insights/custom/${id}`)}>Cancel</Button>
+          <Button size="sm" onClick={() => navigate(`/module/sei/insights/custom/${id}`, { state: { widgetAdded: true } })}>Add Widget</Button>
         </div>
       </div>
 

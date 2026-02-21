@@ -85,8 +85,8 @@ export function CustomInsightPage() {
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
                 <IconV2 name="more-horizontal" size="sm" />
               </Button>
-              <Button variant="outline" size="sm" disabled={!hasWidget} onClick={() => navigate('/insights')}>Cancel</Button>
-              <Button size="sm" disabled={!hasWidget} onClick={() => navigate('/insights', { state: { insightSaved: true, insightName } })}>Save</Button>
+              <Button variant="outline" size="sm" disabled={!hasWidget} onClick={() => navigate('/module/sei/insights')}>Cancel</Button>
+              <Button size="sm" disabled={!hasWidget} onClick={() => navigate('/module/sei/insights', { state: { insightSaved: true, insightName } })}>Save</Button>
             </div>
           </div>
 
@@ -135,7 +135,7 @@ export function CustomInsightPage() {
                 <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
               </Tabs.List>
             </Tabs.Root>
-            <Button variant="outline" size="sm" onClick={() => navigate(`/insights/custom/${id}/widget-builder`)}>
+            <Button variant="outline" size="sm" onClick={() => navigate(`/module/sei/insights/custom/${id}/widget-builder`)}>
               <IconV2 name="plus" size="sm" />
               New Widget
             </Button>
@@ -155,7 +155,7 @@ export function CustomInsightPage() {
             <div className="flex flex-1 flex-col items-center justify-center gap-4 pb-20">
               <img src={imgEmptyState} alt="No widgets" />
               <Text variant="body-normal" color="foreground-3">Add widgets to your Insight</Text>
-              <Button variant="outline" size="sm" onClick={() => navigate(`/insights/custom/${id}/widget-builder`)}>
+              <Button variant="outline" size="sm" onClick={() => navigate(`/module/sei/insights/custom/${id}/widget-builder`)}>
                 <IconV2 name="plus" size="sm" />
                 New Widget
               </Button>
