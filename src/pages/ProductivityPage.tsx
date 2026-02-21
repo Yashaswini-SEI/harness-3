@@ -98,22 +98,27 @@ export function ProductivityPage() {
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
+  const [expandedDevRows, setExpandedDevRows] = useState<Set<string>>(new Set())
+  const toggleDevRow = (name: string) => {
+    setExpandedDevRows(prev => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
+  }
+
   const PR_DRILL_POOL = useMemo(() => [
-    { developer: 'Sahildeep Singh', smallPRs: 12, mediumPRs: 5, largePRs: 2, totalPRs: 19, avgPRSize: '142 lines', reviewTime: '4h 12m' },
-    { developer: 'Rajarshee Chatterjee', smallPRs: 18, mediumPRs: 8, largePRs: 1, totalPRs: 27, avgPRSize: '98 lines', reviewTime: '2h 45m' },
-    { developer: 'Sumit Kumar', smallPRs: 8, mediumPRs: 6, largePRs: 4, totalPRs: 18, avgPRSize: '215 lines', reviewTime: '6h 30m' },
-    { developer: 'Mauro Javier Giambianchi', smallPRs: 15, mediumPRs: 3, largePRs: 1, totalPRs: 19, avgPRSize: '87 lines', reviewTime: '3h 15m' },
-    { developer: 'Sujeesh Madathil', smallPRs: 10, mediumPRs: 7, largePRs: 3, totalPRs: 20, avgPRSize: '178 lines', reviewTime: '5h 20m' },
-    { developer: 'Arvind Srinivaaolu', smallPRs: 22, mediumPRs: 4, largePRs: 0, totalPRs: 26, avgPRSize: '65 lines', reviewTime: '1h 50m' },
-    { developer: 'Abdul Asheem', smallPRs: 9, mediumPRs: 9, largePRs: 5, totalPRs: 23, avgPRSize: '245 lines', reviewTime: '7h 10m' },
-    { developer: 'David Warren', smallPRs: 14, mediumPRs: 6, largePRs: 2, totalPRs: 22, avgPRSize: '132 lines', reviewTime: '3h 55m' },
-    { developer: 'Conor Murray', smallPRs: 7, mediumPRs: 4, largePRs: 6, totalPRs: 17, avgPRSize: '310 lines', reviewTime: '8h 25m' },
-    { developer: 'Matthew Sullivan', smallPRs: 16, mediumPRs: 5, largePRs: 1, totalPRs: 22, avgPRSize: '105 lines', reviewTime: '2h 30m' },
-    { developer: 'Harsh Sha', smallPRs: 11, mediumPRs: 8, largePRs: 3, totalPRs: 22, avgPRSize: '188 lines', reviewTime: '5h 45m' },
-    { developer: 'Alex Chen', smallPRs: 20, mediumPRs: 2, largePRs: 0, totalPRs: 22, avgPRSize: '52 lines', reviewTime: '1h 20m' },
-    { developer: 'Sarah Kim', smallPRs: 13, mediumPRs: 7, largePRs: 2, totalPRs: 22, avgPRSize: '155 lines', reviewTime: '4h 40m' },
-    { developer: 'Karthik Nayak', smallPRs: 6, mediumPRs: 5, largePRs: 4, totalPRs: 15, avgPRSize: '268 lines', reviewTime: '6h 55m' },
-    { developer: 'Priya Nair', smallPRs: 17, mediumPRs: 6, largePRs: 1, totalPRs: 24, avgPRSize: '92 lines', reviewTime: '2h 15m' },
+    { name: 'c_jyoti patel', prs: 7, workTypes: { bug: 0, story: 7, task: 0, other: 0 }, prSizes: { small: 0, medium: 4, large: 3 }, avgTimeToMerge: '6d 18h', totalLines: 14191, additions: 12892, deletions: 1299 },
+    { name: 'c_rahul sharma', prs: 12, workTypes: { bug: 2, story: 8, task: 1, other: 1 }, prSizes: { small: 3, medium: 6, large: 3 }, avgTimeToMerge: '4d 6h', totalLines: 8450, additions: 7200, deletions: 1250 },
+    { name: 'c_anita desai', prs: 5, workTypes: { bug: 1, story: 3, task: 1, other: 0 }, prSizes: { small: 2, medium: 2, large: 1 }, avgTimeToMerge: '3d 12h', totalLines: 5320, additions: 4800, deletions: 520 },
+    { name: 'c_vikram singh', prs: 15, workTypes: { bug: 3, story: 9, task: 2, other: 1 }, prSizes: { small: 5, medium: 7, large: 3 }, avgTimeToMerge: '5d 4h', totalLines: 18900, additions: 16500, deletions: 2400 },
+    { name: 'c_priya menon', prs: 9, workTypes: { bug: 0, story: 6, task: 3, other: 0 }, prSizes: { small: 4, medium: 3, large: 2 }, avgTimeToMerge: '2d 22h', totalLines: 6780, additions: 5900, deletions: 880 },
+    { name: 'c_amit kumar', prs: 3, workTypes: { bug: 1, story: 1, task: 0, other: 1 }, prSizes: { small: 1, medium: 1, large: 1 }, avgTimeToMerge: '8d 2h', totalLines: 22400, additions: 19800, deletions: 2600 },
+    { name: 'c_sneha reddy', prs: 11, workTypes: { bug: 2, story: 7, task: 2, other: 0 }, prSizes: { small: 6, medium: 3, large: 2 }, avgTimeToMerge: '3d 8h', totalLines: 7100, additions: 6300, deletions: 800 },
+    { name: 'c_deepak joshi', prs: 8, workTypes: { bug: 1, story: 5, task: 1, other: 1 }, prSizes: { small: 2, medium: 4, large: 2 }, avgTimeToMerge: '5d 14h', totalLines: 11200, additions: 9800, deletions: 1400 },
+    { name: 'c_kavita nair', prs: 6, workTypes: { bug: 0, story: 4, task: 2, other: 0 }, prSizes: { small: 3, medium: 2, large: 1 }, avgTimeToMerge: '4d 1h', totalLines: 4500, additions: 3900, deletions: 600 },
+    { name: 'c_ravi patel', prs: 14, workTypes: { bug: 4, story: 8, task: 1, other: 1 }, prSizes: { small: 4, medium: 6, large: 4 }, avgTimeToMerge: '7d 5h', totalLines: 25600, additions: 22100, deletions: 3500 },
   ], [])
 
   const paginatedPrDrill = useMemo(() => {
@@ -285,34 +290,77 @@ export function ProductivityPage() {
               <Table.Root variant="default" size="normal">
                 <Table.Header>
                   <Table.Row>
-                    <Table.Head>Developer</Table.Head>
-                    <Table.Head className="text-right">Small PRs</Table.Head>
-                    <Table.Head className="text-right">Medium PRs</Table.Head>
-                    <Table.Head className="text-right">Large PRs</Table.Head>
-                    <Table.Head className="text-right">Total PRs</Table.Head>
-                    <Table.Head className="text-right">Avg PR Size</Table.Head>
-                    <Table.Head className="text-right">Review Time</Table.Head>
+                    <Table.Head>PR ID</Table.Head>
+                    <Table.Head className="text-right">PRs</Table.Head>
+                    <Table.Head>Work Types</Table.Head>
+                    <Table.Head>PR Sizes</Table.Head>
+                    <Table.Head>Average Time to Merge</Table.Head>
+                    <Table.Head>Code Changes</Table.Head>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {paginatedPrDrill.map((row) => (
-                    <Table.Row key={row.developer}>
+                  {paginatedPrDrill.map((row) => {
+                    const addPct = row.totalLines > 0 ? (row.additions / row.totalLines) * 100 : 50
+                    const delPct = 100 - addPct
+                    return (<>
+                    <Table.Row key={row.name} className="cursor-pointer" onClick={() => toggleDevRow(row.name)}>
                       <Table.Cell>
-                        <div className="flex items-center gap-3">
-                          <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-sm font-medium text-[#006DEA]" style={{ width: 32, height: 32, borderRadius: '50%' }}>
-                            {row.developer.split(' ').map(n => n[0]).join('')}
+                        <div className="flex items-center gap-2">
+                          <IconV2 name={expandedDevRows.has(row.name) ? 'nav-arrow-down' : 'nav-arrow-right'} size="xs" className="text-foreground-4" />
+                          <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-sm font-medium text-[#006DEA]" style={{ width: 28, height: 28, borderRadius: '50%' }}>
+                            {row.name.split(' ').map(n => n[0]).join('')}
                           </div>
-                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.developer}</Text>
+                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.name}</Text>
                         </div>
                       </Table.Cell>
-                      <Table.Cell className="text-right">{row.smallPRs}</Table.Cell>
-                      <Table.Cell className="text-right">{row.mediumPRs}</Table.Cell>
-                      <Table.Cell className="text-right">{row.largePRs}</Table.Cell>
-                      <Table.Cell className="text-right font-medium">{row.totalPRs}</Table.Cell>
-                      <Table.Cell className="text-right">{row.avgPRSize}</Table.Cell>
-                      <Table.Cell className="text-right whitespace-nowrap">{row.reviewTime}</Table.Cell>
+                      <Table.Cell className="text-right">{row.prs}</Table.Cell>
+                      <Table.Cell>
+                        <div className="flex items-center gap-2">
+                          {row.workTypes.bug > 0 && <span className="rounded bg-[#FEF3F2] px-1.5 py-0.5 text-xs text-[#B42318]">Bug {row.workTypes.bug}</span>}
+                          {row.workTypes.story > 0 && <span className="rounded bg-[#EFF8FF] px-1.5 py-0.5 text-xs text-[#175CD3]">Story {row.workTypes.story}</span>}
+                          {row.workTypes.task > 0 && <span className="rounded bg-[#F9F5FF] px-1.5 py-0.5 text-xs text-[#6941C6]">Task {row.workTypes.task}</span>}
+                          {row.workTypes.other > 0 && <span className="rounded bg-[#F2F4F7] px-1.5 py-0.5 text-xs text-foreground-3">Other {row.workTypes.other}</span>}
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <div className="flex items-center gap-2">
+                          {row.prSizes.small > 0 && <span className="rounded bg-[#ECFDF3] px-1.5 py-0.5 text-xs text-[#027A48]">S {row.prSizes.small}</span>}
+                          {row.prSizes.medium > 0 && <span className="rounded bg-[#FFFAEB] px-1.5 py-0.5 text-xs text-[#B54708]">M {row.prSizes.medium}</span>}
+                          {row.prSizes.large > 0 && <span className="rounded bg-[#FEF3F2] px-1.5 py-0.5 text-xs text-[#B42318]">L {row.prSizes.large}</span>}
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">{row.avgTimeToMerge}</Table.Cell>
+                      <Table.Cell style={{ minWidth: 160 }}>
+                        <div className="flex flex-col gap-1">
+                          <Text variant="caption-normal" color="foreground-3">{row.totalLines.toLocaleString()} lines</Text>
+                          <div className="flex h-2 w-full" style={{ gap: 3 }}>
+                            <div style={{ width: `${addPct}%`, backgroundColor: '#10B981', borderRadius: 4 }} />
+                            <div style={{ width: `${delPct}%`, backgroundColor: '#EF4444', borderRadius: 4 }} />
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
+                              <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: '#10B981' }} />
+                              <Text variant="caption-normal" color="foreground-3">+{row.additions.toLocaleString()}</Text>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: '#EF4444' }} />
+                              <Text variant="caption-normal" color="foreground-3">-{row.deletions.toLocaleString()}</Text>
+                            </div>
+                          </div>
+                        </div>
+                      </Table.Cell>
                     </Table.Row>
-                  ))}
+                    {expandedDevRows.has(row.name) && (
+                      <Table.Row>
+                        <Table.Cell colSpan={6} className="!p-0">
+                          <div className="bg-cn-2 px-8 py-3">
+                            <Text variant="caption-normal" color="foreground-3">PR details for {row.name} — subtable coming soon</Text>
+                          </div>
+                        </Table.Cell>
+                      </Table.Row>
+                    )}
+                    </>)
+                  })}
                 </Table.Body>
               </Table.Root>
             </div>
