@@ -247,7 +247,7 @@ const harnessInsights = [
     thumb: thumb2,
   },
   {
-    id: 'sprint-metrics',
+    id: 'efficiency-sprint-metrics',
     title: 'Sprint Metrics',
     description: 'Shows planning effectiveness, delivery consistency, and team predictability.',
     tag: 'Efficiency',
@@ -400,8 +400,8 @@ export function InsightsPage() {
       hash = ((hash << 5) - hash + selectedNodeId.charCodeAt(i)) | 0
     }
     const absHash = Math.abs(hash)
-    // Pick 2–6 cards based on the hash
-    const count = 2 + (absHash % 5)
+    // Pick 4–8 cards based on the hash
+    const count = 4 + (absHash % (harnessInsights.length - 3))
     // Shuffle using the hash as seed, then take `count` items
     const indices = harnessInsights.map((_, i) => i)
     for (let i = indices.length - 1; i > 0; i--) {
