@@ -722,7 +722,7 @@ export function InsightsPage() {
           />
           {/* Panel */}
           <div
-            className="fixed right-0 top-0 z-50 flex h-full w-2/3 min-w-[640px] flex-col border-l border-cn-1 bg-cn-3 shadow-xl"
+            className="fixed right-4 top-4 bottom-4 z-50 flex w-2/3 min-w-[640px] flex-col overflow-hidden border border-cn-1 bg-cn-3 shadow-xl" style={{ borderRadius: 16 }}
             style={{
               transform: panelOpen ? 'translateX(0)' : 'translateX(100%)',
               transition: 'transform 300ms ease-in-out',
