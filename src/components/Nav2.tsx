@@ -28,11 +28,11 @@ const hoverFilter = 'brightness(0) invert(1)'
 
 const topGroup: { id: Nav2Section; icon: string; alt: string; size?: string; href?: string }[] = [
   { id: 'insights', icon: insightsIcon, alt: 'Insights', size: 'h-[17px] w-[17px]', href: '/insights' },
-  { id: 'canvas', icon: canvasIcon, alt: 'Canvas', size: 'h-[17px] w-[17px]', href: '/canvas' },
+  { id: 'canvas', icon: canvasIcon, alt: 'Canvas', size: 'h-[17px] w-[17px]' },
 ]
 
-const bottomGroup: { id: Nav2Section; icon: string; alt: string }[] = [
-  { id: 'org-tree', icon: orgTreeIcon, alt: 'Org Tree' },
+const bottomGroup: { id: Nav2Section; icon: string; alt: string; href?: string }[] = [
+  { id: 'org-tree', icon: orgTreeIcon, alt: 'Org Tree', href: '/config/org-tree' },
   { id: 'teams', icon: teamsIcon, alt: 'Teams' },
   { id: 'account-mgmt', icon: accountMgmtIcon, alt: 'Account Management' },
 ]

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const pages = [
   { path: '/insights', icon: 'dashboard', title: 'Insights', description: 'Dashboard listing with search, filters, and create flow' },
-  { path: '/canvas', icon: 'pin', title: 'Canvas', description: 'Drag-and-drop canvas workspace for visual composition' },
+  { path: '/config/org-tree', icon: 'pin', title: 'Org Trees', description: 'Organization tree configuration with profile mapping' },
   { path: '/insights/custom/1', icon: 'bar-vertical', title: 'Custom Insight', description: 'Single insight view with widget chart and time range controls' },
   { path: '/insights/custom/1/widget-builder', icon: 'settings', title: 'Widget Builder', description: 'Query builder with 7 chart types, datasource selection, and criteria config' },
   { path: '/insights/harness/business-alignment', icon: 'bar-vertical', title: 'Business Alignment', description: 'Work categorization with stacked bar chart and drilldown table' },

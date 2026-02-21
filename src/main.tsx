@@ -7,7 +7,7 @@ import { GalleryLayout } from './layouts/GalleryLayout'
 import { TableGallery } from './pages/TableGallery'
 import { InsightsPage } from './pages/InsightsPage'
 import { WidgetBuilderPage } from './pages/WidgetBuilderPage'
-import { CanvasPage } from './pages/CanvasPage'
+import { OrgTreePage } from './pages/OrgTreePage'
 import { CustomInsightPage } from './pages/CustomInsightPage'
 import { HarnessReportPage } from './pages/HarnessReportPage'
 import { AIInsightsPage } from './pages/AIInsightsPage'
@@ -27,7 +27,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/gallery" element={<ComponentGallery />} />
         </Route>
         <Route path="/insights" element={<InsightsPage />} />
-        <Route path="/canvas" element={<CanvasPage />} />
+        <Route path="/config/org-tree" element={<OrgTreePage />} />
         <Route path="/insights/harness/ai-insights" element={<AIInsightsPage />} />
         <Route path="/insights/harness/business-alignment" element={<BusinessAlignmentPage />} />
         <Route path="/insights/harness/efficiency-dora" element={<EfficiencyDoraPage />} />

@@ -12,7 +12,8 @@ interface Breadcrumb2Props {
 
 const SEGMENT_LABELS: Record<string, string> = {
   insights: 'Insights',
-  canvas: 'Canvas',
+  config: 'Config',
+  'org-tree': 'Org Trees',
   custom: 'Custom',
   'widget-builder': 'Widget Builder',
   'efficiency-dora': 'DORA',
