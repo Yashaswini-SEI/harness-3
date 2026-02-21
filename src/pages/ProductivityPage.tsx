@@ -8,13 +8,10 @@ import {
   IconV2,
   Pagination,
   CounterBadge,
+  Select,
 } from '@harnessio/ui/components'
-import {
-  ResponsiveContainer,
-  ComposedChart, Bar, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-} from 'recharts'
 import { Nav2 } from '../components/Nav2'
+import { StackedBarChart } from '../components/Charts'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
 import { InsightMetricCard } from '../components/InsightMetricCard'
 
@@ -43,17 +40,6 @@ function linearRegression(values: number[]): number[] {
 }
 
 // ── Chart constants ──
-
-const TICK_STYLE = { fontSize: 12, fill: '#6B7280' }
-const AXIS_LINE = { stroke: '#E5E7EB' }
-const GRID_STROKE = 'var(--cn-border-2, #E5E7EB)'
-const LEGEND_STYLE = { fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }
-const CHART_MARGIN = { top: 8, right: 16, left: 0, bottom: 0 }
-const legendFormatter = (value: string) => <span style={{ color: '#4B5563' }}>{value}</span>
-const formatYAxis = (value: number) => {
-  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`
-  return String(value)
-}
 
 const SMALL_PR_COLOR = 'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))'
 const MEDIUM_PR_COLOR = 'var(--cn-comp-data-viz-02-purple, lch(58% 95 320))'
@@ -95,7 +81,15 @@ export function ProductivityPage() {
   const [timeRange, setTimeRange] = useState('6M')
   const [showTrendline, setShowTrendline] = useState(false)
   const [prDrillPage, setPrDrillPage] = useState(1)
-  const [prDrillPageSize, setPrDrillPageSize] = useState(10)
+  const [prDrillPageSize, setPrDrillPageSize] = useState(5)
+  const [cycleDrillPage, setCycleDrillPage] = useState(1)
+  const [cycleDrillPageSize, setCycleDrillPageSize] = useState(5)
+  const [selectedCycleBar, setSelectedCycleBar] = useState<number | null>(null)
+  const [workDrillPage, setWorkDrillPage] = useState(1)
+  const [workDrillPageSize, setWorkDrillPageSize] = useState(5)
+  const [selectedWorkBar, setSelectedWorkBar] = useState<number | null>(null)
+  const [expandedWorkRows, setExpandedWorkRows] = useState<Set<string>>(new Set())
+  const [workTypeFilter, setWorkTypeFilter] = useState('all')
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
@@ -156,6 +150,105 @@ export function ProductivityPage() {
     return PR_DRILL_POOL.slice(start, start + prDrillPageSize)
   }, [PR_DRILL_POOL, prDrillPage, prDrillPageSize])
 
+  const CYCLE_DRILL_POOL = useMemo(() => [
+    { prId: '623', title: '[feat]: [SEI-...', author: 'c_jyoti patel', repository: 'l7B_kbSEQD2...', firstCommitAt: '2026-01-09', createdAt: '2026-01-10', mergedAt: '2026-01-28', cycleTime: '19d 11h', firstReview: '9d 15h', approval: '0', reviewer: 'harshit trivedi', totalLines: 13733, additions: 12589, deletions: 1144 },
+    { prId: '618', title: '[fix]: [SEI-4...', author: 'c_rahul sharma', repository: 'l7B_kbSEQD2...', firstCommitAt: '2026-01-06', createdAt: '2026-01-07', mergedAt: '2026-01-22', cycleTime: '16d 8h', firstReview: '5d 2h', approval: '1', reviewer: 'sahildeep singh', totalLines: 8450, additions: 7200, deletions: 1250 },
+    { prId: '612', title: '[chore]: [SEI...', author: 'c_anita desai', repository: 'harness-core', firstCommitAt: '2026-01-03', createdAt: '2026-01-04', mergedAt: '2026-01-15', cycleTime: '12d 4h', firstReview: '3d 18h', approval: '2', reviewer: 'rajarshee chatterjee', totalLines: 5320, additions: 4800, deletions: 520 },
+    { prId: '607', title: '[feat]: [SEI-...', author: 'c_vikram singh', repository: 'l7B_kbSEQD2...', firstCommitAt: '2025-12-28', createdAt: '2025-12-29', mergedAt: '2026-01-18', cycleTime: '21d 6h', firstReview: '7d 12h', approval: '0', reviewer: 'sumit kumar', totalLines: 18900, additions: 16500, deletions: 2400 },
+    { prId: '601', title: '[fix]: [SEI-3...', author: 'c_priya menon', repository: 'harness-core', firstCommitAt: '2025-12-22', createdAt: '2025-12-23', mergedAt: '2026-01-08', cycleTime: '16d 14h', firstReview: '4d 6h', approval: '1', reviewer: 'harshit trivedi', totalLines: 6780, additions: 5900, deletions: 880 },
+    { prId: '595', title: '[feat]: [SEI-...', author: 'c_amit kumar', repository: 'l7B_kbSEQD2...', firstCommitAt: '2025-12-18', createdAt: '2025-12-19', mergedAt: '2026-01-12', cycleTime: '24d 2h', firstReview: '11d 8h', approval: '0', reviewer: 'sahildeep singh', totalLines: 22400, additions: 19800, deletions: 2600 },
+    { prId: '589', title: '[fix]: [SEI-2...', author: 'c_sneha reddy', repository: 'harness-core', firstCommitAt: '2025-12-15', createdAt: '2025-12-16', mergedAt: '2025-12-30', cycleTime: '14d 18h', firstReview: '2d 22h', approval: '3', reviewer: 'rajarshee chatterjee', totalLines: 7100, additions: 6300, deletions: 800 },
+    { prId: '583', title: '[chore]: [SEI...', author: 'c_deepak joshi', repository: 'l7B_kbSEQD2...', firstCommitAt: '2025-12-10', createdAt: '2025-12-11', mergedAt: '2025-12-28', cycleTime: '17d 10h', firstReview: '6d 4h', approval: '1', reviewer: 'sumit kumar', totalLines: 11200, additions: 9800, deletions: 1400 },
+    { prId: '577', title: '[feat]: [SEI-...', author: 'c_kavita nair', repository: 'harness-core', firstCommitAt: '2025-12-06', createdAt: '2025-12-07', mergedAt: '2025-12-22', cycleTime: '15d 5h', firstReview: '4d 14h', approval: '2', reviewer: 'harshit trivedi', totalLines: 4500, additions: 3900, deletions: 600 },
+    { prId: '571', title: '[fix]: [SEI-1...', author: 'c_ravi patel', repository: 'l7B_kbSEQD2...', firstCommitAt: '2025-12-01', createdAt: '2025-12-02', mergedAt: '2025-12-24', cycleTime: '22d 8h', firstReview: '8d 20h', approval: '0', reviewer: 'sahildeep singh', totalLines: 25600, additions: 22100, deletions: 3500 },
+  ], [])
+
+  const handleCycleBarClick = (index: number) => {
+    setSelectedCycleBar(prev => prev === index ? null : index)
+    setCycleDrillPage(1)
+  }
+
+  function seededShuffle<T>(arr: T[], seed: number): T[] {
+    const out = [...arr]
+    let s = Math.abs(seed) || 1
+    for (let i = out.length - 1; i > 0; i--) {
+      s = (s * 16807 + 0) % 2147483647
+      const j = s % (i + 1)
+      ;[out[i], out[j]] = [out[j], out[i]]
+    }
+    return out
+  }
+
+  const cycleDrilldownData = useMemo(
+    () => seededShuffle(CYCLE_DRILL_POOL, selectedCycleBar != null ? (selectedCycleBar + 1) * 7331 : 1),
+    [selectedCycleBar, CYCLE_DRILL_POOL]
+  )
+
+  const paginatedCycleDrill = useMemo(() => {
+    const start = (cycleDrillPage - 1) * cycleDrillPageSize
+    return cycleDrilldownData.slice(start, start + cycleDrillPageSize)
+  }, [cycleDrilldownData, cycleDrillPage, cycleDrillPageSize])
+
+  // ── Work Completed Per Dev ──
+  const workCompletedData = useMemo(() => {
+    const raw = profile.labels.map((name, i) => ({
+      name,
+      bugs: jitter(`work-bug-${name}${i}`, Math.round(8 * profile.scale), 4),
+      features: jitter(`work-feat-${name}${i}`, Math.round(20 * profile.scale), 8),
+      others: jitter(`work-other-${name}${i}`, Math.round(5 * profile.scale), 3),
+    }))
+    const maxTotal = Math.max(...raw.map(d => d.bugs + d.features + d.others))
+    const gap = Math.max(1, Math.round(maxTotal * 0.015))
+    return raw.map(d => ({ ...d, _gap: gap }))
+  }, [profile])
+
+  const ALL_WORK_SERIES = [
+    { dataKey: 'bugs', name: 'Bugs', color: 'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))' },
+    { dataKey: 'features', name: 'Features', color: 'var(--cn-comp-data-viz-02-purple, lch(58% 95 320))' },
+    { dataKey: 'others', name: 'Others', color: 'var(--cn-comp-data-viz-03-pink, lch(58% 70 350))' },
+  ]
+
+  const WORK_SERIES = workTypeFilter === 'all'
+    ? ALL_WORK_SERIES
+    : ALL_WORK_SERIES.filter(s => s.dataKey === workTypeFilter)
+
+  const handleWorkBarClick = (index: number) => {
+    setSelectedWorkBar(prev => prev === index ? null : index)
+    setWorkDrillPage(1)
+  }
+
+  const toggleWorkRow = (name: string) => {
+    setExpandedWorkRows(prev => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
+  }
+
+  const WORK_DRILL_POOL = useMemo(() => [
+    { name: 'c_jyoti patel', completed: 24, workTypes: { bug: 3, story: 15, task: 4, other: 2 }, avgTimeToComplete: '6d 18h' },
+    { name: 'c_rahul sharma', completed: 31, workTypes: { bug: 5, story: 20, task: 3, other: 3 }, avgTimeToComplete: '4d 6h' },
+    { name: 'c_anita desai', completed: 18, workTypes: { bug: 2, story: 12, task: 3, other: 1 }, avgTimeToComplete: '8d 2h' },
+    { name: 'c_vikram singh', completed: 42, workTypes: { bug: 8, story: 25, task: 6, other: 3 }, avgTimeToComplete: '3d 14h' },
+    { name: 'c_priya menon', completed: 27, workTypes: { bug: 4, story: 18, task: 3, other: 2 }, avgTimeToComplete: '5d 8h' },
+    { name: 'c_amit kumar', completed: 15, workTypes: { bug: 1, story: 10, task: 2, other: 2 }, avgTimeToComplete: '9d 4h' },
+    { name: 'c_sneha reddy', completed: 33, workTypes: { bug: 6, story: 21, task: 4, other: 2 }, avgTimeToComplete: '4d 22h' },
+    { name: 'c_deepak joshi', completed: 22, workTypes: { bug: 3, story: 14, task: 3, other: 2 }, avgTimeToComplete: '7d 10h' },
+    { name: 'c_kavita nair', completed: 19, workTypes: { bug: 2, story: 13, task: 2, other: 2 }, avgTimeToComplete: '6d 1h' },
+    { name: 'c_ravi patel', completed: 38, workTypes: { bug: 7, story: 24, task: 5, other: 2 }, avgTimeToComplete: '3d 20h' },
+  ], [])
+
+  const workDrilldownData = useMemo(
+    () => seededShuffle(WORK_DRILL_POOL, selectedWorkBar != null ? (selectedWorkBar + 1) * 8831 : 1),
+    [selectedWorkBar, WORK_DRILL_POOL]
+  )
+
+  const paginatedWorkDrill = useMemo(() => {
+    const start = (workDrillPage - 1) * workDrillPageSize
+    return workDrilldownData.slice(start, start + workDrillPageSize)
+  }, [workDrilldownData, workDrillPage, workDrillPageSize])
+
   useEffect(() => {
     const root = document.documentElement
     root.classList.remove('light-std-low', 'dark-std-low')
@@ -175,6 +268,32 @@ export function ProductivityPage() {
     const totals = raw.map(d => d.smallPRs + d.mediumPRs + d.largePRs)
     const regression = linearRegression(totals)
     return raw.map((d, i) => ({ ...d, _gap: gap, _trend: regression[i] }))
+  }, [profile])
+
+  const CYCLE_COLORS = {
+    prCreation: 'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))',
+    timeToComment: 'var(--cn-comp-data-viz-02-purple, lch(58% 95 320))',
+    approvalTime: 'var(--cn-comp-data-viz-03-pink, lch(58% 70 350))',
+    mergeTime: 'var(--cn-comp-data-viz-04-green, lch(56% 78 125))',
+  }
+
+  const CYCLE_SERIES = [
+    { dataKey: 'prCreation', name: 'PR Creation', color: CYCLE_COLORS.prCreation },
+    { dataKey: 'timeToComment', name: 'First Comment', color: CYCLE_COLORS.timeToComment },
+    { dataKey: 'approvalTime', name: 'Approval', color: CYCLE_COLORS.approvalTime },
+    { dataKey: 'mergeTime', name: 'Merge', color: CYCLE_COLORS.mergeTime },
+  ]
+
+  const cycleData = useMemo(() => {
+    return profile.labels.map((name, i) => {
+      const prCreation = jitter(`cyc-create-${name}${i}`, Math.round(8 * profile.scale), 4)
+      const timeToComment = jitter(`cyc-comment-${name}${i}`, Math.round(20 * profile.scale), 8)
+      const approvalTime = jitter(`cyc-approve-${name}${i}`, Math.round(30 * profile.scale), 12)
+      const mergeTime = jitter(`cyc-merge-${name}${i}`, Math.round(6 * profile.scale), 3)
+      const maxTotal = prCreation + timeToComment + approvalTime + mergeTime
+      const gap = Math.max(1, Math.round(maxTotal * 0.012))
+      return { name, prCreation, timeToComment, approvalTime, mergeTime, _gap: gap }
+    })
   }, [profile])
 
   const PR_SERIES = [
@@ -261,54 +380,12 @@ export function ProductivityPage() {
 
           {/* Segmented bar chart */}
           <div className="p-5 pt-3">
-            <svg width="0" height="0">
-              <defs>
-                {PR_SERIES.map((s) => (
-                  <filter key={s.dataKey} id={`pr-shadow-${s.dataKey}`}>
-                    <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor={s.color} floodOpacity="0.25" />
-                  </filter>
-                ))}
-              </defs>
-            </svg>
-            <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={prVelocityData} margin={CHART_MARGIN}>
-                <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
-                <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
-                <YAxis tickFormatter={formatYAxis} tick={TICK_STYLE} axisLine={false} tickLine={false} width={48} />
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 13 }} />
-                <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
-                {PR_SERIES.map((s) => (
-                  <Bar
-                    key={s.dataKey}
-                    dataKey={s.dataKey}
-                    name={s.name}
-                    fill={s.color}
-                    stackId="pr"
-                    radius={[4, 4, 4, 4]}
-                    style={{ filter: `url(#pr-shadow-${s.dataKey})` }}
-                    animationDuration={150}
-                  />
-                )).flatMap((bar, i) =>
-                  i < PR_SERIES.length - 1
-                    ? [bar, <Bar key={`_gap_${i}`} dataKey="_gap" stackId="pr" fill="transparent" legendType="none" tooltipType="none" animationDuration={0} />]
-                    : [bar]
-                )}
-                {showTrendline && (
-                  <Line
-                    type="linear"
-                    dataKey="_trend"
-                    name="Trend"
-                    stroke="#0E1218"
-                    strokeWidth={2}
-                    strokeDasharray="6 3"
-                    dot={false}
-                    activeDot={false}
-                    animationDuration={300}
-                    legendType="line"
-                  />
-                )}
-              </ComposedChart>
-            </ResponsiveContainer>
+            <StackedBarChart
+              data={prVelocityData}
+              series={PR_SERIES}
+              height={300}
+              showTrendline={showTrendline}
+            />
           </div>
 
           {/* Drilldown table */}
@@ -464,7 +541,325 @@ export function ProductivityPage() {
                 currentPage={prDrillPage}
                 goToPage={setPrDrillPage}
                 onPageSizeChange={(size) => { setPrDrillPageSize(size); setPrDrillPage(1) }}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[5, 10, 20]}
+                className="!mt-cn-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* PR Cycle Time */}
+        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <div className="flex items-start justify-between p-5 pb-0">
+            <Text variant="body-strong" color="foreground-1">PR Cycle Time</Text>
+            <ExportMenu />
+          </div>
+
+          {/* Segmented bar chart */}
+          <div className="p-5 pt-3">
+            <StackedBarChart
+              data={cycleData}
+              series={CYCLE_SERIES}
+              height={300}
+              yAxisLabel="Hours"
+              onBarClick={handleCycleBarClick}
+              selectedIndex={selectedCycleBar}
+              showTrendline={showTrendline}
+            />
+          </div>
+
+          {/* Average cycle time horizontal bar */}
+          <div className="mx-5 mb-5 rounded-lg bg-cn-2 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Text variant="body-normal" color="foreground-1" className="font-semibold">3d 8h</Text>
+                <Text variant="body-normal" color="foreground-3">(Average)</Text>
+                <span className="text-xs text-[#10B981]">↘ 22.45%</span>
+              </div>
+              <Text variant="body-normal" color="foreground-3">127 Total PRs | Last 4 Weeks</Text>
+            </div>
+            <div className="flex w-full" style={{ gap: 3, height: 22 }}>
+              <div style={{ width: '60%', backgroundColor: CYCLE_COLORS.approvalTime, borderRadius: 4 }} className="transition-all" />
+              <div style={{ width: '15%', backgroundColor: '#F97066', borderRadius: 4 }} className="transition-all" />
+              <div style={{ width: '15%', backgroundColor: CYCLE_COLORS.prCreation, borderRadius: 4 }} className="transition-all" />
+              <div style={{ width: '10%', backgroundColor: CYCLE_COLORS.timeToComment, borderRadius: 4 }} className="transition-all" />
+            </div>
+          </div>
+
+          {/* Cycle time drilldown table */}
+          <div className="px-5 pb-5 pt-2">
+            <div className="flex items-center pb-2">
+              <Text variant="body-strong" color="foreground-1">Drill-down</Text>
+              {selectedCycleBar != null && (
+                <div className="ml-auto">
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedCycleBar(null)}>
+                    <IconV2 name="xmark" size="sm" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="overflow-x-auto">
+              <Table.Root variant="default" size="normal">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head>PR ID</Table.Head>
+                    <Table.Head>Title</Table.Head>
+                    <Table.Head>Author</Table.Head>
+                    <Table.Head>Repository</Table.Head>
+                    <Table.Head>First Commit Created At</Table.Head>
+                    <Table.Head>Created At</Table.Head>
+                    <Table.Head>Merged At</Table.Head>
+                    <Table.Head>Cycle Time</Table.Head>
+                    <Table.Head>Reviewers</Table.Head>
+                    <Table.Head>Code Changes</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {paginatedCycleDrill.map((row) => {
+                    const addPct = row.totalLines > 0 ? (row.additions / row.totalLines) * 100 : 50
+                    const delPct = 100 - addPct
+                    return (
+                    <Table.Row key={row.prId}>
+                      <Table.Cell>
+                        <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.prId}</span>
+                      </Table.Cell>
+                      <Table.Cell className="max-w-[180px]">
+                        <Text variant="body-normal" color="foreground-1" className="truncate">{row.title}</Text>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <div className="flex items-center gap-2">
+                          <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-xs font-medium text-[#006DEA]" style={{ width: 28, height: 28, borderRadius: '50%' }}>
+                            {row.author.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </div>
+                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.author}</Text>
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.repository}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.firstCommitAt}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.createdAt}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <Text variant="body-normal" color="foreground-3">{row.mergedAt}</Text>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">
+                        <div className="flex flex-col">
+                          <Text variant="body-normal" color="foreground-1">{row.cycleTime}</Text>
+                          <Text variant="caption-normal" color="foreground-4">First Review: {row.firstReview}</Text>
+                          <Text variant="caption-normal" color="foreground-4">Approval: {row.approval}</Text>
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <div className="flex items-center gap-2">
+                          <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-xs font-medium text-[#006DEA]" style={{ width: 24, height: 24, borderRadius: '50%' }}>
+                            {row.reviewer.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </div>
+                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.reviewer}</Text>
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell style={{ minWidth: 160 }}>
+                        <div className="flex flex-col gap-1">
+                          <Text variant="caption-normal" color="foreground-3">{row.totalLines.toLocaleString()} Total lines</Text>
+                          <div className="flex h-2 w-full" style={{ gap: 3 }}>
+                            <div style={{ width: `${addPct}%`, backgroundColor: '#10B981', borderRadius: 4 }} />
+                            <div style={{ width: `${delPct}%`, backgroundColor: '#EF4444', borderRadius: 4 }} />
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
+                              <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: '#10B981' }} />
+                              <Text variant="caption-normal" color="foreground-3">+{row.additions.toLocaleString()} ({Math.round(addPct)}%)</Text>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: '#EF4444' }} />
+                              <Text variant="caption-normal" color="foreground-3">-{row.deletions.toLocaleString()} ({Math.round(delPct)}%)</Text>
+                            </div>
+                          </div>
+                        </div>
+                      </Table.Cell>
+                    </Table.Row>
+                    )
+                  })}
+                </Table.Body>
+              </Table.Root>
+            </div>
+            <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
+              <Pagination
+                totalItems={cycleDrilldownData.length}
+                pageSize={cycleDrillPageSize}
+                currentPage={cycleDrillPage}
+                goToPage={setCycleDrillPage}
+                onPageSizeChange={(size) => { setCycleDrillPageSize(size); setCycleDrillPage(1) }}
+                pageSizeOptions={[5, 10, 20]}
+                className="!mt-cn-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Work Completed Per Dev */}
+        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <div className="flex items-start justify-between p-5 pb-0">
+            <Text variant="body-strong" color="foreground-1">Work Completed Per Dev</Text>
+            <div className="flex items-center gap-2">
+              <Select
+                value={workTypeFilter}
+                options={[
+                  { label: 'All', value: 'all' },
+                  { label: 'Features', value: 'features' },
+                  { label: 'Bugs', value: 'bugs' },
+                  { label: 'Others', value: 'others' },
+                ]}
+                onChange={(val) => setWorkTypeFilter(val)}
+              />
+              <ExportMenu />
+            </div>
+          </div>
+
+          <div className="mx-5 mt-3 w-1/5">
+            <InsightMetricCard
+              label="Tickets"
+              value="5.18"
+              subtitle="per week"
+              trend="↑ 21.6%"
+            />
+          </div>
+
+          <div className="p-5 pt-3">
+            <StackedBarChart
+              data={workCompletedData}
+              series={WORK_SERIES}
+              height={300}
+              onBarClick={handleWorkBarClick}
+              selectedIndex={selectedWorkBar}
+              showTrendline={showTrendline}
+            />
+          </div>
+
+          {/* Drilldown table */}
+          <div className="px-5 pb-5 pt-2">
+            <div className="flex items-center pb-2">
+              <Text variant="body-strong" color="foreground-1">Drill-down</Text>
+              {selectedWorkBar != null && (
+                <div className="ml-auto">
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedWorkBar(null)}>
+                    <IconV2 name="xmark" size="sm" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="overflow-x-auto">
+              <Table.Root variant="default" size="normal">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head>Name</Table.Head>
+                    <Table.Head className="text-right">Completed</Table.Head>
+                    <Table.Head>Work Types</Table.Head>
+                    <Table.Head>Average Time to Complete</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {paginatedWorkDrill.map((row) => (<>
+                    <Table.Row key={row.name} className="cursor-pointer" onClick={() => toggleWorkRow(row.name)}>
+                      <Table.Cell>
+                        <div className="flex items-center gap-2">
+                          <IconV2 name={expandedWorkRows.has(row.name) ? 'nav-arrow-down' : 'nav-arrow-right'} size="xs" className="text-foreground-4" />
+                          <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-xs font-medium text-[#006DEA]" style={{ width: 28, height: 28, borderRadius: '50%' }}>
+                            {row.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </div>
+                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.name}</Text>
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell className="text-right">
+                        <span className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.completed}</span>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Bug</Text><CounterBadge variant="outline" theme="danger">{row.workTypes.bug}</CounterBadge></div>
+                          <div className="group/tip relative flex items-center gap-1">
+                            <Text variant="caption-normal" color="foreground-3">Story</Text><CounterBadge variant="outline" theme="info">{row.workTypes.story + row.workTypes.task}</CounterBadge>
+                            <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-borders-2 bg-cn-0 px-3 py-1.5 text-xs text-foreground-2 opacity-0 shadow-lg transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                              New features and enhancements
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Other</Text><CounterBadge variant="outline" theme="default">{row.workTypes.other}</CounterBadge></div>
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell className="whitespace-nowrap">{row.avgTimeToComplete}</Table.Cell>
+                    </Table.Row>
+                    {expandedWorkRows.has(row.name) && (
+                      <Table.Row>
+                        <Table.Cell colSpan={4} className="!p-0">
+                          <div className="bg-cn-2 px-8 py-3">
+                            <Table.Root variant="default" size="normal">
+                              <Table.Header>
+                                <Table.Row>
+                                  <Table.Head>Work ID</Table.Head>
+                                  <Table.Head>Work Type</Table.Head>
+                                  <Table.Head>Status</Table.Head>
+                                  <Table.Head>Created</Table.Head>
+                                  <Table.Head>Closed</Table.Head>
+                                  <Table.Head>Time to Complete</Table.Head>
+                                </Table.Row>
+                              </Table.Header>
+                              <Table.Body>
+                                {Array.from({ length: Math.min(5, row.completed) }, (_, k) => {
+                                  const wNum = Math.abs(jitter(`${row.name}-wid-${k}`, 28000, 5000))
+                                  const types = ['Story', 'Bug', 'Story', 'Story', 'Bug']
+                                  const statuses = ['Done', 'Done', 'Done', 'Won\'t Do', 'Done']
+                                  const tIdx = Math.abs(jitter(`${row.name}-wt-${k}`, 0, 100)) % types.length
+                                  const sIdx = Math.abs(jitter(`${row.name}-ws-${k}`, 0, 100)) % statuses.length
+                                  const createdDay = Math.min(28, Math.max(1, Math.abs(jitter(`${row.name}-wcd-${k}`, 10, 8))))
+                                  const closedDay = Math.min(28, Math.max(createdDay + 1, createdDay + Math.abs(jitter(`${row.name}-wcl-${k}`, 8, 6))))
+                                  const ttc = Math.max(1, Math.abs(jitter(`${row.name}-ttc-${k}`, 5, 4)))
+                                  const ttcH = Math.abs(jitter(`${row.name}-ttch-${k}`, 12, 10))
+                                  return (
+                                    <Table.Row key={k}>
+                                      <Table.Cell>
+                                        <div className="flex flex-col">
+                                          <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>CCM-{wNum}</span>
+                                          <Text variant="caption-normal" color="foreground-3" className="truncate" style={{ maxWidth: 200 }}>
+                                            {['fix: resolve query timeout in dashboard loader', 'feat: add bulk export endpoint for reports', 'chore: update third-party dependencies', 'fix: handle null pointer in cost calculator', 'feat: implement filter for perspectives'][k % 5]}
+                                          </Text>
+                                        </div>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <CounterBadge variant="outline" theme={types[tIdx] === 'Bug' ? 'danger' : 'info'}>{types[tIdx]}</CounterBadge>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <CounterBadge variant="outline" theme="default">{statuses[sIdx]}</CounterBadge>
+                                      </Table.Cell>
+                                      <Table.Cell className="whitespace-nowrap">
+                                        <Text variant="body-normal" color="foreground-3">2025-12-{String(createdDay).padStart(2, '0')}</Text>
+                                      </Table.Cell>
+                                      <Table.Cell className="whitespace-nowrap">
+                                        <Text variant="body-normal" color="foreground-3">2026-01-{String(Math.min(closedDay, 28)).padStart(2, '0')}</Text>
+                                      </Table.Cell>
+                                      <Table.Cell className="whitespace-nowrap">{ttc}d {ttcH}h</Table.Cell>
+                                    </Table.Row>
+                                  )
+                                })}
+                              </Table.Body>
+                            </Table.Root>
+                          </div>
+                        </Table.Cell>
+                      </Table.Row>
+                    )}
+                  </>))}
+                </Table.Body>
+              </Table.Root>
+            </div>
+            <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
+              <Pagination
+                totalItems={workDrilldownData.length}
+                pageSize={workDrillPageSize}
+                currentPage={workDrillPage}
+                goToPage={setWorkDrillPage}
+                onPageSizeChange={(size) => { setWorkDrillPageSize(size); setWorkDrillPage(1) }}
+                pageSizeOptions={[5, 10, 20]}
                 className="!mt-cn-sm"
               />
             </div>

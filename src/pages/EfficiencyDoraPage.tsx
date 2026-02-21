@@ -12,10 +12,11 @@ import {
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
+import { StackedBarChart } from '../components/Charts'
 import {
   ResponsiveContainer,
   Bar, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip,
   Line, ComposedChart,
 } from 'recharts'
 
@@ -45,10 +46,7 @@ const TICK_STYLE = { fontSize: 12, fill: '#6B7280' }
 const AXIS_LINE = { stroke: '#E5E7EB' }
 const GRID_STROKE = 'var(--cn-border-2, #E5E7EB)'
 const TOOLTIP_STYLE = { borderRadius: 8, fontSize: 13 }
-const LEGEND_STYLE = { fontSize: 13, paddingTop: 12, fontFamily: "'JetBrains Mono', monospace" }
 const CHART_MARGIN = { top: 8, right: 16, left: 0, bottom: 0 }
-
-const legendFormatter = (value: string) => <span style={{ color: '#4B5563' }}>{value}</span>
 const formatYAxis = (value: number) => {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(0)}M`
   if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`
@@ -305,18 +303,18 @@ export function EfficiencyDoraPage() {
   const [timeRange, setTimeRange] = useState('6M')
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [drillPage, setDrillPage] = useState(1)
-  const [drillPageSize, setDrillPageSize] = useState(10)
+  const [drillPageSize, setDrillPageSize] = useState(5)
   const [showTrendline, setShowTrendline] = useState(false)
   const [aggregation, setAggregation] = useState('mean')
   const [selectedStage, setSelectedStage] = useState<number | null>(null)
   const [stagedrillPage, setStagedrillPage] = useState(1)
-  const [stagedrillPageSize, setStagedrillPageSize] = useState(10)
+  const [stagedrillPageSize, setStagedrillPageSize] = useState(5)
   const [selectedCfrBar, setSelectedCfrBar] = useState<number | null>(null)
   const [cfrDrillPage, setCfrDrillPage] = useState(1)
-  const [cfrDrillPageSize, setCfrDrillPageSize] = useState(10)
+  const [cfrDrillPageSize, setCfrDrillPageSize] = useState(5)
   const [selectedMttrBar, setSelectedMttrBar] = useState<number | null>(null)
   const [mttrDrillPage, setMttrDrillPage] = useState(1)
-  const [mttrDrillPageSize, setMttrDrillPageSize] = useState(10)
+  const [mttrDrillPageSize, setMttrDrillPageSize] = useState(5)
   const [expandedPrRows, setExpandedPrRows] = useState<Set<string>>(new Set())
   const [expandedCommitRows, setExpandedCommitRows] = useState<Set<string>>(new Set())
 
@@ -341,12 +339,6 @@ export function EfficiencyDoraPage() {
     return leadTimeRaw.map(d => ({ ...d, _gap: gap }))
   }, [leadTimeRaw])
 
-  // Trendline: linear regression of total hours per period
-  const trendlineData = useMemo(() => {
-    const totals = leadTimeData.map(d => d.planning + d.coding + d.review + d.build + d.deploy - d._gap * 4)
-    const regression = linearRegression(totals)
-    return leadTimeData.map((d, i) => ({ ...d, _trend: regression[i] }))
-  }, [leadTimeData])
 
   // ── Top-level DORA metrics (static from design) ──
   const doraMetrics = {
@@ -711,61 +703,13 @@ export function EfficiencyDoraPage() {
 
           {/* Segmented stacked bar chart */}
           <div className="p-5 pt-3">
-            <svg width="0" height="0">
-              <defs>
-                {STAGE_SERIES.map((s) => (
-                  <filter key={s.dataKey} id={`lead-shadow-${s.dataKey}`}>
-                    <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor={s.color} floodOpacity="0.25" />
-                  </filter>
-                ))}
-              </defs>
-            </svg>
-            <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={showTrendline ? trendlineData : leadTimeData} margin={CHART_MARGIN}>
-                <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
-                <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
-                <YAxis
-                  tickFormatter={formatYAxis}
-                  tick={TICK_STYLE}
-                  axisLine={false}
-                  tickLine={false}
-                  width={48}
-                  label={{ value: 'Hours', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#6B7280' } }}
-                />
-                <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
-                {STAGE_SERIES.map((s) => (
-                  <Bar
-                    key={s.dataKey}
-                    dataKey={s.dataKey}
-                    name={s.name}
-                    fill={s.color}
-                    stackId="lead"
-                    radius={[4, 4, 4, 4]}
-                    style={{ filter: `url(#lead-shadow-${s.dataKey})` }}
-                    animationDuration={150}
-                  />
-                )).flatMap((bar, i) =>
-                  i < STAGE_SERIES.length - 1
-                    ? [bar, <Bar key={`_gap_${i}`} dataKey="_gap" stackId="lead" fill="transparent" legendType="none" tooltipType="none" animationDuration={0} />]
-                    : [bar]
-                )}
-                {showTrendline && (
-                  <Line
-                    type="linear"
-                    dataKey="_trend"
-                    name="Trend"
-                    stroke="#0E1218"
-                    strokeWidth={2}
-                    strokeDasharray="6 3"
-                    dot={false}
-                    activeDot={false}
-                    animationDuration={300}
-                    legendType="line"
-                  />
-                )}
-              </ComposedChart>
-            </ResponsiveContainer>
+            <StackedBarChart
+              data={leadTimeData}
+              series={STAGE_SERIES}
+              height={300}
+              yAxisLabel="Hours"
+              showTrendline={showTrendline}
+            />
           </div>
 
           {/* Average lead time horizontal bar */}
@@ -1070,7 +1014,7 @@ export function EfficiencyDoraPage() {
                   currentPage={stagedrillPage}
                   goToPage={setStagedrillPage}
                   onPageSizeChange={(size) => { setStagedrillPageSize(size); setStagedrillPage(1) }}
-                  pageSizeOptions={[10, 20, 50]}
+                  pageSizeOptions={[5, 10, 20]}
                   className="!mt-cn-sm"
                 />
               </div>
@@ -1227,7 +1171,7 @@ export function EfficiencyDoraPage() {
                 currentPage={drillPage}
                 goToPage={setDrillPage}
                 onPageSizeChange={(size) => { setDrillPageSize(size); setDrillPage(1) }}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[5, 10, 20]}
                 className="!mt-cn-sm"
               />
             </div>
@@ -1376,7 +1320,7 @@ export function EfficiencyDoraPage() {
                 currentPage={cfrDrillPage}
                 goToPage={setCfrDrillPage}
                 onPageSizeChange={(size) => { setCfrDrillPageSize(size); setCfrDrillPage(1) }}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[5, 10, 20]}
                 className="!mt-cn-sm"
               />
             </div>
@@ -1534,7 +1478,7 @@ export function EfficiencyDoraPage() {
                 currentPage={mttrDrillPage}
                 goToPage={setMttrDrillPage}
                 onPageSizeChange={(size) => { setMttrDrillPageSize(size); setMttrDrillPage(1) }}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[5, 10, 20]}
                 className="!mt-cn-sm"
               />
             </div>

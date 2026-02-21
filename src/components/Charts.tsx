@@ -2,6 +2,7 @@ import {
   ResponsiveContainer,
   LineChart, Line,
   BarChart, Bar,
+  ComposedChart,
   PieChart, Pie, Cell,
   ScatterChart, Scatter,
   AreaChart, Area,
@@ -295,16 +296,35 @@ export interface StackedBarChartProps {
   series: StackedBarSeries[]
   height?: number
   yAxisFormatter?: (value: number) => string
+  yAxisLabel?: string
   onBarClick?: (index: number) => void
   selectedIndex?: number | null
+  showTrendline?: boolean
 }
 
-export function StackedBarChart({ data, series, height = 420, yAxisFormatter, onBarClick, selectedIndex }: StackedBarChartProps) {
+function linearRegression(values: number[]): number[] {
+  const n = values.length
+  if (n === 0) return []
+  const xMean = (n - 1) / 2
+  const yMean = values.reduce((a, b) => a + b, 0) / n
+  let num = 0, den = 0
+  for (let i = 0; i < n; i++) {
+    num += (i - xMean) * (values[i] - yMean)
+    den += (i - xMean) * (i - xMean)
+  }
+  const slope = den !== 0 ? num / den : 0
+  const intercept = yMean - slope * xMean
+  return values.map((_, i) => Math.round((slope * i + intercept) * 100) / 100)
+}
+
+export function StackedBarChart({ data, series, height = 420, yAxisFormatter, yAxisLabel, onBarClick, selectedIndex, showTrendline }: StackedBarChartProps) {
   const maxTotal = Math.max(...data.map(d =>
     series.reduce((sum, s) => sum + (Number(d[s.dataKey]) || 0), 0)
   ))
   const gap = Math.round(maxTotal * 0.015) || 1
-  const gappedData = data.map(d => ({ ...d, _gap: gap }))
+  const totals = data.map(d => series.reduce((sum, s) => sum + (Number(d[s.dataKey]) || 0), 0))
+  const regression = linearRegression(totals)
+  const gappedData = data.map((d, i) => ({ ...d, _gap: gap, _trend: regression[i] }))
   const clickable = !!onBarClick
 
   return (
@@ -319,7 +339,7 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter, on
         </defs>
       </svg>
       <ResponsiveContainer width="100%" height={height}>
-        <BarChart
+        <ComposedChart
           data={gappedData}
           margin={CHART_MARGIN}
           onClick={clickable ? (state: Record<string, unknown>) => {
@@ -341,6 +361,7 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter, on
             axisLine={false}
             tickLine={false}
             width={48}
+            label={yAxisLabel ? { value: yAxisLabel, angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#6B7280' } } : undefined}
           />
           <Tooltip contentStyle={TOOLTIP_STYLE} cursor={clickable ? { fill: 'rgba(0, 0, 0, 0.06)' } : { fill: 'rgba(0, 0, 0, 0.03)' }} />
           <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
@@ -366,7 +387,21 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter, on
               ? [bar, <Bar key={`_gap_${i}`} dataKey="_gap" stackId="a" fill="transparent" legendType="none" tooltipType="none" animationDuration={0} />]
               : [bar]
           )}
-        </BarChart>
+          {showTrendline && (
+            <Line
+              type="linear"
+              dataKey="_trend"
+              name="Trend"
+              stroke="#0E1218"
+              strokeWidth={2}
+              strokeDasharray="6 3"
+              dot={false}
+              activeDot={false}
+              animationDuration={300}
+              legendType="line"
+            />
+          )}
+        </ComposedChart>
       </ResponsiveContainer>
     </>
   )

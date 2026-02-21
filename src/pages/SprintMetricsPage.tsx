@@ -41,7 +41,7 @@ export function SprintMetricsPage() {
   const [timeRange, setTimeRange] = useState('6M')
   const [selectedSprintBar, setSelectedSprintBar] = useState<number | null>(null)
   const [sprintDrillPage, setSprintDrillPage] = useState(1)
-  const [sprintDrillPageSize, setSprintDrillPageSize] = useState(10)
+  const [sprintDrillPageSize, setSprintDrillPageSize] = useState(5)
   const [showTrendline, setShowTrendline] = useState(false)
   const [viewBy, setViewBy] = useState('story-points')
   const [grouped, setGrouped] = useState(false)
@@ -569,7 +569,7 @@ export function SprintMetricsPage() {
                 currentPage={sprintDrillPage}
                 goToPage={setSprintDrillPage}
                 onPageSizeChange={(size) => { setSprintDrillPageSize(size); setSprintDrillPage(1) }}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[5, 10, 20]}
                 className="!mt-cn-sm"
               />
             </div>

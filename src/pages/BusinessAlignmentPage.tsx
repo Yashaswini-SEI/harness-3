@@ -178,7 +178,7 @@ export function BusinessAlignmentPage() {
   const [metricType, setMetricType] = useState('ticket-count')
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [drillPage, setDrillPage] = useState(1)
-  const [drillPageSize, setDrillPageSize] = useState(10)
+  const [drillPageSize, setDrillPageSize] = useState(5)
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['12M']
 
@@ -443,7 +443,7 @@ export function BusinessAlignmentPage() {
                   currentPage={drillPage}
                   goToPage={setDrillPage}
                   onPageSizeChange={(size) => { setDrillPageSize(size); setDrillPage(1) }}
-                  pageSizeOptions={[10, 20, 50]}
+                  pageSizeOptions={[5, 10, 20]}
                   className="!mt-cn-sm"
                 />
               </div>
