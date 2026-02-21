@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   IconV2,
   Pagination,
+  CounterBadge,
 } from '@harnessio/ui/components'
 import {
   ResponsiveContainer,
@@ -99,6 +100,35 @@ export function ProductivityPage() {
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
   const [expandedDevRows, setExpandedDevRows] = useState<Set<string>>(new Set())
+
+  const WORK_TYPES = ['Story', 'Bug', 'Task', 'Story', 'Story', 'Bug', 'Task', 'Story']
+  const STATUSES = ['Merged', 'Merged', 'Open', 'Merged', 'Merged']
+
+  function generatePrSubtable(devName: string, prCount: number) {
+    const rows = []
+    for (let p = 0; p < prCount; p++) {
+      const prNum = Math.abs(jitter(`${devName}-prid-${p}`, 4500, 3000))
+      const workNum = Math.abs(jitter(`${devName}-wid-${p}`, 28000, 5000))
+      const wtIdx = Math.abs(jitter(`${devName}-wt-${p}`, 0, 100)) % WORK_TYPES.length
+      const stIdx = Math.abs(jitter(`${devName}-st-${p}`, 0, 100)) % STATUSES.length
+      const createdDay = Math.min(28, Math.max(1, Math.abs(jitter(`${devName}-cd-${p}`, 15, 12))))
+      const mergedDay = Math.min(28, Math.max(createdDay + 1, createdDay + Math.abs(jitter(`${devName}-md-${p}`, 5, 4))))
+      const additions = Math.max(1, Math.abs(jitter(`${devName}-add-${p}`, 80, 75)))
+      const deletions = Math.max(0, Math.abs(jitter(`${devName}-del-${p}`, 25, 22)))
+      rows.push({
+        prId: `PR-${prNum}`,
+        workId: `CCM-${workNum}`,
+        workType: WORK_TYPES[wtIdx],
+        status: STATUSES[stIdx],
+        prCreated: `2026-01-${String(createdDay).padStart(2, '0')} ${String(8 + (p % 10)).padStart(2, '0')}:${String(Math.abs(jitter(`${devName}-cm-${p}`, 30, 28))).padStart(2, '0')}`,
+        prMerged: STATUSES[stIdx] === 'Open' ? '' : `2026-01-${String(Math.min(mergedDay, 28)).padStart(2, '0')} ${String(10 + (p % 8)).padStart(2, '0')}:${String(Math.abs(jitter(`${devName}-mm-${p}`, 30, 28))).padStart(2, '0')}`,
+        additions,
+        deletions,
+        totalLines: additions + deletions,
+      })
+    }
+    return rows
+  }
   const toggleDevRow = (name: string) => {
     setExpandedDevRows(prev => {
       const next = new Set(prev)
@@ -316,17 +346,17 @@ export function ProductivityPage() {
                       <Table.Cell className="text-right">{row.prs}</Table.Cell>
                       <Table.Cell>
                         <div className="flex items-center gap-2">
-                          {row.workTypes.bug > 0 && <span className="rounded bg-[#FEF3F2] px-1.5 py-0.5 text-xs text-[#B42318]">Bug {row.workTypes.bug}</span>}
-                          {row.workTypes.story > 0 && <span className="rounded bg-[#EFF8FF] px-1.5 py-0.5 text-xs text-[#175CD3]">Story {row.workTypes.story}</span>}
-                          {row.workTypes.task > 0 && <span className="rounded bg-[#F9F5FF] px-1.5 py-0.5 text-xs text-[#6941C6]">Task {row.workTypes.task}</span>}
-                          {row.workTypes.other > 0 && <span className="rounded bg-[#F2F4F7] px-1.5 py-0.5 text-xs text-foreground-3">Other {row.workTypes.other}</span>}
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Bug</Text><CounterBadge variant="outline" theme="danger">{row.workTypes.bug}</CounterBadge></div>
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Story</Text><CounterBadge variant="outline" theme="info">{row.workTypes.story}</CounterBadge></div>
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Task</Text><CounterBadge variant="outline" theme="success">{row.workTypes.task}</CounterBadge></div>
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Other</Text><CounterBadge variant="outline" theme="default">{row.workTypes.other}</CounterBadge></div>
                         </div>
                       </Table.Cell>
                       <Table.Cell>
                         <div className="flex items-center gap-2">
-                          {row.prSizes.small > 0 && <span className="rounded bg-[#ECFDF3] px-1.5 py-0.5 text-xs text-[#027A48]">S {row.prSizes.small}</span>}
-                          {row.prSizes.medium > 0 && <span className="rounded bg-[#FFFAEB] px-1.5 py-0.5 text-xs text-[#B54708]">M {row.prSizes.medium}</span>}
-                          {row.prSizes.large > 0 && <span className="rounded bg-[#FEF3F2] px-1.5 py-0.5 text-xs text-[#B42318]">L {row.prSizes.large}</span>}
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Small</Text><CounterBadge variant="outline" theme="default">{row.prSizes.small}</CounterBadge></div>
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Medium</Text><CounterBadge variant="outline" theme="default">{row.prSizes.medium}</CounterBadge></div>
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Large</Text><CounterBadge variant="outline" theme="default">{row.prSizes.large}</CounterBadge></div>
                         </div>
                       </Table.Cell>
                       <Table.Cell className="whitespace-nowrap">{row.avgTimeToMerge}</Table.Cell>
@@ -354,7 +384,70 @@ export function ProductivityPage() {
                       <Table.Row>
                         <Table.Cell colSpan={6} className="!p-0">
                           <div className="bg-cn-2 px-8 py-3">
-                            <Text variant="caption-normal" color="foreground-3">PR details for {row.name} — subtable coming soon</Text>
+                            <Table.Root variant="default" size="normal">
+                              <Table.Header>
+                                <Table.Row>
+                                  <Table.Head>PR ID</Table.Head>
+                                  <Table.Head>Work ID</Table.Head>
+                                  <Table.Head>Work Type</Table.Head>
+                                  <Table.Head>Status</Table.Head>
+                                  <Table.Head>PR Created</Table.Head>
+                                  <Table.Head>PR Merged</Table.Head>
+                                  <Table.Head>Code Changes</Table.Head>
+                                </Table.Row>
+                              </Table.Header>
+                              <Table.Body>
+                                {generatePrSubtable(row.name, row.prs).map((pr) => {
+                                  const addPctSub = pr.totalLines > 0 ? (pr.additions / pr.totalLines) * 100 : 50
+                                  const delPctSub = 100 - addPctSub
+                                  return (
+                                    <Table.Row key={pr.prId}>
+                                      <Table.Cell>
+                                        <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{pr.prId}</span>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{pr.workId}</span>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <CounterBadge variant="outline" theme={pr.workType === 'Bug' ? 'danger' : pr.workType === 'Task' ? 'success' : 'info'}>{pr.workType}</CounterBadge>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <CounterBadge variant="outline" theme="default">{pr.status}</CounterBadge>
+                                      </Table.Cell>
+                                      <Table.Cell className="whitespace-nowrap">
+                                        <Text variant="body-normal" color="foreground-3">{pr.prCreated}</Text>
+                                      </Table.Cell>
+                                      <Table.Cell className="whitespace-nowrap">
+                                        {pr.prMerged ? (
+                                          <Text variant="body-normal" color="foreground-3">{pr.prMerged}</Text>
+                                        ) : (
+                                          <Text variant="body-normal" color="foreground-4">—</Text>
+                                        )}
+                                      </Table.Cell>
+                                      <Table.Cell style={{ minWidth: 140 }}>
+                                        <div className="flex flex-col gap-1">
+                                          <Text variant="caption-normal" color="foreground-3">{pr.totalLines} lines</Text>
+                                          <div className="flex h-2 w-full" style={{ gap: 3 }}>
+                                            <div style={{ width: `${addPctSub}%`, backgroundColor: '#10B981', borderRadius: 4 }} />
+                                            <div style={{ width: `${delPctSub}%`, backgroundColor: '#EF4444', borderRadius: 4 }} />
+                                          </div>
+                                          <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-1">
+                                              <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: '#10B981' }} />
+                                              <Text variant="caption-normal" color="foreground-3">+{pr.additions}</Text>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                              <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: '#EF4444' }} />
+                                              <Text variant="caption-normal" color="foreground-3">-{pr.deletions}</Text>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </Table.Cell>
+                                    </Table.Row>
+                                  )
+                                })}
+                              </Table.Body>
+                            </Table.Root>
                           </div>
                         </Table.Cell>
                       </Table.Row>
