@@ -138,11 +138,32 @@ function ProfileLink({ value }: { value: string | null }) {
   )
 }
 
+const AVATAR_PALETTES = [
+  { bg: '#EFF4FF', text: '#3366CC' },
+  { bg: '#F0FDF4', text: '#2D8A4E' },
+  { bg: '#FFF7ED', text: '#C2590A' },
+  { bg: '#FDF2F8', text: '#BE185D' },
+  { bg: '#F5F3FF', text: '#7C3AED' },
+  { bg: '#ECFEFF', text: '#0E7490' },
+  { bg: '#FEF9EC', text: '#A16207' },
+  { bg: '#FFF1F2', text: '#BE123C' },
+]
+
+function avatarColor(name: string) {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0
+  return AVATAR_PALETTES[((hash >>> 0) % AVATAR_PALETTES.length)]
+}
+
 function UserCell({ user }: { user: { name: string; initials: string } }) {
+  const palette = avatarColor(user.name)
   return (
     <div className="flex items-center gap-2">
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-cn-full bg-[#42AB45]">
-        <span className="text-[10px] font-semibold text-white">{user.initials}</span>
+      <div
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-cn-full"
+        style={{ backgroundColor: palette.bg }}
+      >
+        <span className="text-[10px] font-semibold" style={{ color: palette.text }}>{user.initials}</span>
       </div>
       <Text variant="body-normal" color="foreground-3" truncate>{user.name}</Text>
     </div>
@@ -285,7 +306,7 @@ export function OrgTreePage() {
             {pagedData.map((row) => (
               <Table.Row key={row.name}>
                 <Table.Cell>
-                  <Text variant="body-normal" color="foreground-1">{row.name}</Text>
+                  <button className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.name}</button>
                 </Table.Cell>
                 <Table.Cell>
                   <Text variant="body-normal" color="foreground-3">{row.teams}</Text>
