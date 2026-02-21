@@ -7,6 +7,7 @@ import {
   TextInput,
   Textarea,
   Select,
+  Switch,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
@@ -133,20 +134,6 @@ const defaultStages: WorkflowStage[] = [
   },
 ]
 
-function Toggle({ enabled, onChange }: { enabled: boolean; onChange: () => void }) {
-  return (
-    <button
-      className="flex h-5 w-9 items-center rounded-full px-0.5 transition-colors"
-      style={{ backgroundColor: enabled ? '#006DEA' : '#D0D5DD' }}
-      onClick={onChange}
-    >
-      <div
-        className="h-4 w-4 rounded-full bg-white shadow transition-transform"
-        style={{ transform: enabled ? 'translateX(14px)' : 'translateX(0)' }}
-      />
-    </button>
-  )
-}
 
 export function EfficiencyProfilePage() {
   const [dark, setDark] = useState(() =>
@@ -283,11 +270,11 @@ export function EfficiencyProfilePage() {
             </div>
 
             {/* Main content */}
-            <div className="flex-1 space-y-8">
+            <div className="flex-1 space-y-6">
               {/* Header */}
-              <div>
+              <div className="rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1">
                 <div className="flex items-center gap-3">
-                  <Toggle enabled onChange={() => {}} />
+                  <Switch checked onCheckedChange={() => {}} />
                   <Text variant="heading-subsection" color="foreground-1">Lead time for changes</Text>
                 </div>
                 <Text variant="body-normal" color="foreground-3" className="mt-2">
@@ -296,97 +283,92 @@ export function EfficiencyProfilePage() {
               </div>
 
               {/* Configure workflow stages */}
-              <div className="space-y-6">
-                <Text variant="body-strong" color="foreground-1">Configure workflow stages</Text>
+              <Text variant="body-strong" color="foreground-1">Configure workflow stages</Text>
 
-                {stages.map((stage, idx) => (
-                  <div key={stage.name} className="space-y-4">
-                    {/* Stage header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Text variant="body-strong" color="foreground-1">{stage.name}</Text>
-                        <IconV2 name="edit" size="xs" className="text-foreground-4" />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Toggle
-                          enabled={stage.enabled}
-                          onChange={() => {
-                            const next = [...stages]
-                            next[idx] = { ...stage, enabled: !stage.enabled }
-                            setStages(next)
-                          }}
-                        />
-                        <Text variant="body-normal" color="foreground-1">Enabled</Text>
-                      </div>
+              {stages.map((stage, idx) => (
+                <div key={stage.name} className="rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1 space-y-4">
+                  {/* Stage header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Text variant="body-strong" color="foreground-1">{stage.name}</Text>
+                      <IconV2 name="edit" size="xs" className="text-foreground-4" />
                     </div>
-
-                    {/* Stage description */}
-                    <Text variant="body-normal" color="foreground-3">{stage.description}</Text>
-
-                    {/* Dropdowns row 1 */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1.5">
-                        <Text variant="caption-normal" color="foreground-3">{stage.startEventLabel}</Text>
-                        <Select
-                          value={stage.startEventValue}
-                          options={stage.startEventOptions}
-                          onChange={(val) => {
-                            const next = [...stages]
-                            next[idx] = { ...stage, startEventValue: val }
-                            setStages(next)
-                          }}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <Text variant="caption-normal" color="foreground-3">{stage.startStatusLabel}</Text>
-                        <Select
-                          value={stage.startStatusValue}
-                          options={stage.startStatusOptions}
-                          onChange={(val) => {
-                            const next = [...stages]
-                            next[idx] = { ...stage, startStatusValue: val }
-                            setStages(next)
-                          }}
-                        />
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={stage.enabled}
+                        onCheckedChange={() => {
+                          const next = [...stages]
+                          next[idx] = { ...stage, enabled: !stage.enabled }
+                          setStages(next)
+                        }}
+                      />
+                      <Text variant="body-normal" color="foreground-1">Enabled</Text>
                     </div>
-
-                    {/* Dropdowns row 2 */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1.5">
-                        <Text variant="caption-normal" color="foreground-3">{stage.endEventLabel}</Text>
-                        <Select
-                          value={stage.endEventValue}
-                          options={stage.endEventOptions}
-                          onChange={(val) => {
-                            const next = [...stages]
-                            next[idx] = { ...stage, endEventValue: val }
-                            setStages(next)
-                          }}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <Text variant="caption-normal" color="foreground-3">{stage.endStatusLabel}</Text>
-                        <Select
-                          value={stage.endStatusValue}
-                          options={stage.endStatusOptions}
-                          onChange={(val) => {
-                            const next = [...stages]
-                            next[idx] = { ...stage, endStatusValue: val }
-                            setStages(next)
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Divider between stages */}
-                    {idx < stages.length - 1 && <hr className="border-borders-2" />}
                   </div>
-                ))}
-              </div>
+
+                  {/* Stage description */}
+                  <Text variant="body-normal" color="foreground-3">{stage.description}</Text>
+
+                  {/* Dropdowns row 1 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <Text variant="caption-normal" color="foreground-3">{stage.startEventLabel}</Text>
+                      <Select
+                        value={stage.startEventValue}
+                        options={stage.startEventOptions}
+                        onChange={(val) => {
+                          const next = [...stages]
+                          next[idx] = { ...stage, startEventValue: val }
+                          setStages(next)
+                        }}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <Text variant="caption-normal" color="foreground-3">{stage.startStatusLabel}</Text>
+                      <Select
+                        value={stage.startStatusValue}
+                        options={stage.startStatusOptions}
+                        onChange={(val) => {
+                          const next = [...stages]
+                          next[idx] = { ...stage, startStatusValue: val }
+                          setStages(next)
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Dropdowns row 2 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <Text variant="caption-normal" color="foreground-3">{stage.endEventLabel}</Text>
+                      <Select
+                        value={stage.endEventValue}
+                        options={stage.endEventOptions}
+                        onChange={(val) => {
+                          const next = [...stages]
+                          next[idx] = { ...stage, endEventValue: val }
+                          setStages(next)
+                        }}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <Text variant="caption-normal" color="foreground-3">{stage.endStatusLabel}</Text>
+                      <Select
+                        value={stage.endStatusValue}
+                        options={stage.endStatusOptions}
+                        onChange={(val) => {
+                          const next = [...stages]
+                          next[idx] = { ...stage, endStatusValue: val }
+                          setStages(next)
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
 
               {/* Advanced section */}
-              <div className="space-y-4">
+              <div className="rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1 space-y-4">
                 <button
                   className="flex w-full items-center justify-between"
                   onClick={() => setAdvancedOpen(!advancedOpen)}
