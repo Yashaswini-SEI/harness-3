@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Text,
   Button,
@@ -6,6 +6,9 @@ import {
   SearchInput,
   Table,
   Pagination,
+  DropdownMenu,
+  TextInput,
+  Select,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
@@ -147,13 +150,46 @@ function UserCell({ user }: { user: { name: string; initials: string } }) {
 }
 
 export function OrgTreePage() {
+  const searchFields = [
+    { key: 'name' as const, label: 'Name' },
+    { key: 'efficiencyProfile' as const, label: 'Efficiency Profile' },
+    { key: 'productivityProfile' as const, label: 'Productivity Profile' },
+    { key: 'businessAlignmentProfile' as const, label: 'Business Alignment Profile' },
+  ]
   const [search, setSearch] = useState('')
+  const [searchField, setSearchField] = useState(searchFields[0])
   const [sortDir, setSortDir] = useState<'asc' | 'desc' | false>(false)
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains('dark-std-low')
   )
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+
+  // Drawer state
+  const [drawerVisible, setDrawerVisible] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout>>()
+  const [drawerName, setDrawerName] = useState('')
+  const [drawerEfficiency, setDrawerEfficiency] = useState('with-ff')
+  const [drawerProductivity, setDrawerProductivity] = useState('im-scm')
+  const [drawerBA, setDrawerBA] = useState('new-ba')
+
+  const openDrawer = useCallback(() => {
+    clearTimeout(closeTimerRef.current)
+    setDrawerVisible(true)
+    requestAnimationFrame(() => requestAnimationFrame(() => setDrawerOpen(true)))
+  }, [])
+
+  const closeDrawer = useCallback(() => {
+    setDrawerOpen(false)
+    closeTimerRef.current = setTimeout(() => {
+      setDrawerVisible(false)
+      setDrawerName('')
+      setDrawerEfficiency('with-ff')
+      setDrawerProductivity('im-scm')
+      setDrawerBA('new-ba')
+    }, 300)
+  }, [])
 
   useEffect(() => {
     const root = document.documentElement
@@ -162,9 +198,11 @@ export function OrgTreePage() {
   }, [dark])
 
   const filteredData = search
-    ? orgTreeData.filter((row) =>
-        row.name.toLowerCase().includes(search.toLowerCase())
-      )
+    ? orgTreeData.filter((row) => {
+        const val = row[searchField.key]
+        if (val == null) return false
+        return val.toString().toLowerCase().includes(search.toLowerCase())
+      })
     : orgTreeData
 
   const sortedData = sortDir
@@ -188,7 +226,7 @@ export function OrgTreePage() {
         {/* Page title + action */}
         <div className="flex items-center justify-between">
           <Text as="h1" variant="heading-hero" color="foreground-1">Org Trees</Text>
-          <Button size="sm">
+          <Button size="sm" onClick={openDrawer}>
             <IconV2 name="plus" size="sm" />
             New Org Tree
           </Button>
@@ -198,15 +236,24 @@ export function OrgTreePage() {
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <SearchInput
-              placeholder="Search org trees by name"
+              placeholder={`Search org trees by ${searchField.label.toLowerCase()}`}
               searchValue={search}
               onChange={(value) => setSearch(value)}
             />
           </div>
-          <Button variant="outline" size="sm">
-            Search by Name
-            <IconV2 name="nav-arrow-down" size="sm" />
-          </Button>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <Button variant="outline" size="sm">
+                Search by {searchField.label}
+                <IconV2 name="nav-arrow-down" size="sm" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end">
+              {searchFields.map((f) => (
+                <DropdownMenu.Item key={f.key} title={f.label} onSelect={() => setSearchField(f)} />
+              ))}
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         </div>
 
         {/* Table */}
@@ -286,6 +333,158 @@ export function OrgTreePage() {
           pageSizeOptions={[10, 20, 50]}
         />
       </div>
+
+      {/* New Org Tree drawer */}
+      {drawerVisible && (
+        <>
+          <div
+            className="fixed inset-0 z-40 transition-opacity duration-300 ease-in-out"
+            style={{ backgroundColor: drawerOpen ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)' }}
+            onClick={closeDrawer}
+          />
+          <div
+            className="fixed right-0 top-0 z-50 flex h-full w-[480px] flex-col border-l border-cn-1 bg-cn-3 shadow-xl"
+            style={{
+              transform: drawerOpen ? 'translateX(0)' : 'translateX(100%)',
+              transition: 'transform 300ms ease-in-out',
+            }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4">
+              <Text variant="heading-subsection" color="foreground-1">New Org Tree</Text>
+              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeDrawer}>
+                <IconV2 name="xmark-circle" size="sm" />
+              </Button>
+            </div>
+
+            {/* Content */}
+            <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 pb-5">
+              {/* Name */}
+              <div className="flex flex-col gap-1.5">
+                <Text variant="body-strong" color="foreground-1">Name</Text>
+                <TextInput
+                  value={drawerName}
+                  onChange={(e) => setDrawerName(e.target.value)}
+                  placeholder="Enter org tree name"
+                />
+              </div>
+
+              {/* Profiles */}
+              <div className="rounded-lg border border-borders-2 bg-white p-4 dark:bg-cn-1">
+                <div className="space-y-4">
+                  <div>
+                    <Text variant="body-strong" color="foreground-1">Profiles</Text>
+                    <Text variant="body-normal" color="foreground-3" className="mt-1">
+                      Switching profiles will impact team definitions across the org tree.
+                    </Text>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Text variant="body-normal" color="foreground-1">Efficiency</Text>
+                    <Select
+                      value={drawerEfficiency}
+                      options={[
+                        { label: 'With FF', value: 'with-ff' },
+                        { label: 'Test validation', value: 'test-validation' },
+                        { label: 'Test productivity', value: 'test-productivity' },
+                        { label: 'Sprint metrics', value: 'sprint-metrics' },
+                      ]}
+                      onChange={(val) => setDrawerEfficiency(val)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Text variant="body-normal" color="foreground-1">Productivity</Text>
+                    <Select
+                      value={drawerProductivity}
+                      options={[
+                        { label: 'IM_SCM', value: 'im-scm' },
+                        { label: 'Productivity profile', value: 'productivity-profile' },
+                      ]}
+                      onChange={(val) => setDrawerProductivity(val)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Text variant="body-normal" color="foreground-1">Business Alignment</Text>
+                    <Select
+                      value={drawerBA}
+                      options={[
+                        { label: 'New BA', value: 'new-ba' },
+                        { label: 'BA levels', value: 'ba-levels' },
+                      ]}
+                      onChange={(val) => setDrawerBA(val)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Configured Levels */}
+              <div className="rounded-lg border border-borders-2 bg-white p-4 dark:bg-cn-1">
+                <Text variant="body-strong" color="foreground-1">Configured Levels</Text>
+                <Text variant="body-normal" color="foreground-3" className="mt-2">
+                  <Text variant="body-strong" color="foreground-1">Manager Email</Text> (Level 1)
+                </Text>
+              </div>
+
+              {/* Configured Filters */}
+              <div className="rounded-lg border border-borders-2 bg-white p-4 dark:bg-cn-1">
+                <Text variant="body-strong" color="foreground-1">Configured Filters</Text>
+                <Text variant="body-normal" color="foreground-4" className="mt-2">
+                  No data filters configured
+                </Text>
+              </div>
+
+              {/* Selected Integrations */}
+              <div className="rounded-lg border border-borders-2 bg-white p-4 dark:bg-cn-1">
+                <div className="space-y-3">
+                  <Text variant="body-strong" color="foreground-1">Selected Integrations</Text>
+                  <Text variant="body-normal" color="foreground-3">
+                    The default integrations selected here will be used for computing data for all teams.
+                  </Text>
+                  <Text variant="body-normal" color="foreground-3">
+                    Note that the default integration cannot be changed. However, teams may override it if necessary.
+                  </Text>
+
+                  <hr className="border-borders-2" />
+
+                  {/* Issue management Tools */}
+                  <div className="space-y-2">
+                    <Text variant="body-strong" color="foreground-1">Issue management Tools</Text>
+                    <div className="flex items-center gap-3 rounded-lg border border-borders-2 px-4 py-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded bg-[#2684FF]">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M14.5 1.5H8.25L8.75 7.25L14.5 7.75V1.5Z" fill="white"/>
+                          <path d="M1.5 14.5H7.75L7.25 8.75L1.5 8.25V14.5Z" fill="white"/>
+                          <path d="M8.75 7.25L14.5 7.75L8.25 14.5H7.75L7.25 8.75L8.75 7.25Z" fill="white" fillOpacity="0.7"/>
+                          <path d="M7.25 8.75L1.5 8.25L7.75 1.5H8.25L8.75 7.25L7.25 8.75Z" fill="white" fillOpacity="0.7"/>
+                        </svg>
+                      </div>
+                      <Text variant="body-normal" color="foreground-1">Jira - Harness</Text>
+                    </div>
+                  </div>
+
+                  {/* Source code management */}
+                  <div className="space-y-2">
+                    <Text variant="body-strong" color="foreground-1">Source code management</Text>
+                    <div className="flex items-center gap-3 rounded-lg border border-borders-2 px-4 py-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded bg-[#24292F]">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
+                          <path fillRule="evenodd" clipRule="evenodd" d="M8 1C4.13 1 1 4.13 1 8c0 3.1 2.01 5.73 4.79 6.66.35.06.48-.15.48-.34 0-.17-.01-.71-.01-1.29-1.76.33-2.2-.43-2.34-.82-.08-.2-.42-.82-.71-.98-.24-.13-.59-.46-.01-.47.55-.01.94.51 1.07.71.63 1.05 1.63.76 2.03.57.06-.45.24-.76.44-.93-1.55-.17-3.18-.78-3.18-3.45 0-.76.27-1.39.71-1.88-.07-.18-.31-.89.07-1.85 0 0 .58-.18 1.9.71.55-.15 1.14-.23 1.73-.23s1.18.08 1.73.23c1.32-.9 1.9-.71 1.9-.71.38.96.14 1.67.07 1.85.44.49.71 1.11.71 1.88 0 2.68-1.63 3.28-3.19 3.45.25.22.47.64.47 1.29 0 .93-.01 1.68-.01 1.91 0 .19.13.41.48.34A7.003 7.003 0 0015 8c0-3.87-3.13-7-7-7z"/>
+                        </svg>
+                      </div>
+                      <Text variant="body-normal" color="foreground-1">GitHub - Harness</Text>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 border-t border-cn-1 px-5 py-3">
+              <Button variant="outline" size="sm" onClick={closeDrawer}>Cancel</Button>
+              <Button size="sm" onClick={closeDrawer}>Save</Button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
