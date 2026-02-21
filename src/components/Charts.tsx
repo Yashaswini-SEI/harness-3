@@ -6,7 +6,7 @@ import {
   PieChart, Pie, Cell,
   ScatterChart, Scatter,
   AreaChart, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList,
 } from 'recharts'
 
 // ── Shared types ──
@@ -300,6 +300,7 @@ export interface StackedBarChartProps {
   onBarClick?: (index: number) => void
   selectedIndex?: number | null
   showTrendline?: boolean
+  showBarValues?: boolean
 }
 
 function linearRegression(values: number[]): number[] {
@@ -317,14 +318,14 @@ function linearRegression(values: number[]): number[] {
   return values.map((_, i) => Math.round((slope * i + intercept) * 100) / 100)
 }
 
-export function StackedBarChart({ data, series, height = 420, yAxisFormatter, yAxisLabel, onBarClick, selectedIndex, showTrendline }: StackedBarChartProps) {
+export function StackedBarChart({ data, series, height = 420, yAxisFormatter, yAxisLabel, onBarClick, selectedIndex, showTrendline, showBarValues = false }: StackedBarChartProps) {
   const maxTotal = Math.max(...data.map(d =>
     series.reduce((sum, s) => sum + (Number(d[s.dataKey]) || 0), 0)
   ))
   const gap = Math.round(maxTotal * 0.015) || 1
   const totals = data.map(d => series.reduce((sum, s) => sum + (Number(d[s.dataKey]) || 0), 0))
   const regression = linearRegression(totals)
-  const gappedData = data.map((d, i) => ({ ...d, _gap: gap, _trend: regression[i] }))
+  const gappedData = data.map((d, i) => ({ ...d, _gap: gap, _trend: regression[i], _total: totals[i] }))
   const clickable = !!onBarClick
 
   return (
@@ -365,7 +366,7 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter, yA
           />
           <Tooltip contentStyle={TOOLTIP_STYLE} cursor={clickable ? { fill: 'rgba(0, 0, 0, 0.06)' } : { fill: 'rgba(0, 0, 0, 0.03)' }} />
           <Legend iconType="square" iconSize={10} wrapperStyle={LEGEND_STYLE} formatter={legendFormatter} />
-          {series.map((s) => (
+          {series.map((s, sIdx) => (
             <Bar
               key={s.dataKey}
               dataKey={s.dataKey}
@@ -381,6 +382,9 @@ export function StackedBarChart({ data, series, height = 420, yAxisFormatter, yA
               {selectedIndex != null && gappedData.map((_, i) => (
                 <Cell key={i} fillOpacity={i === selectedIndex ? 1 : 0.3} />
               ))}
+              {showBarValues && sIdx === series.length - 1 && (
+                <LabelList dataKey="_total" position="top" offset={10} style={{ fontSize: 14, fill: '#6B7280', fontWeight: 500 }} />
+              )}
             </Bar>
           )).flatMap((bar, i) =>
             i < series.length - 1

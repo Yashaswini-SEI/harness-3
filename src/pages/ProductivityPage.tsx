@@ -249,6 +249,42 @@ export function ProductivityPage() {
     return workDrilldownData.slice(start, start + workDrillPageSize)
   }, [workDrilldownData, workDrillPage, workDrillPageSize])
 
+  // ── Coding Days Per Dev ──
+  const codingDaysData = useMemo(() => {
+    return profile.labels.map((name, i) => ({
+      name,
+      codingDays: Math.round((jitter(`cd-${name}${i}`, Math.round(3.5 * profile.scale * 10), 15)) / 10 * 10) / 10,
+    }))
+  }, [profile])
+
+  const CODING_DAYS_SERIES = [
+    { dataKey: 'codingDays', name: 'Coding Days', color: 'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))' },
+  ]
+
+  // ── Number of Comments Per PR ──
+  const commentsPerPrData = useMemo(() => {
+    return profile.labels.map((name, i) => ({
+      name,
+      comments: jitter(`cpr-${name}${i}`, Math.round(6 * profile.scale), 3),
+    }))
+  }, [profile])
+
+  const COMMENTS_SERIES = [
+    { dataKey: 'comments', name: 'Comments', color: 'var(--cn-comp-data-viz-02-purple, lch(58% 95 320))' },
+  ]
+
+  // ── Average Time to First Comment ──
+  const timeToFirstCommentData = useMemo(() => {
+    return profile.labels.map((name, i) => ({
+      name,
+      hours: jitter(`ttfc-dev-${name}${i}`, Math.round(18 * profile.scale), 8),
+    }))
+  }, [profile])
+
+  const TTFC_SERIES = [
+    { dataKey: 'hours', name: 'Hours to First Comment', color: 'var(--cn-comp-data-viz-03-pink, lch(58% 70 350))' },
+  ]
+
   useEffect(() => {
     const root = document.documentElement
     root.classList.remove('light-std-low', 'dark-std-low')
@@ -291,7 +327,7 @@ export function ProductivityPage() {
       const approvalTime = jitter(`cyc-approve-${name}${i}`, Math.round(30 * profile.scale), 12)
       const mergeTime = jitter(`cyc-merge-${name}${i}`, Math.round(6 * profile.scale), 3)
       const maxTotal = prCreation + timeToComment + approvalTime + mergeTime
-      const gap = Math.max(1, Math.round(maxTotal * 0.012))
+      const gap = Math.max(1, Math.round(maxTotal * 0.015))
       return { name, prCreation, timeToComment, approvalTime, mergeTime, _gap: gap }
     })
   }, [profile])
@@ -779,12 +815,7 @@ export function ProductivityPage() {
                       <Table.Cell>
                         <div className="flex items-center gap-2">
                           <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Bug</Text><CounterBadge variant="outline" theme="danger">{row.workTypes.bug}</CounterBadge></div>
-                          <div className="group/tip relative flex items-center gap-1">
-                            <Text variant="caption-normal" color="foreground-3">Story</Text><CounterBadge variant="outline" theme="info">{row.workTypes.story + row.workTypes.task}</CounterBadge>
-                            <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-borders-2 bg-cn-0 px-3 py-1.5 text-xs text-foreground-2 opacity-0 shadow-lg transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
-                              New features and enhancements
-                            </div>
-                          </div>
+                          <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">New Features and Enhancements</Text><CounterBadge variant="outline" theme="info">{row.workTypes.story + row.workTypes.task}</CounterBadge></div>
                           <div className="flex items-center gap-1"><Text variant="caption-normal" color="foreground-3">Other</Text><CounterBadge variant="outline" theme="default">{row.workTypes.other}</CounterBadge></div>
                         </div>
                       </Table.Cell>
@@ -863,6 +894,80 @@ export function ProductivityPage() {
                 className="!mt-cn-sm"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Coding Days Per Dev */}
+        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <div className="flex items-start justify-between p-5 pb-0">
+            <Text variant="body-strong" color="foreground-1">Coding Days Per Dev</Text>
+            <ExportMenu />
+          </div>
+          <div className="mx-5 mt-3 w-1/5">
+            <InsightMetricCard
+              label="Coding Days"
+              value="2.91"
+              subtitle="per week"
+              trend="↗ 5.82%"
+            />
+          </div>
+          <div className="p-5 pt-3">
+            <StackedBarChart
+              data={codingDaysData}
+              series={CODING_DAYS_SERIES}
+              height={300}
+              showTrendline={showTrendline}
+              showBarValues
+            />
+          </div>
+        </div>
+
+        {/* Number of Comments Per PR */}
+        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <div className="flex items-start justify-between p-5 pb-0">
+            <Text variant="body-strong" color="foreground-1">Number of Comments Per PR</Text>
+            <ExportMenu />
+          </div>
+          <div className="mx-5 mt-3 w-1/5">
+            <InsightMetricCard
+              label="Comments Per PR"
+              value="1.03"
+              trend="↗ 3%"
+            />
+          </div>
+          <div className="p-5 pt-3">
+            <StackedBarChart
+              data={commentsPerPrData}
+              series={COMMENTS_SERIES}
+              height={300}
+              showTrendline={showTrendline}
+              showBarValues
+            />
+          </div>
+        </div>
+
+        {/* Average Time to First Comment */}
+        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <div className="flex items-start justify-between p-5 pb-0">
+            <Text variant="body-strong" color="foreground-1">Average Time to First Comment</Text>
+            <ExportMenu />
+          </div>
+          <div className="mx-5 mt-3 w-1/5">
+            <InsightMetricCard
+              label="Time to First Comment"
+              value="1d 5h"
+              trend="↘ 2.03%"
+            />
+          </div>
+          <div className="p-5 pt-3">
+            <StackedBarChart
+              data={timeToFirstCommentData}
+              series={TTFC_SERIES}
+              height={300}
+              yAxisLabel="Hours"
+              showTrendline={showTrendline}
+              showBarValues
+            />
           </div>
         </div>
       </div>
