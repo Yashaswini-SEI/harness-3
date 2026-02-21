@@ -193,7 +193,7 @@ export function OrgTreePage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
-  // Drawer state
+  // Edit drawer state (existing org tree settings)
   const [drawerVisible, setDrawerVisible] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout>>()
@@ -202,7 +202,8 @@ export function OrgTreePage() {
   const [drawerProductivity, setDrawerProductivity] = useState('im-scm')
   const [drawerBA, setDrawerBA] = useState('new-ba')
 
-  const openDrawer = useCallback(() => {
+  const openDrawer = useCallback((name?: string) => {
+    if (name) setDrawerName(name)
     clearTimeout(closeTimerRef.current)
     setDrawerVisible(true)
     requestAnimationFrame(() => requestAnimationFrame(() => setDrawerOpen(true)))
@@ -217,6 +218,22 @@ export function OrgTreePage() {
       setDrawerProductivity('im-scm')
       setDrawerBA('new-ba')
     }, 300)
+  }, [])
+
+  // New org tree drawer state
+  const [newDrawerVisible, setNewDrawerVisible] = useState(false)
+  const [newDrawerOpen, setNewDrawerOpen] = useState(false)
+  const newCloseTimerRef = useRef<ReturnType<typeof setTimeout>>()
+
+  const openNewDrawer = useCallback(() => {
+    clearTimeout(newCloseTimerRef.current)
+    setNewDrawerVisible(true)
+    requestAnimationFrame(() => requestAnimationFrame(() => setNewDrawerOpen(true)))
+  }, [])
+
+  const closeNewDrawer = useCallback(() => {
+    setNewDrawerOpen(false)
+    newCloseTimerRef.current = setTimeout(() => setNewDrawerVisible(false), 300)
   }, [])
 
   useEffect(() => {
@@ -254,7 +271,7 @@ export function OrgTreePage() {
         {/* Page title + action */}
         <div className="flex items-center justify-between">
           <Text as="h1" variant="heading-hero" color="foreground-1">Org Trees</Text>
-          <Button size="sm" onClick={openDrawer}>
+          <Button size="sm" onClick={openNewDrawer}>
             <IconV2 name="plus" size="sm" />
             New Org Tree
           </Button>
@@ -313,7 +330,7 @@ export function OrgTreePage() {
             {pagedData.map((row) => (
               <Table.Row key={row.name}>
                 <Table.Cell>
-                  <button className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.name}</button>
+                  <button className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }} onClick={() => openDrawer(row.name)}>{row.name}</button>
                 </Table.Cell>
                 <Table.Cell>
                   <Text variant="body-normal" color="foreground-3">{row.teams}</Text>
@@ -338,7 +355,7 @@ export function OrgTreePage() {
                 </Table.Cell>
                 <Table.Cell>
                   <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+                    <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => openDrawer(row.name)}>
                       <IconV2 name="edit" size="sm" />
                     </Button>
                     <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
@@ -380,7 +397,7 @@ export function OrgTreePage() {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4">
-              <Text variant="heading-subsection" color="foreground-1">New Org Tree</Text>
+              <Text variant="heading-subsection" color="foreground-1">Org Tree Settings</Text>
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeDrawer}>
                 <IconV2 name="xmark" size="sm" />
               </Button>
@@ -510,6 +527,39 @@ export function OrgTreePage() {
             <div className="flex items-center justify-end gap-3 border-t border-cn-1 px-5 py-3">
               <Button variant="outline" size="sm" onClick={closeDrawer}>Cancel</Button>
               <Button size="sm" onClick={closeDrawer}>Save</Button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* New Org Tree drawer */}
+      {newDrawerVisible && (
+        <>
+          <div
+            className="fixed inset-0 z-40 transition-opacity duration-300 ease-in-out"
+            style={{ backgroundColor: newDrawerOpen ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)' }}
+            onClick={closeNewDrawer}
+          />
+          <div
+            className="fixed right-2 top-2 bottom-2 z-50 flex w-[480px] flex-col overflow-hidden border border-cn-1 bg-cn-3 shadow-xl"
+            style={{
+              borderRadius: 16,
+              transform: newDrawerOpen ? 'translateX(0)' : 'translateX(100%)',
+              transition: 'transform 300ms ease-in-out',
+            }}
+          >
+            <div className="flex items-center justify-between px-5 py-4">
+              <Text variant="heading-subsection" color="foreground-1">New Org Tree</Text>
+              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeNewDrawer}>
+                <IconV2 name="xmark" size="sm" />
+              </Button>
+            </div>
+            <div className="flex flex-1 items-center justify-center px-5">
+              <Text variant="body-normal" color="foreground-4">Under development</Text>
+            </div>
+            <div className="flex items-center justify-end gap-3 border-t border-cn-1 px-5 py-3">
+              <Button variant="outline" size="sm" onClick={closeNewDrawer}>Cancel</Button>
+              <Button size="sm" onClick={closeNewDrawer}>Save</Button>
             </div>
           </div>
         </>
