@@ -29,6 +29,7 @@ import thumb4 from '../assets/dashboard-thumbnails/4-light.svg'
 import thumb5 from '../assets/dashboard-thumbnails/5-light.svg'
 import thumb6 from '../assets/dashboard-thumbnails/6-light.svg'
 import thumb7 from '../assets/dashboard-thumbnails/7-light.svg'
+import thumb8 from '../assets/dashboard-thumbnails/8-light.svg'
 
 const S = ExecutionState.SUCCESS
 
@@ -279,6 +280,13 @@ const harnessInsights = [
     description: "Business alignment is the strategic fit between a company's software initiatives and its core business goals to maximize value and impact.",
     tag: 'Alignment',
     thumb: thumb7,
+  },
+  {
+    id: 'productivity',
+    title: 'Productivity',
+    description: 'Measure and supercharge dev productivity with PR velocity, cycle time, work completed, and code rework metrics.',
+    tag: 'Productivity',
+    thumb: thumb8,
   },
 ]
 
