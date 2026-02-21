@@ -722,8 +722,9 @@ export function InsightsPage() {
           />
           {/* Panel */}
           <div
-            className="fixed right-4 top-4 bottom-4 z-50 flex w-2/3 min-w-[640px] flex-col overflow-hidden border border-cn-1 bg-cn-3 shadow-xl" style={{ borderRadius: 16 }}
+            className="fixed right-2 top-2 bottom-2 z-50 flex w-2/3 min-w-[640px] flex-col overflow-hidden border border-cn-1 bg-cn-3 shadow-xl"
             style={{
+              borderRadius: 16,
               transform: panelOpen ? 'translateX(0)' : 'translateX(100%)',
               transition: 'transform 300ms ease-in-out',
             }}
