@@ -15,6 +15,7 @@ import { BusinessAlignmentPage } from './pages/BusinessAlignmentPage'
 import { EfficiencyDoraPage } from './pages/EfficiencyDoraPage'
 import { SprintMetricsPage } from './pages/SprintMetricsPage'
 import { ProductivityPage } from './pages/ProductivityPage'
+import { ComponentGallery } from './pages/ComponentGallery'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
         <Route element={<GalleryLayout />}>
           <Route path="/" element={<App />} />
           <Route path="/tables" element={<TableGallery />} />
+          <Route path="/gallery" element={<ComponentGallery />} />
         </Route>
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/canvas" element={<CanvasPage />} />
