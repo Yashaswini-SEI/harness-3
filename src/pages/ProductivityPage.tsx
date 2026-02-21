@@ -90,6 +90,9 @@ export function ProductivityPage() {
   const [selectedWorkBar, setSelectedWorkBar] = useState<number | null>(null)
   const [expandedWorkRows, setExpandedWorkRows] = useState<Set<string>>(new Set())
   const [workTypeFilter, setWorkTypeFilter] = useState('all')
+  const [prVelocityView, setPrVelocityView] = useState('work-type')
+  const [prCycleView, setPrCycleView] = useState('mean')
+  const [showTotalDistribution, setShowTotalDistribution] = useState(false)
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
@@ -193,19 +196,21 @@ export function ProductivityPage() {
   const workCompletedData = useMemo(() => {
     const raw = profile.labels.map((name, i) => ({
       name,
-      bugs: jitter(`work-bug-${name}${i}`, Math.round(8 * profile.scale), 4),
-      features: jitter(`work-feat-${name}${i}`, Math.round(20 * profile.scale), 8),
-      others: jitter(`work-other-${name}${i}`, Math.round(5 * profile.scale), 3),
+      minor: jitter(`work-minor-${name}${i}`, Math.round(8 * profile.scale), 4),
+      major: jitter(`work-major-${name}${i}`, Math.round(15 * profile.scale), 6),
+      critical: jitter(`work-crit-${name}${i}`, Math.round(5 * profile.scale), 3),
+      other: jitter(`work-other-${name}${i}`, Math.round(4 * profile.scale), 2),
     }))
-    const maxTotal = Math.max(...raw.map(d => d.bugs + d.features + d.others))
+    const maxTotal = Math.max(...raw.map(d => d.minor + d.major + d.critical + d.other))
     const gap = Math.max(1, Math.round(maxTotal * 0.015))
     return raw.map(d => ({ ...d, _gap: gap }))
   }, [profile])
 
   const ALL_WORK_SERIES = [
-    { dataKey: 'bugs', name: 'Bugs', color: 'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))' },
-    { dataKey: 'features', name: 'Features', color: 'var(--cn-comp-data-viz-02-purple, lch(58% 95 320))' },
-    { dataKey: 'others', name: 'Others', color: 'var(--cn-comp-data-viz-03-pink, lch(58% 70 350))' },
+    { dataKey: 'minor', name: 'Minor', color: 'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))' },
+    { dataKey: 'major', name: 'Major', color: 'var(--cn-comp-data-viz-02-purple, lch(58% 95 320))' },
+    { dataKey: 'critical', name: 'Critical', color: 'var(--cn-comp-data-viz-03-pink, lch(58% 70 350))' },
+    { dataKey: 'other', name: 'Other', color: 'var(--cn-comp-data-viz-04-green, lch(56% 78 125))' },
   ]
 
   const WORK_SERIES = workTypeFilter === 'all'
@@ -284,6 +289,52 @@ export function ProductivityPage() {
   const TTFC_SERIES = [
     { dataKey: 'hours', name: 'Hours to First Comment', color: 'var(--cn-comp-data-viz-03-pink, lch(58% 70 350))' },
   ]
+
+  // ── Code Rework ──
+  const [reworkDrillPage, setReworkDrillPage] = useState(1)
+  const [reworkDrillPageSize, setReworkDrillPageSize] = useState(5)
+  const [selectedReworkBar, setSelectedReworkBar] = useState<number | null>(null)
+
+  const codeReworkData = useMemo(() => {
+    return profile.labels.map((name, i) => ({
+      name,
+      legacyRework: jitter(`rw-legacy-${name}${i}`, Math.round(12 * profile.scale), 6),
+      recentRework: jitter(`rw-recent-${name}${i}`, Math.round(8 * profile.scale), 4),
+    }))
+  }, [profile])
+
+  const REWORK_SERIES = [
+    { dataKey: 'legacyRework', name: 'Legacy Rework', color: 'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))' },
+    { dataKey: 'recentRework', name: 'Recent Rework', color: 'var(--cn-comp-data-viz-02-purple, lch(58% 95 320))' },
+  ]
+
+  const handleReworkBarClick = (index: number) => {
+    setSelectedReworkBar(prev => prev === index ? null : index)
+    setReworkDrillPage(1)
+  }
+
+  const REWORK_DRILL_POOL = useMemo(() => [
+    { developer: 'c_jyoti patel', rework: '18.5%', legacyRework: '12.3%', recentRework: '6.2%', totalRework: 245, legacyReworkLines: 163, recentReworkLines: 82, totalLines: 14191, linesAdded: 12892, linesDeleted: 1299 },
+    { developer: 'c_rahul sharma', rework: '14.2%', legacyRework: '9.1%', recentRework: '5.1%', totalRework: 188, legacyReworkLines: 120, recentReworkLines: 68, totalLines: 8450, linesAdded: 7200, linesDeleted: 1250 },
+    { developer: 'c_anita desai', rework: '22.1%', legacyRework: '15.8%', recentRework: '6.3%', totalRework: 310, legacyReworkLines: 222, recentReworkLines: 88, totalLines: 5320, linesAdded: 4800, linesDeleted: 520 },
+    { developer: 'c_vikram singh', rework: '11.8%', legacyRework: '7.4%', recentRework: '4.4%', totalRework: 156, legacyReworkLines: 98, recentReworkLines: 58, totalLines: 18900, linesAdded: 16500, linesDeleted: 2400 },
+    { developer: 'c_priya menon', rework: '16.7%', legacyRework: '10.2%', recentRework: '6.5%', totalRework: 221, legacyReworkLines: 135, recentReworkLines: 86, totalLines: 6780, linesAdded: 5900, linesDeleted: 880 },
+    { developer: 'c_amit kumar', rework: '25.3%', legacyRework: '18.1%', recentRework: '7.2%', totalRework: 335, legacyReworkLines: 240, recentReworkLines: 95, totalLines: 22400, linesAdded: 19800, linesDeleted: 2600 },
+    { developer: 'c_sneha reddy', rework: '13.5%', legacyRework: '8.6%', recentRework: '4.9%', totalRework: 179, legacyReworkLines: 114, recentReworkLines: 65, totalLines: 7100, linesAdded: 6300, linesDeleted: 800 },
+    { developer: 'c_deepak joshi', rework: '19.8%', legacyRework: '13.4%', recentRework: '6.4%', totalRework: 262, legacyReworkLines: 178, recentReworkLines: 84, totalLines: 11200, linesAdded: 9800, linesDeleted: 1400 },
+    { developer: 'c_kavita nair', rework: '15.9%', legacyRework: '10.8%', recentRework: '5.1%', totalRework: 210, legacyReworkLines: 143, recentReworkLines: 67, totalLines: 4500, linesAdded: 3900, linesDeleted: 600 },
+    { developer: 'c_ravi patel', rework: '20.6%', legacyRework: '14.2%', recentRework: '6.4%', totalRework: 273, legacyReworkLines: 188, recentReworkLines: 85, totalLines: 25600, linesAdded: 22100, linesDeleted: 3500 },
+  ], [])
+
+  const reworkDrilldownData = useMemo(
+    () => seededShuffle(REWORK_DRILL_POOL, selectedReworkBar != null ? (selectedReworkBar + 1) * 9241 : 1),
+    [selectedReworkBar, REWORK_DRILL_POOL]
+  )
+
+  const paginatedReworkDrill = useMemo(() => {
+    const start = (reworkDrillPage - 1) * reworkDrillPageSize
+    return reworkDrilldownData.slice(start, start + reworkDrillPageSize)
+  }, [reworkDrilldownData, reworkDrillPage, reworkDrillPageSize])
 
   useEffect(() => {
     const root = document.documentElement
@@ -401,7 +452,17 @@ export function ProductivityPage() {
         <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">PR Velocity Per Dev</Text>
-            <ExportMenu />
+            <div className="flex items-center gap-2">
+              <Select
+                value={prVelocityView}
+                options={[
+                  { label: 'Work Type', value: 'work-type' },
+                  { label: 'PR Size', value: 'pr-size' },
+                ]}
+                onChange={(val) => setPrVelocityView(val)}
+              />
+              <ExportMenu />
+            </div>
           </div>
 
           {/* Metric card */}
@@ -588,7 +649,19 @@ export function ProductivityPage() {
         <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">PR Cycle Time</Text>
-            <ExportMenu />
+            <div className="flex items-center gap-2">
+              <Select
+                value={prCycleView}
+                options={[
+                  { label: 'Mean', value: 'mean' },
+                  { label: 'Median', value: 'median' },
+                  { label: 'P90', value: 'p90' },
+                  { label: 'P95', value: 'p95' },
+                ]}
+                onChange={(val) => setPrCycleView(val)}
+              />
+              <ExportMenu />
+            </div>
           </div>
 
           {/* Segmented bar chart */}
@@ -745,9 +818,10 @@ export function ProductivityPage() {
                 value={workTypeFilter}
                 options={[
                   { label: 'All', value: 'all' },
-                  { label: 'Features', value: 'features' },
-                  { label: 'Bugs', value: 'bugs' },
-                  { label: 'Others', value: 'others' },
+                  { label: 'Minor', value: 'minor' },
+                  { label: 'Major', value: 'major' },
+                  { label: 'Critical', value: 'critical' },
+                  { label: 'Other', value: 'other' },
                 ]}
                 onChange={(val) => setWorkTypeFilter(val)}
               />
@@ -968,6 +1042,130 @@ export function ProductivityPage() {
               showTrendline={showTrendline}
               showBarValues
             />
+          </div>
+        </div>
+
+        {/* Code Rework */}
+        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <div className="flex items-start justify-between p-5 pb-0">
+            <Text variant="body-strong" color="foreground-1">Code Rework</Text>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTotalDistribution(!showTotalDistribution)}
+              >
+                {showTotalDistribution ? 'Hide Total Distribution' : 'Show Total Distribution'}
+              </Button>
+              <ExportMenu />
+            </div>
+          </div>
+
+          <div className="mx-5 mt-3 w-1/5">
+            <InsightMetricCard
+              label="Rework"
+              value="2.35%"
+              subtitle="per week"
+              trend="↘ 67.62%"
+            />
+          </div>
+
+          <div className="p-5 pt-3">
+            <StackedBarChart
+              data={codeReworkData}
+              series={REWORK_SERIES}
+              height={300}
+              onBarClick={handleReworkBarClick}
+              selectedIndex={selectedReworkBar}
+              showTrendline={showTrendline}
+              showBarValues
+            />
+          </div>
+
+          {/* Drilldown table */}
+          <div className="px-5 pb-5 pt-2">
+            <div className="flex items-center pb-2">
+              <Text variant="body-strong" color="foreground-1">Drill-down</Text>
+              {selectedReworkBar != null && (
+                <div className="ml-auto">
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedReworkBar(null)}>
+                    <IconV2 name="xmark" size="sm" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="overflow-x-auto">
+              <Table.Root variant="default" size="normal">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.Head>Developer</Table.Head>
+                    <Table.Head className="text-right">Rework</Table.Head>
+                    <Table.Head className="text-right">Legacy Rework</Table.Head>
+                    <Table.Head className="text-right">Recent Rework</Table.Head>
+                    <Table.Head className="text-right">Total Rework</Table.Head>
+                    <Table.Head className="text-right">Legacy Rework Lines</Table.Head>
+                    <Table.Head className="text-right">Recent Rework Lines</Table.Head>
+                    <Table.Head>Code Changes</Table.Head>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {paginatedReworkDrill.map((row) => (
+                    <Table.Row key={row.developer}>
+                      <Table.Cell>
+                        <div className="flex items-center gap-2">
+                          <div className="flex shrink-0 items-center justify-center bg-[rgba(0,109,234,0.15)] text-xs font-medium text-[#006DEA]" style={{ width: 28, height: 28, borderRadius: '50%' }}>
+                            {row.developer.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </div>
+                          <Text variant="body-normal" color="foreground-1" className="whitespace-nowrap">{row.developer}</Text>
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell className="text-right">{row.rework}</Table.Cell>
+                      <Table.Cell className="text-right">{row.legacyRework}</Table.Cell>
+                      <Table.Cell className="text-right">{row.recentRework}</Table.Cell>
+                      <Table.Cell className="text-right font-medium">{row.totalRework}</Table.Cell>
+                      <Table.Cell className="text-right">{row.legacyReworkLines.toLocaleString()}</Table.Cell>
+                      <Table.Cell className="text-right">{row.recentReworkLines.toLocaleString()}</Table.Cell>
+                      <Table.Cell style={{ minWidth: 160 }}>
+                        {(() => {
+                          const addPct = row.totalLines > 0 ? (row.linesAdded / row.totalLines) * 100 : 50
+                          const delPct = 100 - addPct
+                          return (
+                            <div className="flex flex-col gap-1">
+                              <Text variant="caption-normal" color="foreground-3">{row.totalLines.toLocaleString()} Total lines</Text>
+                              <div className="flex h-2 w-full" style={{ gap: 3 }}>
+                                <div style={{ width: `${addPct}%`, backgroundColor: '#10B981', borderRadius: 4 }} />
+                                <div style={{ width: `${delPct}%`, backgroundColor: '#EF4444', borderRadius: 4 }} />
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1">
+                                  <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: '#10B981' }} />
+                                  <Text variant="caption-normal" color="foreground-3">+{row.linesAdded.toLocaleString()} ({Math.round(addPct)}%)</Text>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: '#EF4444' }} />
+                                  <Text variant="caption-normal" color="foreground-3">-{row.linesDeleted.toLocaleString()} ({Math.round(delPct)}%)</Text>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })()}
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
+            </div>
+            <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
+              <Pagination
+                totalItems={reworkDrilldownData.length}
+                pageSize={reworkDrillPageSize}
+                currentPage={reworkDrillPage}
+                goToPage={setReworkDrillPage}
+                onPageSizeChange={(size) => { setReworkDrillPageSize(size); setReworkDrillPage(1) }}
+                pageSizeOptions={[5, 10, 20]}
+                className="!mt-cn-sm"
+              />
+            </div>
           </div>
         </div>
       </div>
