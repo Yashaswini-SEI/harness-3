@@ -353,7 +353,7 @@ export function OrgTreePage() {
             <div className="flex items-center justify-between px-5 py-4">
               <Text variant="heading-subsection" color="foreground-1">New Org Tree</Text>
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeDrawer}>
-                <IconV2 name="xmark-circle" size="sm" />
+                <IconV2 name="xmark" size="sm" />
               </Button>
             </div>
 
@@ -370,7 +370,7 @@ export function OrgTreePage() {
               </div>
 
               {/* Profiles */}
-              <div className="rounded-lg border border-borders-2 bg-white p-4 dark:bg-cn-1">
+              <div className="border border-borders-2 bg-white p-4 dark:bg-cn-1" style={{ borderRadius: 6 }}>
                 <div className="space-y-4">
                   <div>
                     <Text variant="body-strong" color="foreground-1">Profiles</Text>
@@ -417,7 +417,7 @@ export function OrgTreePage() {
               </div>
 
               {/* Configured Levels */}
-              <div className="rounded-lg border border-borders-2 bg-white p-4 dark:bg-cn-1">
+              <div className="border border-borders-2 bg-white p-4 dark:bg-cn-1" style={{ borderRadius: 6 }}>
                 <Text variant="body-strong" color="foreground-1">Configured Levels</Text>
                 <Text variant="body-normal" color="foreground-3" className="mt-2">
                   <Text variant="body-strong" color="foreground-1">Manager Email</Text> (Level 1)
@@ -425,7 +425,7 @@ export function OrgTreePage() {
               </div>
 
               {/* Configured Filters */}
-              <div className="rounded-lg border border-borders-2 bg-white p-4 dark:bg-cn-1">
+              <div className="border border-borders-2 bg-white p-4 dark:bg-cn-1" style={{ borderRadius: 6 }}>
                 <Text variant="body-strong" color="foreground-1">Configured Filters</Text>
                 <Text variant="body-normal" color="foreground-4" className="mt-2">
                   No data filters configured
@@ -433,7 +433,7 @@ export function OrgTreePage() {
               </div>
 
               {/* Selected Integrations */}
-              <div className="rounded-lg border border-borders-2 bg-white p-4 dark:bg-cn-1">
+              <div className="border border-borders-2 bg-white p-4 dark:bg-cn-1" style={{ borderRadius: 6 }}>
                 <div className="space-y-3">
                   <Text variant="body-strong" color="foreground-1">Selected Integrations</Text>
                   <Text variant="body-normal" color="foreground-3">
@@ -448,7 +448,7 @@ export function OrgTreePage() {
                   {/* Issue management Tools */}
                   <div className="space-y-2">
                     <Text variant="body-strong" color="foreground-1">Issue management Tools</Text>
-                    <div className="flex items-center gap-3 rounded-lg border border-borders-2 px-4 py-3">
+                    <div className="flex items-center gap-3 rounded-lg border border-borders-2 px-4 py-3 shadow-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded bg-[#2684FF]">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                           <path d="M14.5 1.5H8.25L8.75 7.25L14.5 7.75V1.5Z" fill="white"/>
@@ -464,7 +464,7 @@ export function OrgTreePage() {
                   {/* Source code management */}
                   <div className="space-y-2">
                     <Text variant="body-strong" color="foreground-1">Source code management</Text>
-                    <div className="flex items-center gap-3 rounded-lg border border-borders-2 px-4 py-3">
+                    <div className="flex items-center gap-3 rounded-lg border border-borders-2 px-4 py-3 shadow-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded bg-[#24292F]">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
                           <path fillRule="evenodd" clipRule="evenodd" d="M8 1C4.13 1 1 4.13 1 8c0 3.1 2.01 5.73 4.79 6.66.35.06.48-.15.48-.34 0-.17-.01-.71-.01-1.29-1.76.33-2.2-.43-2.34-.82-.08-.2-.42-.82-.71-.98-.24-.13-.59-.46-.01-.47.55-.01.94.51 1.07.71.63 1.05 1.63.76 2.03.57.06-.45.24-.76.44-.93-1.55-.17-3.18-.78-3.18-3.45 0-.76.27-1.39.71-1.88-.07-.18-.31-.89.07-1.85 0 0 .58-.18 1.9.71.55-.15 1.14-.23 1.73-.23s1.18.08 1.73.23c1.32-.9 1.9-.71 1.9-.71.38.96.14 1.67.07 1.85.44.49.71 1.11.71 1.88 0 2.68-1.63 3.28-3.19 3.45.25.22.47.64.47 1.29 0 .93-.01 1.68-.01 1.91 0 .19.13.41.48.34A7.003 7.003 0 0015 8c0-3.87-3.13-7-7-7z"/>

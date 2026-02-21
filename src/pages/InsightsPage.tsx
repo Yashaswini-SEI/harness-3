@@ -733,7 +733,7 @@ export function InsightsPage() {
                 {findNodeName(orgTreeData, settingsNode!)} Settings
               </Text>
               <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeSettings}>
-                <IconV2 name="xmark-circle" size="sm" />
+                <IconV2 name="xmark" size="sm" />
               </Button>
             </div>
             <Tabs.Root defaultValue="details" className="flex flex-1 flex-col overflow-hidden">
