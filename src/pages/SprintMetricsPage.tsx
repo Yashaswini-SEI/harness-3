@@ -27,8 +27,8 @@ function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end">
-        <DropdownMenu.Item>Export PDF</DropdownMenu.Item>
-        <DropdownMenu.Item>Export CSV</DropdownMenu.Item>
+        <DropdownMenu.Item title="Export PDF" />
+        <DropdownMenu.Item title="Export CSV" />
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
