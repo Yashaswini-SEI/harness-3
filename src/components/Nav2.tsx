@@ -1,4 +1,6 @@
+import type { ReactNode } from 'react'
 import { Sidebar, TooltipProvider } from '@harnessio/ui/components'
+import { Header } from './Breadcrumb2'
 
 export type Nav2Section =
   | 'project'
@@ -14,11 +16,12 @@ interface Nav2Props {
   onSectionChange?: (section: Nav2Section) => void
   onThemeToggle?: () => void
   dark?: boolean
+  children?: ReactNode
 }
 
 const eiSubItems: { id: Nav2Section; title: string; href?: string }[] = [
   { id: 'insights', title: 'Insights', href: '/module/sei/insights' },
-  { id: 'canvas', title: 'Canvas' },
+  { id: 'canvas', title: 'Canvas', href: '/module/sei/canvas' },
 ]
 
 const configItems: { id: Nav2Section; title: string; href?: string }[] = [
@@ -39,7 +42,7 @@ const recentItems = [
   { id: 'artifacts', title: 'Artifacts', icon: 'artifacts-solid' },
 ]
 
-export function Nav2({ activeSection, onSectionChange }: Nav2Props) {
+export function Nav2({ activeSection, onSectionChange, children }: Nav2Props) {
   const handleClick = (id: Nav2Section, href?: string) => {
     onSectionChange?.(id)
     if (href) window.location.href = href
@@ -47,81 +50,88 @@ export function Nav2({ activeSection, onSectionChange }: Nav2Props) {
 
   return (
     <TooltipProvider>
-    <Sidebar.Provider defaultOpen>
-      <Sidebar.Root className="!relative !h-auto shrink-0" style={{ minHeight: '100vh', '--cn-sidebar-container-full-width': '280px' } as React.CSSProperties}>
-        <Sidebar.Content>
-          {/* Main nav */}
-          <Sidebar.Group>
-            <Sidebar.Item icon={'dashboard' as never} title="Home" active={false} onClick={() => {}} />
-            <Sidebar.Item icon={'clock-solid' as never} title="Activity" active={false} onClick={() => {}} />
-            <Sidebar.Item icon={'engineering-insights' as never} title="Engineering Insights" active={false} onClick={() => {}} />
-            {eiSubItems.map((item) => (
-              <Sidebar.Item
-                key={item.id}
-                title={item.title}
-                active={activeSection === item.id}
-                onClick={() => handleClick(item.id, item.href)}
-              />
-            ))}
-          </Sidebar.Group>
+      <Sidebar.Provider defaultOpen>
+        <Sidebar.Root style={{ '--cn-sidebar-container-full-width': '280px' } as React.CSSProperties}>
+          <Sidebar.Content>
+            <Sidebar.Group>
+              <Sidebar.Item icon={'dashboard' as never} title="Home" active={false} onClick={() => {}} />
+              <Sidebar.Item icon={'clock-solid' as never} title="Activity" active={false} onClick={() => {}} />
+              <Sidebar.Item icon={'engineering-insights' as never} title="Engineering Insights" active={false} onClick={() => {}} />
+              {eiSubItems.map((item) => (
+                <Sidebar.Item
+                  key={item.id}
+                  title={item.title}
+                  active={activeSection === item.id}
+                  onClick={() => handleClick(item.id, item.href)}
+                />
+              ))}
+            </Sidebar.Group>
 
-          <Sidebar.Group>
-            <div className="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.06em] text-color-3">
-              Configurations
-            </div>
-            {configItems.map((item) => (
-              <Sidebar.Item
-                key={item.id}
-                title={item.title}
-                active={activeSection === item.id}
-                onClick={() => handleClick(item.id, item.href)}
-              />
-            ))}
-          </Sidebar.Group>
+            <Sidebar.Group>
+              <div className="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.06em] text-color-3">
+                Configurations
+              </div>
+              {configItems.map((item) => (
+                <Sidebar.Item
+                  key={item.id}
+                  title={item.title}
+                  active={activeSection === item.id}
+                  onClick={() => handleClick(item.id, item.href)}
+                />
+              ))}
+            </Sidebar.Group>
 
-          <Sidebar.Group>
-            <div className="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.06em] text-color-3">
-              Settings
-            </div>
-            {settingsItems.map((item) => (
-              <Sidebar.Item
-                key={item.id}
-                title={item.title}
-                active={activeSection === item.id}
-                onClick={() => handleClick(item.id)}
-              />
-            ))}
-          </Sidebar.Group>
+            <Sidebar.Group>
+              <div className="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.06em] text-color-3">
+                Settings
+              </div>
+              {settingsItems.map((item) => (
+                <Sidebar.Item
+                  key={item.id}
+                  title={item.title}
+                  active={activeSection === item.id}
+                  onClick={() => handleClick(item.id)}
+                />
+              ))}
+            </Sidebar.Group>
 
-          <Sidebar.Item icon={'menu-more-horizontal' as never} title="more" onClick={() => {}} />
+            <Sidebar.Item icon={'menu-more-horizontal' as never} title="more" onClick={() => {}} />
 
-          <Sidebar.Separator />
+            <Sidebar.Separator />
 
-          <Sidebar.Group label="Recent">
-            {recentItems.map((item) => (
-              <Sidebar.Item
-                key={item.id}
-                icon={item.icon as never}
-                title={item.title}
-                onClick={() => {}}
-              />
-            ))}
-          </Sidebar.Group>
-        </Sidebar.Content>
+            <Sidebar.Group label="Recent">
+              {recentItems.map((item) => (
+                <Sidebar.Item
+                  key={item.id}
+                  icon={item.icon as never}
+                  title={item.title}
+                  onClick={() => {}}
+                />
+              ))}
+            </Sidebar.Group>
+          </Sidebar.Content>
 
-        <Sidebar.Footer>
-          <Sidebar.Item
-            icon={'settings' as never}
-            title="Settings"
-            active={activeSection === 'settings'}
-            onClick={() => handleClick('settings')}
-            withRightIndicator
-          />
-          <Sidebar.ToggleMenuButton />
-        </Sidebar.Footer>
+          <Sidebar.Footer>
+            <Sidebar.Item
+              icon={'settings' as never}
+              title="Settings"
+              active={activeSection === 'settings'}
+              onClick={() => handleClick('settings')}
+              withRightIndicator
+            />
+            <Sidebar.ToggleMenuButton />
+          </Sidebar.Footer>
 
-      </Sidebar.Root>
-    </Sidebar.Provider>
+          <Sidebar.Rail />
+        </Sidebar.Root>
+
+        <div className="flex flex-1 flex-col">
+          <Header />
+          <Sidebar.Inset>
+            {children}
+          </Sidebar.Inset>
+        </div>
+      </Sidebar.Provider>
     </TooltipProvider>
   )
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import {
   Text,
   Button,
@@ -11,7 +11,6 @@ import {
   Select,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 
 interface OrgTreeRow {
   name: string
@@ -187,9 +186,6 @@ export function OrgTreePage() {
   const [search, setSearch] = useState('')
   const [searchField, setSearchField] = useState(searchFields[0])
   const [sortDir, setSortDir] = useState<'asc' | 'desc' | false>(false)
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -236,12 +232,6 @@ export function OrgTreePage() {
     newCloseTimerRef.current = setTimeout(() => setNewDrawerVisible(false), 300)
   }, [])
 
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
-
   const filteredData = search
     ? orgTreeData.filter((row) => {
         const val = row[searchField.key]
@@ -261,12 +251,11 @@ export function OrgTreePage() {
   const pagedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="org-tree" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
-      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
+
+    <Nav2 activeSection="org-tree">
+      <>
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
 
         {/* Page title + action */}
         <div className="flex items-center justify-between">
@@ -564,7 +553,7 @@ export function OrgTreePage() {
           </div>
         </>
       )}
-      </div>
-    </div>
+      </>
+    </Nav2>
   )
 }

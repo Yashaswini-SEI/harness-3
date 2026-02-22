@@ -19,7 +19,6 @@ import iconOrg from '../assets/icon-org.svg'
 import iconOrgTree from '../assets/icon-org-tree.svg'
 import imgEmptyState from '../assets/img-empty-state.svg'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 
 // Dashboard thumbnail imports (light variants)
 import thumb1 from '../assets/dashboard-thumbnails/1-light.svg'
@@ -359,9 +358,6 @@ export function InsightsPage() {
   const [expandAll, setExpandAll] = useState(false)
   const [treeKey, setTreeKey] = useState(0)
   const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [settingsNode, setSettingsNode] = useState<string | null>(null)
   const [panelVisible, setPanelVisible] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
@@ -435,16 +431,9 @@ export function InsightsPage() {
     }
   }, [])
 
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
-
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
+    <Nav2 activeSection="insights">
+      <>
       {/* Override execution tree styles: replace status icons with org icons, hide duration/counts */}
       <style>{`
         .org-tree { scrollbar-width: none; overflow-x: hidden; }
@@ -570,10 +559,9 @@ export function InsightsPage() {
           background-color: var(--cn-brand-default, #0078D4);
         }
       `}</style>
-      <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       {/* Page content */}
-      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
         {/* Page title */}
         <Text as="h1" variant="heading-hero" color="foreground-1">Insights</Text>
 
@@ -824,7 +812,7 @@ export function InsightsPage() {
           </div>
         </>
       )}
-      </div>
-    </div>
+      </>
+    </Nav2>
   )
 }

@@ -11,7 +11,6 @@ import {
   Pagination,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 import { DonutChart, GroupedBarChart } from '../components/Charts'
 
 // ── Time range config ──
@@ -306,9 +305,6 @@ function ChartCard({ title, subtitle, tooltip, children }: {
 // ── Main page ──
 
 export function AIInsightsPage() {
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [timeRange, setTimeRange] = useState('12M')
   const [assistantFilter, setAssistantFilter] = useState('all')
   const [compareTo, setCompareTo] = useState('')
@@ -377,19 +373,12 @@ export function AIInsightsPage() {
     return filteredUsers.slice(start, start + devPageSize)
   }, [filteredUsers, devPage, devPageSize])
 
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
-
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
-      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
+
+    <Nav2 activeSection="insights">
+
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
 
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -766,7 +755,6 @@ export function AIInsightsPage() {
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </Nav2>
   )
 }

@@ -10,7 +10,6 @@ import {
 import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { BarChart2 } from '../components/Charts'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 import imgEmptyState from '../assets/img-empty-state.svg'
 
 const widgetChartData = [
@@ -35,10 +34,6 @@ export function CustomInsightPage() {
   const insightDesc = searchParams.get('desc') || ''
   const insightTagsParam = searchParams.get('tags') || ''
   const tags = insightTagsParam ? insightTagsParam.split(',') : []
-
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [hasWidget, setHasWidget] = useState(false)
   const [showToast, setShowToast] = useState(true)
   const [timeRange, setTimeRange] = useState('7D')
@@ -52,12 +47,6 @@ export function CustomInsightPage() {
   }, [location.state])
 
   useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
-
-  useEffect(() => {
     if (showToast) {
       const timer = setTimeout(() => setShowToast(false), 4000)
       return () => clearTimeout(timer)
@@ -65,10 +54,9 @@ export function CustomInsightPage() {
   }, [showToast])
 
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="canvas" dark={dark} onThemeToggle={() => setDark(!dark)} />
+
+
+    <Nav2 activeSection="canvas">
 
       <div className="flex flex-1 flex-col">
         <div className="flex flex-col gap-5 px-5 pb-5 pt-3">
@@ -163,7 +151,6 @@ export function CustomInsightPage() {
           )}
         </div>
       </div>
-      </div>
 
       {/* Toast notification */}
       {showToast && (
@@ -174,6 +161,6 @@ export function CustomInsightPage() {
           </Text>
         </div>
       )}
-    </div>
+    </Nav2>
   )
 }

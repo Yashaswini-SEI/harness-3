@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Text,
   Button,
@@ -10,7 +10,6 @@ import {
   Switch,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 
 const profileTabs = ['Overview', 'DORA', 'Sprints']
 
@@ -136,9 +135,6 @@ const defaultStages: WorkflowStage[] = [
 
 
 export function EfficiencyProfilePage() {
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [activeTab, setActiveTab] = useState('Overview')
   const [activeDoraMetric, setActiveDoraMetric] = useState(doraMetrics[0])
   const [stages, setStages] = useState(defaultStages)
@@ -154,17 +150,10 @@ export function EfficiencyProfilePage() {
     Low: 'Low',
   })
 
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
-
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="org-tree" dark={dark} onThemeToggle={() => setDark(!dark)} />
+
+
+    <Nav2 activeSection="org-tree">
 
       <div className="flex flex-1 flex-col gap-5 bg-cn-2 px-5 pb-5 pt-3">
 
@@ -496,7 +485,6 @@ export function EfficiencyProfilePage() {
           </div>
         )}
       </div>
-      </div>
-    </div>
+    </Nav2>
   )
 }

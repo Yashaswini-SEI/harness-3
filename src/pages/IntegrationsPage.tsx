@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Text,
   Button,
@@ -10,7 +10,6 @@ import {
   Tag,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 import harnessLogo from '../assets/logos/harness.svg'
 
 interface IntegrationRow {
@@ -136,18 +135,9 @@ const STATUS_STYLES: Record<string, { color: string; dot: string }> = {
 
 export function IntegrationsPage() {
   const [search, setSearch] = useState('')
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [activeTab, setActiveTab] = useState('my')
-
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
 
   const filteredData = search
     ? integrationData.filter((row) =>
@@ -158,12 +148,11 @@ export function IntegrationsPage() {
   const pagedData = filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="org-tree" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
-      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
+
+    <Nav2 activeSection="org-tree">
+
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
 
         <Text as="h1" variant="heading-hero" color="foreground-1">Integrations</Text>
 
@@ -309,7 +298,6 @@ export function IntegrationsPage() {
           </div>
         )}
       </div>
-      </div>
-    </div>
+    </Nav2>
   )
 }

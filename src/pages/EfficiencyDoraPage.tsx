@@ -11,7 +11,6 @@ import {
   DropdownMenu,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 import { StackedBarChart } from '../components/Charts'
 import {
   ResponsiveContainer,
@@ -297,9 +296,6 @@ function PhaseIcon({ type }: { type: PhaseIconType }) {
 // ── Main page ──
 
 export function EfficiencyDoraPage() {
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [timeRange, setTimeRange] = useState('6M')
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [drillPage, setDrillPage] = useState(1)
@@ -478,12 +474,6 @@ export function EfficiencyDoraPage() {
   }
 
   useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
-
-  useEffect(() => {
     setSelectedBarIndex(null)
   }, [timeRange])
 
@@ -616,12 +606,11 @@ export function EfficiencyDoraPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
-      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
+
+    <Nav2 activeSection="insights">
+
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
 
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -1486,7 +1475,6 @@ export function EfficiencyDoraPage() {
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </Nav2>
   )
 }

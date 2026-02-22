@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Text,
   Button,
@@ -12,7 +12,6 @@ import {
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { StackedBarChart } from '../components/Charts'
-import { Header } from '../components/Breadcrumb2'
 import { InsightMetricCard } from '../components/InsightMetricCard'
 
 // ── Deterministic jitter ──
@@ -75,9 +74,6 @@ function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
 // ── Main page ──
 
 export function ProductivityPage() {
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [timeRange, setTimeRange] = useState('6M')
   const [showTrendline, setShowTrendline] = useState(false)
   const [prDrillPage, setPrDrillPage] = useState(1)
@@ -336,12 +332,6 @@ export function ProductivityPage() {
     return reworkDrilldownData.slice(start, start + reworkDrillPageSize)
   }, [reworkDrilldownData, reworkDrillPage, reworkDrillPageSize])
 
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
-
   // ── PR Velocity chart data ──
   const prVelocityData = useMemo(() => {
     const raw = profile.labels.map((name, i) => ({
@@ -390,12 +380,11 @@ export function ProductivityPage() {
   ]
 
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
-      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
+
+    <Nav2 activeSection="insights">
+
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
 
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -1170,7 +1159,6 @@ export function ProductivityPage() {
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </Nav2>
   )
 }

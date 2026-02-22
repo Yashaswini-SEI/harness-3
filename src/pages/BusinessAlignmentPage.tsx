@@ -11,7 +11,6 @@ import {
   Pagination,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 import { StackedBarChart } from '../components/Charts'
 
 // ── Deterministic jitter ──
@@ -171,9 +170,6 @@ function MetricCard({ label, value, trend, color }: { label: string; value: stri
 // ── Main page ──
 
 export function BusinessAlignmentPage() {
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [timeRange, setTimeRange] = useState('12M')
   const [metricType, setMetricType] = useState('ticket-count')
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
@@ -228,24 +224,17 @@ export function BusinessAlignmentPage() {
     return drilldownData.slice(start, start + drillPageSize)
   }, [drilldownData, drillPage, drillPageSize])
 
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
-
   // Reset selected bar when time range or metric type changes
   useEffect(() => {
     setSelectedBarIndex(null)
   }, [timeRange, metricType])
 
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
-      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
+
+    <Nav2 activeSection="insights">
+
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
 
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -451,7 +440,6 @@ export function BusinessAlignmentPage() {
             </div>
         </div>
       </div>
-      </div>
-    </div>
+    </Nav2>
   )
 }

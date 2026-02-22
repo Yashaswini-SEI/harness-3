@@ -14,7 +14,6 @@ import {
 } from '@harnessio/ui/components'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 import splitIcon from '../assets/icon-split.svg'
 import tableIcon from '../assets/icon-table.svg'
 import chartIcon from '../assets/icon-chart.svg'
@@ -172,15 +171,6 @@ const TIME_RANGE_SCALE: Record<string, number> = {
 export function WidgetBuilderPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
-
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
 
   const [timeRange, setTimeRange] = useState('12M')
   const [chartType, setChartType] = useState('table')
@@ -355,10 +345,9 @@ export function WidgetBuilderPage() {
   }, [chartHeight])
 
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
+
+
+    <Nav2 activeSection="insights">
 
       {/* Page content */}
       <div className="flex flex-1 flex-col gap-5 bg-cn-3 px-5 pb-5 pt-3">
@@ -924,7 +913,6 @@ export function WidgetBuilderPage() {
         </div>
       </div>
       </div>
-      </div>
-    </div>
+    </Nav2>
   )
 }

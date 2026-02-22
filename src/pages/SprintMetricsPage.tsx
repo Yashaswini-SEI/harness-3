@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Text,
   Button,
@@ -15,7 +15,6 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
 import { Nav2 } from '../components/Nav2'
-import { Header } from '../components/Breadcrumb2'
 import { InsightMetricCard } from '../components/InsightMetricCard'
 
 function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
@@ -35,9 +34,6 @@ function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
 }
 
 export function SprintMetricsPage() {
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark-std-low')
-  )
   const [timeRange, setTimeRange] = useState('6M')
   const [selectedSprintBar, setSelectedSprintBar] = useState<number | null>(null)
   const [sprintDrillPage, setSprintDrillPage] = useState(1)
@@ -45,12 +41,6 @@ export function SprintMetricsPage() {
   const [showTrendline, setShowTrendline] = useState(false)
   const [viewBy, setViewBy] = useState('story-points')
   const [grouped, setGrouped] = useState(false)
-
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove('light-std-low', 'dark-std-low')
-    root.classList.add(dark ? 'dark-std-low' : 'light-std-low')
-  }, [dark])
 
   // ── Chart styling constants ──
   const TICK_STYLE = { fontSize: 12, fill: '#6B7280' }
@@ -128,12 +118,11 @@ export function SprintMetricsPage() {
   }, [sprintDrilldownData, sprintDrillPage, sprintDrillPageSize])
 
   return (
-    <div className="flex min-h-screen flex-col bg-cn-3">
-      <Header />
-      <div className="flex flex-1">
-      <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
-      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
+
+    <Nav2 activeSection="insights">
+
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
 
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -577,7 +566,6 @@ export function SprintMetricsPage() {
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </Nav2>
   )
 }

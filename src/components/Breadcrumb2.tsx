@@ -15,6 +15,7 @@ interface Breadcrumb2Props {
 const SEGMENT_LABELS: Record<string, string> = {
   sei: 'Platform',
   insights: 'Insights',
+  canvas: 'Canvas',
   'org-tree': 'Org Trees',
   profile: 'Profile',
   efficiency: 'Efficiency',
