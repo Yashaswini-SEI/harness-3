@@ -19,7 +19,7 @@ interface Nav2Props {
 export function Nav2({ activeSection, children }: Nav2Props) {
   return (
     <TooltipProvider>
-      <Sidebar.Provider defaultOpen>
+      <Sidebar.Provider open defaultOpen>
         <Sidebar.Root>
           <Sidebar.Content>
             {/* Main nav */}
@@ -29,7 +29,7 @@ export function Nav2({ activeSection, children }: Nav2Props) {
               <Sidebar.Item
                 icon={'engineering-insights' as never}
                 title="Engineering Insights"
-                active={activeSection === 'insights' || activeSection === 'canvas'}
+                active={activeSection === 'insights' || activeSection === 'canvas' || activeSection === 'org-tree' || activeSection === 'teams' || activeSection === 'project' || activeSection === 'account-mgmt'}
               >
                 <Sidebar.MenuSubItem
                   title="Insights"
@@ -41,38 +41,30 @@ export function Nav2({ activeSection, children }: Nav2Props) {
                   to="/module/sei/canvas"
                   active={activeSection === 'canvas'}
                 />
+                <Sidebar.MenuSubItem
+                  title="Org Trees"
+                  to="/module/sei/configuration/org-tree"
+                  active={activeSection === 'org-tree'}
+                />
+                <Sidebar.MenuSubItem
+                  title="Teams"
+                  to="#"
+                  active={activeSection === 'teams'}
+                />
+                <Sidebar.MenuSubItem
+                  title="Project"
+                  to="#"
+                  active={activeSection === 'project'}
+                />
+                <Sidebar.MenuSubItem
+                  title="Account Management"
+                  to="#"
+                  active={activeSection === 'account-mgmt'}
+                />
               </Sidebar.Item>
-            </Sidebar.Group>
 
-            {/* Configurations */}
-            <Sidebar.Group label="Configurations">
-              <Sidebar.Item
-                title="Org Trees"
-                to="/module/sei/configuration/org-tree"
-                active={activeSection === 'org-tree'}
-              />
-              <Sidebar.Item
-                title="Teams"
-                to="#"
-                active={activeSection === 'teams'}
-              />
-              <Sidebar.Item
-                title="Project"
-                to="#"
-                active={activeSection === 'project'}
-              />
+              <Sidebar.Item icon={'menu-more-horizontal' as never} title="more" to="#" />
             </Sidebar.Group>
-
-            {/* Settings */}
-            <Sidebar.Group label="Settings">
-              <Sidebar.Item
-                title="Account Management"
-                to="#"
-                active={activeSection === 'account-mgmt'}
-              />
-            </Sidebar.Group>
-
-            <Sidebar.Item icon={'menu-more-horizontal' as never} title="more" to="#" />
 
             <Sidebar.Separator />
 
