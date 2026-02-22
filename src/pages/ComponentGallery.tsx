@@ -9,7 +9,7 @@ import { LineChart2, BarChart2, HorizontalBarChart, AreaChart2, ScatterChart2, D
 export function ComponentGallery() {
   const [search, setSearch] = useState('')
   const [activeNav, setActiveNav] = useState('')
-  const [nav2Active, setNav2Active] = useState<Nav2Section>('insights')
+  const [nav2Active] = useState<Nav2Section>('insights')
 
   return (
     <div className="space-y-8">
@@ -76,7 +76,7 @@ export function ComponentGallery() {
             <div className="space-y-2">
               <Text variant="caption-strong" color="foreground-2">Default</Text>
               <div className="rounded-lg overflow-hidden" style={{ height: 600 }}>
-                <Nav2 activeSection={nav2Active} onSectionChange={setNav2Active} />
+                <Nav2 activeSection={nav2Active} />
               </div>
             </div>
           </div>

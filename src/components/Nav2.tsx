@@ -13,101 +13,76 @@ export type Nav2Section =
 
 interface Nav2Props {
   activeSection: Nav2Section
-  onSectionChange?: (section: Nav2Section) => void
-  onThemeToggle?: () => void
-  dark?: boolean
   children?: ReactNode
 }
 
-const eiSubItems: { id: Nav2Section; title: string; href?: string }[] = [
-  { id: 'insights', title: 'Insights', href: '/module/sei/insights' },
-  { id: 'canvas', title: 'Canvas', href: '/module/sei/canvas' },
-]
-
-const configItems: { id: Nav2Section; title: string; href?: string }[] = [
-  { id: 'org-tree', title: 'Org Trees', href: '/module/sei/configuration/org-tree' },
-  { id: 'teams', title: 'Teams', href: '/module/sei/configuration/teams' },
-  { id: 'project', title: 'Project' },
-]
-
-const settingsItems: { id: Nav2Section; title: string }[] = [
-  { id: 'account-mgmt', title: 'Account Management' },
-]
-
-const recentItems = [
-  { id: 'security-tests', title: 'Security Tests', icon: 'security-tests' },
-  { id: 'incidents', title: 'Incidents', icon: 'incidents-solid' },
-  { id: 'deployments', title: 'Deployments', icon: 'deployments-solid' },
-  { id: 'feature-flags', title: 'Feature Flags', icon: 'feature-flags' },
-  { id: 'artifacts', title: 'Artifacts', icon: 'artifacts-solid' },
-]
-
-export function Nav2({ activeSection, onSectionChange, children }: Nav2Props) {
-  const handleClick = (id: Nav2Section, href?: string) => {
-    onSectionChange?.(id)
-    if (href) window.location.href = href
-  }
-
+export function Nav2({ activeSection, children }: Nav2Props) {
   return (
     <TooltipProvider>
       <Sidebar.Provider defaultOpen>
-        <Sidebar.Root style={{ '--cn-sidebar-container-full-width': '280px' } as React.CSSProperties}>
+        <Sidebar.Root>
           <Sidebar.Content>
+            {/* Main nav */}
             <Sidebar.Group>
-              <Sidebar.Item icon={'dashboard' as never} title="Home" active={false} onClick={() => {}} />
-              <Sidebar.Item icon={'clock-solid' as never} title="Activity" active={false} onClick={() => {}} />
-              <Sidebar.Item icon={'engineering-insights' as never} title="Engineering Insights" active={false} onClick={() => {}} />
-              {eiSubItems.map((item) => (
-                <Sidebar.Item
-                  key={item.id}
-                  title={item.title}
-                  active={activeSection === item.id}
-                  onClick={() => handleClick(item.id, item.href)}
+              <Sidebar.Item icon={'dashboard' as never} title="Home" to="/" />
+              <Sidebar.Item icon={'clock-solid' as never} title="Activity" to="#" />
+              <Sidebar.Item
+                icon={'engineering-insights' as never}
+                title="Engineering Insights"
+                active={activeSection === 'insights' || activeSection === 'canvas'}
+              >
+                <Sidebar.MenuSubItem
+                  title="Insights"
+                  to="/module/sei/insights"
+                  active={activeSection === 'insights'}
                 />
-              ))}
+                <Sidebar.MenuSubItem
+                  title="Canvas"
+                  to="/module/sei/canvas"
+                  active={activeSection === 'canvas'}
+                />
+              </Sidebar.Item>
             </Sidebar.Group>
 
-            <Sidebar.Group>
-              <div className="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.06em] text-color-3">
-                Configurations
-              </div>
-              {configItems.map((item) => (
-                <Sidebar.Item
-                  key={item.id}
-                  title={item.title}
-                  active={activeSection === item.id}
-                  onClick={() => handleClick(item.id, item.href)}
-                />
-              ))}
+            {/* Configurations */}
+            <Sidebar.Group label="Configurations">
+              <Sidebar.Item
+                title="Org Trees"
+                to="/module/sei/configuration/org-tree"
+                active={activeSection === 'org-tree'}
+              />
+              <Sidebar.Item
+                title="Teams"
+                to="#"
+                active={activeSection === 'teams'}
+              />
+              <Sidebar.Item
+                title="Project"
+                to="#"
+                active={activeSection === 'project'}
+              />
             </Sidebar.Group>
 
-            <Sidebar.Group>
-              <div className="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.06em] text-color-3">
-                Settings
-              </div>
-              {settingsItems.map((item) => (
-                <Sidebar.Item
-                  key={item.id}
-                  title={item.title}
-                  active={activeSection === item.id}
-                  onClick={() => handleClick(item.id)}
-                />
-              ))}
+            {/* Settings */}
+            <Sidebar.Group label="Settings">
+              <Sidebar.Item
+                title="Account Management"
+                to="#"
+                active={activeSection === 'account-mgmt'}
+              />
             </Sidebar.Group>
 
-            <Sidebar.Item icon={'menu-more-horizontal' as never} title="more" onClick={() => {}} />
+            <Sidebar.Item icon={'menu-more-horizontal' as never} title="more" to="#" />
 
             <Sidebar.Separator />
 
+            {/* Recent */}
             <Sidebar.Group label="Recent">
-              {recentItems.map((item) => (
-                <Sidebar.Item
-                  key={item.id}
-                  icon={item.icon as never}
-                  title={item.title}
-                  onClick={() => {}}
-                />
-              ))}
+              <Sidebar.Item icon={'security-tests' as never} title="Security Tests" to="#" />
+              <Sidebar.Item icon={'incidents-solid' as never} title="Incidents" to="#" />
+              <Sidebar.Item icon={'deployments-solid' as never} title="Deployments" to="#" />
+              <Sidebar.Item icon={'feature-flags' as never} title="Feature Flags" to="#" />
+              <Sidebar.Item icon={'artifacts-solid' as never} title="Artifacts" to="#" />
             </Sidebar.Group>
           </Sidebar.Content>
 
@@ -116,8 +91,8 @@ export function Nav2({ activeSection, onSectionChange, children }: Nav2Props) {
               icon={'settings' as never}
               title="Settings"
               active={activeSection === 'settings'}
-              onClick={() => handleClick('settings')}
               withRightIndicator
+              to="#"
             />
             <Sidebar.ToggleMenuButton />
           </Sidebar.Footer>
@@ -125,8 +100,11 @@ export function Nav2({ activeSection, onSectionChange, children }: Nav2Props) {
           <Sidebar.Rail />
         </Sidebar.Root>
 
-        <div className="flex flex-1 flex-col">
-          <Header />
+        {/* Main content area */}
+        <div className="flex-1">
+          <header className="border-b">
+            <Header />
+          </header>
           <Sidebar.Inset>
             {children}
           </Sidebar.Inset>
