@@ -38,7 +38,7 @@ export function HarnessReportPage() {
 
     <Nav2 activeSection="insights">
 
-      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-6">
 
         <div className="flex flex-col gap-1">
           <Text as="h1" variant="heading-hero" color="foreground-1">

@@ -55,7 +55,7 @@ export function CanvasPage() {
 
   return (
     <Nav2 activeSection="canvas">
-      <div className="flex flex-1 flex-col gap-3 overflow-auto px-5 pb-5 pt-3">
+      <div className="flex flex-1 flex-col gap-3 overflow-auto px-5 pb-5 pt-6">
         {/* Page title + action */}
         <div className="flex items-center justify-between">
           <Text as="h1" variant="heading-hero" color="foreground-1">Canvas</Text>

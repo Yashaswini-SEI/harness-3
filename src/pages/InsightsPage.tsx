@@ -561,7 +561,7 @@ export function InsightsPage() {
       `}</style>
 
       {/* Page content */}
-      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-6">
         {/* Page title */}
         <Text as="h1" variant="heading-hero" color="foreground-1">Insights</Text>
 

@@ -350,7 +350,7 @@ export function WidgetBuilderPage() {
     <Nav2 activeSection="insights">
 
       {/* Page content */}
-      <div className="flex flex-1 flex-col gap-5 bg-cn-3 px-5 pb-5 pt-3">
+      <div className="flex flex-1 flex-col gap-5 bg-cn-3 px-5 pb-5 pt-6">
 
       {/* Header row */}
       <div className="flex items-start justify-between">

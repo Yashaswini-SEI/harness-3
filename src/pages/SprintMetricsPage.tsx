@@ -122,7 +122,7 @@ export function SprintMetricsPage() {
 
     <Nav2 activeSection="insights">
 
-      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-6">
 
         {/* Header */}
         <div className="flex items-start justify-between">

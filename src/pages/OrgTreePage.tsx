@@ -255,7 +255,7 @@ export function OrgTreePage() {
 
     <Nav2 activeSection="org-tree">
       <>
-      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-3">
+      <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-6">
 
         {/* Page title + action */}
         <div className="flex items-center justify-between">

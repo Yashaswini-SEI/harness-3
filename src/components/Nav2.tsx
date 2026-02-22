@@ -17,11 +17,14 @@ interface Nav2Props {
 }
 
 export function Nav2({ activeSection, children }: Nav2Props) {
+
   return (
     <TooltipProvider>
-      <Sidebar.Provider open defaultOpen>
-        <Sidebar.Root>
-          <Sidebar.Content>
+      <div className="flex h-screen flex-col">
+        <Header />
+        <Sidebar.Provider open defaultOpen>
+          <Sidebar.Root>
+            <Sidebar.Content>
             {/* Main nav */}
             <Sidebar.Group>
               <Sidebar.Item icon={'dashboard' as never} title="Home" to="/" />
@@ -92,16 +95,12 @@ export function Nav2({ activeSection, children }: Nav2Props) {
           <Sidebar.Rail />
         </Sidebar.Root>
 
-        {/* Main content area */}
-        <div className="flex-1">
-          <header className="border-b">
-            <Header />
-          </header>
-          <Sidebar.Inset>
+          {/* Main content area */}
+          <Sidebar.Inset className="rounded-tl-[6px]">
             {children}
           </Sidebar.Inset>
-        </div>
-      </Sidebar.Provider>
+        </Sidebar.Provider>
+      </div>
     </TooltipProvider>
   )
 }

@@ -80,7 +80,7 @@ export function Header() {
   const crumbs = generateBreadcrumbs(location.pathname)
 
   return (
-    <header className="flex h-[52px] shrink-0 items-center justify-between border-b border-borders-1 px-4">
+    <header className="flex h-[52px] shrink-0 items-center justify-between px-4">
       {/* Left: Logo + Breadcrumb */}
       <div className="flex min-w-0 items-center gap-4">
         <img src={harnessLogo} alt="Harness" className="h-[20px] shrink-0" />
