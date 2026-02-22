@@ -8,7 +8,6 @@ import {
   Textarea,
   Select,
   Switch,
-  Card,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
@@ -273,7 +272,7 @@ export function EfficiencyProfilePage() {
             {/* Main content */}
             <div className="flex-1 space-y-6">
               {/* Header */}
-              <Card.Root className="overflow-hidden">
+              <div className="overflow-hidden rounded-cn-2 border border-borders-2" style={{ backgroundColor: '#fff' }}>
                 <div className="p-5">
                   <div className="flex items-center gap-3">
                     <Switch checked onCheckedChange={() => {}} />
@@ -283,16 +282,16 @@ export function EfficiencyProfilePage() {
                     Lead Time for Changes as per DORA metrics is defined as the amount of time it takes a task to get into production.
                   </Text>
                 </div>
-                <div className="flex justify-end border-t border-borders-2 bg-cn-2 px-5 py-3">
+                <div className="flex justify-end border-t border-borders-2 px-5 py-3" style={{ backgroundColor: '#FAFAFA' }}>
                   <Button size="sm">Save</Button>
                 </div>
-              </Card.Root>
+              </div>
 
               {/* Configure workflow stages */}
               <Text variant="body-strong" color="foreground-1">Configure workflow stages</Text>
 
               {stages.map((stage, idx) => (
-                <Card.Root key={stage.name} className="overflow-hidden">
+                <div key={stage.name} className="overflow-hidden rounded-cn-2 border border-borders-2" style={{ backgroundColor: '#fff' }}>
                   <div className="p-5 space-y-4">
                   {/* Stage header */}
                   <div className="flex items-center justify-between">
@@ -372,14 +371,14 @@ export function EfficiencyProfilePage() {
                     </div>
                   </div>
                   </div>
-                  <div className="flex justify-end border-t border-borders-2 bg-cn-2 px-5 py-3">
+                  <div className="flex justify-end border-t border-borders-2 px-5 py-3" style={{ backgroundColor: '#FAFAFA' }}>
                     <Button size="sm">Save</Button>
                   </div>
-                </Card.Root>
+                </div>
               ))}
 
               {/* Advanced section */}
-              <Card.Root className="overflow-hidden">
+              <div className="overflow-hidden rounded-cn-2 border border-borders-2" style={{ backgroundColor: '#fff' }}>
                 <div className="p-5 space-y-4">
                 <button
                   className="flex w-full items-center justify-between"
@@ -480,20 +479,20 @@ export function EfficiencyProfilePage() {
                   </div>
                 )}
                 </div>
-                <div className="flex justify-end border-t border-borders-2 bg-cn-2 px-5 py-3">
+                <div className="flex justify-end border-t border-borders-2 px-5 py-3" style={{ backgroundColor: '#FAFAFA' }}>
                   <Button size="sm">Save</Button>
                 </div>
-              </Card.Root>
+              </div>
             </div>
           </div>
         )}
 
         {activeTab === 'Sprints' && (
-          <Card.Root className="p-6">
+          <div className="rounded-cn-2 border border-borders-2 p-6" style={{ backgroundColor: '#fff' }}>
             <Text variant="body-normal" color="foreground-3">
               Sprint metrics configuration will appear here.
             </Text>
-          </Card.Root>
+          </div>
         )}
       </div>
     </div>
