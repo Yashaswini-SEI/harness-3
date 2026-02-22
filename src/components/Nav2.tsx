@@ -1,11 +1,4 @@
-import logoIcon from '../assets/icon-logo.svg'
-import insightsIcon from '../assets/icon-insights.svg'
-import canvasIcon from '../assets/icon-canvas.svg'
-import orgTreeIcon from '../assets/icon-org-tree.svg'
-import teamsIcon from '../assets/icon-teams.svg'
-import accountMgmtIcon from '../assets/icon-account-mgmt.svg'
-import settingsIcon from '../assets/icon-settings.svg'
-import projectIcon from '../assets/icon-project.svg'
+import { Sidebar, TooltipProvider } from '@harnessio/ui/components'
 
 export type Nav2Section =
   | 'project'
@@ -23,130 +16,112 @@ interface Nav2Props {
   dark?: boolean
 }
 
-const activeFilter = 'brightness(0) invert(72%) sepia(50%) saturate(500%) hue-rotate(175deg) brightness(105%)'
-const hoverFilter = 'brightness(0) invert(1)'
-
-const topGroup: { id: Nav2Section; icon: string; alt: string; size?: string; href?: string }[] = [
-  { id: 'insights', icon: insightsIcon, alt: 'Insights', size: 'h-[17px] w-[17px]', href: '/module/sei/insights' },
-  { id: 'canvas', icon: canvasIcon, alt: 'Canvas', size: 'h-[17px] w-[17px]' },
+const eiSubItems: { id: Nav2Section; title: string; href?: string }[] = [
+  { id: 'insights', title: 'Insights', href: '/module/sei/insights' },
+  { id: 'canvas', title: 'Canvas' },
 ]
 
-const bottomGroup: { id: Nav2Section; icon: string; alt: string; href?: string }[] = [
-  { id: 'org-tree', icon: orgTreeIcon, alt: 'Org Tree', href: '/module/sei/configuration/org-tree' },
-  { id: 'teams', icon: teamsIcon, alt: 'Teams' },
-  { id: 'account-mgmt', icon: accountMgmtIcon, alt: 'Account Management' },
+const configItems: { id: Nav2Section; title: string; href?: string }[] = [
+  { id: 'org-tree', title: 'Org Trees', href: '/module/sei/configuration/org-tree' },
+  { id: 'teams', title: 'Teams', href: '/module/sei/configuration/teams' },
+  { id: 'project', title: 'Project' },
 ]
 
-function NavItem({
-  item,
-  isActive,
-  onClick,
-}: {
-  item: { id: Nav2Section; icon: string; alt: string; size?: string; href?: string }
-  isActive: boolean
-  onClick: () => void
-}) {
-  const imgClass = item.size ?? 'h-5 w-5'
+const settingsItems: { id: Nav2Section; title: string }[] = [
+  { id: 'account-mgmt', title: 'Account Management' },
+]
 
-  const handleClick = () => {
-    onClick()
-    if (item.href) {
-      window.location.href = item.href
-    }
-  }
+const recentItems = [
+  { id: 'security-tests', title: 'Security Tests', icon: 'security-tests' },
+  { id: 'incidents', title: 'Incidents', icon: 'incidents-solid' },
+  { id: 'deployments', title: 'Deployments', icon: 'deployments-solid' },
+  { id: 'feature-flags', title: 'Feature Flags', icon: 'feature-flags' },
+  { id: 'artifacts', title: 'Artifacts', icon: 'artifacts-solid' },
+]
 
-  if (isActive) {
-    return (
-      <button
-        className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/90"
-        onClick={handleClick}
-      >
-        <img src={item.icon} alt={item.alt} className={imgClass} style={{ filter: activeFilter }} />
-      </button>
-    )
+export function Nav2({ activeSection, onSectionChange }: Nav2Props) {
+  const handleClick = (id: Nav2Section, href?: string) => {
+    onSectionChange?.(id)
+    if (href) window.location.href = href
   }
 
   return (
-    <button
-      className="nav2-item flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/90"
-      onClick={handleClick}
-    >
-      <img src={item.icon} alt={item.alt} className={imgClass} />
-    </button>
-  )
-}
+    <TooltipProvider>
+    <Sidebar.Provider defaultOpen>
+      <Sidebar.Root className="!relative !h-auto shrink-0" style={{ minHeight: '100vh', '--cn-sidebar-container-full-width': '280px' } as React.CSSProperties}>
+        <Sidebar.Content>
+          {/* Main nav */}
+          <Sidebar.Group>
+            <Sidebar.Item icon={'dashboard' as never} title="Home" active={false} onClick={() => {}} />
+            <Sidebar.Item icon={'clock-solid' as never} title="Activity" active={false} onClick={() => {}} />
+            <Sidebar.Item icon={'engineering-insights' as never} title="Engineering Insights" active={false} onClick={() => {}} />
+            {eiSubItems.map((item) => (
+              <Sidebar.Item
+                key={item.id}
+                title={item.title}
+                active={activeSection === item.id}
+                onClick={() => handleClick(item.id, item.href)}
+              />
+            ))}
+          </Sidebar.Group>
 
-export function Nav2({ activeSection, onSectionChange, onThemeToggle, dark }: Nav2Props) {
-  return (
-    <>
-      <style>{`
-        .nav2-item:hover img { filter: ${hoverFilter}; }
-        .nav2-theme-btn:hover svg { filter: ${hoverFilter}; }
-      `}</style>
-      <nav className="flex w-[80px] shrink-0 flex-col items-center justify-between py-4" style={{ backgroundColor: '#051A33' }}>
-        <div className="flex flex-col items-center gap-1">
-          {/* Logo */}
-          <img src={logoIcon} alt="Harness" className="my-3 h-[26px] w-[26px]" />
-          {/* Green accent line */}
-          <hr className="w-[50px] my-3 border-[1.5px] border-[#42AB45]" />
-          {/* Project */}
-          <button
-            className="flex h-10 w-9 my-3 items-center justify-center rounded-[6px] border border-[#6C6D87] bg-[#121725]"
-            onClick={() => onSectionChange?.('project')}
-          >
-            <img src={projectIcon} alt="Project" className="h-5 w-5" />
-          </button>
-          {/* Top nav group */}
-          {topGroup.map((item) => (
-            <NavItem
-              key={item.id}
-              item={item}
-              isActive={activeSection === item.id}
-              onClick={() => onSectionChange?.(item.id)}
-            />
-          ))}
-          {/* Divider */}
-          <hr className="my-3 w-[50px] border-[#6C6D87]" />
-          {/* Bottom nav group */}
-          {bottomGroup.map((item) => (
-            <NavItem
-              key={item.id}
-              item={item}
-              isActive={activeSection === item.id}
-              onClick={() => onSectionChange?.(item.id)}
-            />
-          ))}
-          {/* Divider */}
-          <hr className="my-3 w-[50px] border-[#6C6D87]" />
-          {/* Settings */}
-          <NavItem
-            item={{ id: 'settings', icon: settingsIcon, alt: 'Settings' }}
-            isActive={activeSection === 'settings'}
-            onClick={() => onSectionChange?.('settings')}
+          <Sidebar.Group>
+            <div className="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.06em] text-color-3">
+              Configurations
+            </div>
+            {configItems.map((item) => (
+              <Sidebar.Item
+                key={item.id}
+                title={item.title}
+                active={activeSection === item.id}
+                onClick={() => handleClick(item.id, item.href)}
+              />
+            ))}
+          </Sidebar.Group>
+
+          <Sidebar.Group>
+            <div className="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.06em] text-color-3">
+              Settings
+            </div>
+            {settingsItems.map((item) => (
+              <Sidebar.Item
+                key={item.id}
+                title={item.title}
+                active={activeSection === item.id}
+                onClick={() => handleClick(item.id)}
+              />
+            ))}
+          </Sidebar.Group>
+
+          <Sidebar.Item icon={'menu-more-horizontal' as never} title="more" onClick={() => {}} />
+
+          <Sidebar.Separator />
+
+          <Sidebar.Group label="Recent">
+            {recentItems.map((item) => (
+              <Sidebar.Item
+                key={item.id}
+                icon={item.icon as never}
+                title={item.title}
+                onClick={() => {}}
+              />
+            ))}
+          </Sidebar.Group>
+        </Sidebar.Content>
+
+        <Sidebar.Footer>
+          <Sidebar.Item
+            icon={'settings' as never}
+            title="Settings"
+            active={activeSection === 'settings'}
+            onClick={() => handleClick('settings')}
+            withRightIndicator
           />
-        </div>
-        <div className="flex w-full flex-col items-center gap-4">
-          <hr className="w-full border-[#6C6D87]" />
-          {onThemeToggle && (
-            <button
-              className="nav2-theme-btn flex h-5 w-5 items-center justify-center"
-              onClick={onThemeToggle}
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {dark ? (
-                  <circle cx="10" cy="10" r="5" stroke="#6C6D87" strokeWidth="1.5" />
-                ) : (
-                  <path d="M10 2a8 8 0 1 0 0 16 6 6 0 0 1 0-16Z" stroke="#6C6D87" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                )}
-              </svg>
-            </button>
-          )}
-          {/* Avatar */}
-          <div className="flex h-10 w-10 items-center justify-center rounded-cn-full bg-[#6C63FF]">
-            <span className="text-xs font-semibold text-white">JH</span>
-          </div>
-        </div>
-      </nav>
-    </>
+          <Sidebar.ToggleMenuButton />
+        </Sidebar.Footer>
+
+      </Sidebar.Root>
+    </Sidebar.Provider>
+    </TooltipProvider>
   )
 }

@@ -5,6 +5,7 @@ const pages = [
   { path: '/module/sei/insights', icon: 'dashboard', title: 'Insights', description: 'Dashboard listing with search, filters, and create flow' },
   { path: '/module/sei/configuration/org-tree', icon: 'pin', title: 'Org Trees', description: 'Organization tree configuration with profile mapping' },
   { path: '/module/sei/configuration/profile/efficiency', icon: 'settings', title: 'Efficiency Profile', description: 'Configure metrics, weights, and settings for efficiency scoring' },
+  { path: '/module/sei/configuration/integration', icon: 'connectors', title: 'Integrations', description: 'Manage integrations with Jira, GitHub, Harness, and other tools' },
   { path: '/module/sei/insights/custom/1', icon: 'bar-vertical', title: 'Custom Insight', description: 'Single insight view with widget chart and time range controls' },
   { path: '/module/sei/insights/custom/1/widget-builder', icon: 'settings', title: 'Widget Builder', description: 'Query builder with 7 chart types, datasource selection, and criteria config' },
   { path: '/module/sei/insights/harness/business-alignment', icon: 'bar-vertical', title: 'Business Alignment', description: 'Work categorization with stacked bar chart and drilldown table' },

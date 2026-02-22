@@ -19,7 +19,7 @@ import iconOrg from '../assets/icon-org.svg'
 import iconOrgTree from '../assets/icon-org-tree.svg'
 import imgEmptyState from '../assets/img-empty-state.svg'
 import { Nav2 } from '../components/Nav2'
-import { Breadcrumb2 } from '../components/Breadcrumb2'
+import { Header } from '../components/Breadcrumb2'
 
 // Dashboard thumbnail imports (light variants)
 import thumb1 from '../assets/dashboard-thumbnails/1-light.svg'
@@ -442,7 +442,9 @@ export function InsightsPage() {
   }, [dark])
 
   return (
-    <div className="flex min-h-screen bg-cn-3">
+    <div className="flex min-h-screen flex-col bg-cn-3">
+      <Header />
+      <div className="flex flex-1">
       {/* Override execution tree styles: replace status icons with org icons, hide duration/counts */}
       <style>{`
         .org-tree { scrollbar-width: none; overflow-x: hidden; }
@@ -572,9 +574,6 @@ export function InsightsPage() {
 
       {/* Page content */}
       <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
-        {/* Breadcrumb */}
-        <Breadcrumb2 />
-
         {/* Page title */}
         <Text as="h1" variant="heading-hero" color="foreground-1">Insights</Text>
 
@@ -825,6 +824,7 @@ export function InsightsPage() {
           </div>
         </>
       )}
+      </div>
     </div>
   )
 }

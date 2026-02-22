@@ -11,7 +11,7 @@ import {
   Pagination,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
-import { Breadcrumb2 } from '../components/Breadcrumb2'
+import { Header } from '../components/Breadcrumb2'
 import { StackedBarChart } from '../components/Charts'
 
 // ── Deterministic jitter ──
@@ -240,11 +240,12 @@ export function BusinessAlignmentPage() {
   }, [timeRange, metricType])
 
   return (
-    <div className="flex min-h-screen bg-cn-3">
+    <div className="flex min-h-screen flex-col bg-cn-3">
+      <Header />
+      <div className="flex flex-1">
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
-        <Breadcrumb2 />
 
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -449,6 +450,7 @@ export function BusinessAlignmentPage() {
               </div>
             </div>
         </div>
+      </div>
       </div>
     </div>
   )

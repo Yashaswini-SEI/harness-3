@@ -14,7 +14,7 @@ import {
 } from '@harnessio/ui/components'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Nav2 } from '../components/Nav2'
-import { Breadcrumb2 } from '../components/Breadcrumb2'
+import { Header } from '../components/Breadcrumb2'
 import splitIcon from '../assets/icon-split.svg'
 import tableIcon from '../assets/icon-table.svg'
 import chartIcon from '../assets/icon-chart.svg'
@@ -355,13 +355,13 @@ export function WidgetBuilderPage() {
   }, [chartHeight])
 
   return (
-    <div className="flex min-h-screen bg-cn-3">
+    <div className="flex min-h-screen flex-col bg-cn-3">
+      <Header />
+      <div className="flex flex-1">
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       {/* Page content */}
       <div className="flex flex-1 flex-col gap-5 bg-cn-3 px-5 pb-5 pt-3">
-      {/* Breadcrumb */}
-      <Breadcrumb2 />
 
       {/* Header row */}
       <div className="flex items-start justify-between">
@@ -922,6 +922,7 @@ export function WidgetBuilderPage() {
             </Tabs.Content>
           </Tabs.Root>
         </div>
+      </div>
       </div>
       </div>
     </div>

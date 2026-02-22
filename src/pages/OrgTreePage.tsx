@@ -11,7 +11,7 @@ import {
   Select,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
-import { Breadcrumb2 } from '../components/Breadcrumb2'
+import { Header } from '../components/Breadcrumb2'
 
 interface OrgTreeRow {
   name: string
@@ -261,12 +261,12 @@ export function OrgTreePage() {
   const pagedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
   return (
-    <div className="flex min-h-screen bg-cn-3">
+    <div className="flex min-h-screen flex-col bg-cn-3">
+      <Header />
+      <div className="flex flex-1">
       <Nav2 activeSection="org-tree" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
-        {/* Breadcrumb */}
-        <Breadcrumb2 />
 
         {/* Page title + action */}
         <div className="flex items-center justify-between">
@@ -564,6 +564,7 @@ export function OrgTreePage() {
           </div>
         </>
       )}
+      </div>
     </div>
   )
 }

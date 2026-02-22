@@ -10,7 +10,7 @@ import {
 import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { BarChart2 } from '../components/Charts'
 import { Nav2 } from '../components/Nav2'
-import { Breadcrumb2 } from '../components/Breadcrumb2'
+import { Header } from '../components/Breadcrumb2'
 import imgEmptyState from '../assets/img-empty-state.svg'
 
 const widgetChartData = [
@@ -65,13 +65,13 @@ export function CustomInsightPage() {
   }, [showToast])
 
   return (
-    <div className="flex min-h-screen bg-cn-3">
+    <div className="flex min-h-screen flex-col bg-cn-3">
+      <Header />
+      <div className="flex flex-1">
       <Nav2 activeSection="canvas" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       <div className="flex flex-1 flex-col">
         <div className="flex flex-col gap-5 px-5 pb-5 pt-3">
-          {/* Breadcrumb */}
-          <Breadcrumb2 />
 
           {/* Header row */}
           <div className="flex items-start justify-between">
@@ -162,6 +162,7 @@ export function CustomInsightPage() {
             </div>
           )}
         </div>
+      </div>
       </div>
 
       {/* Toast notification */}

@@ -17,6 +17,7 @@ import { SprintMetricsPage } from './pages/SprintMetricsPage'
 import { ProductivityPage } from './pages/ProductivityPage'
 import { ComponentGallery } from './pages/ComponentGallery'
 import { EfficiencyProfilePage } from './pages/EfficiencyProfilePage'
+import { IntegrationsPage } from './pages/IntegrationsPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -38,6 +39,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/module/sei/insights/custom/:id/widget-builder" element={<WidgetBuilderPage />} />
         <Route path="/module/sei/configuration/org-tree" element={<OrgTreePage />} />
         <Route path="/module/sei/configuration/profile/efficiency" element={<EfficiencyProfilePage />} />
+        <Route path="/module/sei/configuration/integration" element={<IntegrationsPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

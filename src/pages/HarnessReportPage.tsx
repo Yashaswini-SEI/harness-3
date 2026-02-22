@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Text } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
-import { Breadcrumb2 } from '../components/Breadcrumb2'
+import { Header } from '../components/Breadcrumb2'
 
 const REPORT_META: Record<string, { title: string; description: string }> = {
   'ai-insights': {
@@ -46,11 +46,12 @@ export function HarnessReportPage() {
   }, [dark])
 
   return (
-    <div className="flex min-h-screen bg-cn-3">
+    <div className="flex min-h-screen flex-col bg-cn-3">
+      <Header />
+      <div className="flex flex-1">
       <Nav2 activeSection="insights" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
       <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
-        <Breadcrumb2 />
 
         <div className="flex flex-col gap-1">
           <Text as="h1" variant="heading-hero" color="foreground-1">
@@ -64,6 +65,7 @@ export function HarnessReportPage() {
         <div className="flex flex-1 items-center justify-center rounded-lg border border-borders-2 bg-white dark:bg-cn-0">
           <Text variant="body-normal" color="foreground-4">Report content coming soon</Text>
         </div>
+      </div>
       </div>
     </div>
   )
