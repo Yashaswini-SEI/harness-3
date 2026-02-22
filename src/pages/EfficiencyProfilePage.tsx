@@ -8,6 +8,7 @@ import {
   Textarea,
   Select,
   Switch,
+  Card,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { Breadcrumb2 } from '../components/Breadcrumb2'
@@ -164,7 +165,7 @@ export function EfficiencyProfilePage() {
     <div className="flex min-h-screen bg-cn-3">
       <Nav2 activeSection="org-tree" dark={dark} onThemeToggle={() => setDark(!dark)} />
 
-      <div className="flex flex-1 flex-col gap-5 px-5 pb-5 pt-3">
+      <div className="flex flex-1 flex-col gap-5 bg-cn-2 px-5 pb-5 pt-3">
         <Breadcrumb2 />
 
         {/* Back link */}
@@ -272,25 +273,31 @@ export function EfficiencyProfilePage() {
             {/* Main content */}
             <div className="flex-1 space-y-6">
               {/* Header */}
-              <div className="rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1">
-                <div className="flex items-center gap-3">
-                  <Switch checked onCheckedChange={() => {}} />
-                  <Text variant="heading-subsection" color="foreground-1">Lead time for changes</Text>
+              <Card.Root className="overflow-hidden">
+                <div className="p-5">
+                  <div className="flex items-center gap-3">
+                    <Switch checked onCheckedChange={() => {}} />
+                    <Text variant="heading-subsection" color="foreground-1">Lead time for changes</Text>
+                  </div>
+                  <Text variant="body-normal" color="foreground-3" className="mt-2">
+                    Lead Time for Changes as per DORA metrics is defined as the amount of time it takes a task to get into production.
+                  </Text>
                 </div>
-                <Text variant="body-normal" color="foreground-3" className="mt-2">
-                  Lead Time for Changes as per DORA metrics is defined as the amount of time it takes a task to get into production.
-                </Text>
-              </div>
+                <div className="flex justify-end border-t border-borders-2 bg-cn-2 px-5 py-3">
+                  <Button size="sm">Save</Button>
+                </div>
+              </Card.Root>
 
               {/* Configure workflow stages */}
               <Text variant="body-strong" color="foreground-1">Configure workflow stages</Text>
 
               {stages.map((stage, idx) => (
-                <div key={stage.name} className="rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1 space-y-4">
+                <Card.Root key={stage.name} className="overflow-hidden">
+                  <div className="p-5 space-y-4">
                   {/* Stage header */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Text variant="body-strong" color="foreground-1">{stage.name}</Text>
+                      <Text variant="heading-subsection" color="foreground-1">{stage.name}</Text>
                       <IconV2 name="edit" size="xs" className="text-foreground-4" />
                     </div>
                     <div className="flex items-center gap-2">
@@ -364,11 +371,16 @@ export function EfficiencyProfilePage() {
                       />
                     </div>
                   </div>
-                </div>
+                  </div>
+                  <div className="flex justify-end border-t border-borders-2 bg-cn-2 px-5 py-3">
+                    <Button size="sm">Save</Button>
+                  </div>
+                </Card.Root>
               ))}
 
               {/* Advanced section */}
-              <div className="rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1 space-y-4">
+              <Card.Root className="overflow-hidden">
+                <div className="p-5 space-y-4">
                 <button
                   className="flex w-full items-center justify-between"
                   onClick={() => setAdvancedOpen(!advancedOpen)}
@@ -467,17 +479,21 @@ export function EfficiencyProfilePage() {
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
+                <div className="flex justify-end border-t border-borders-2 bg-cn-2 px-5 py-3">
+                  <Button size="sm">Save</Button>
+                </div>
+              </Card.Root>
             </div>
           </div>
         )}
 
         {activeTab === 'Sprints' && (
-          <div className="rounded-lg border border-borders-2 bg-white p-6 dark:bg-cn-1">
+          <Card.Root className="p-6">
             <Text variant="body-normal" color="foreground-3">
               Sprint metrics configuration will appear here.
             </Text>
-          </div>
+          </Card.Root>
         )}
       </div>
     </div>
