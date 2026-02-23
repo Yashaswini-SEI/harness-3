@@ -9,6 +9,7 @@ export type Nav2Section =
   | 'org-tree'
   | 'teams'
   | 'account-mgmt'
+  | 'configuration'
   | 'settings'
 
 interface Nav2Props {
@@ -23,7 +24,7 @@ export function Nav2({ activeSection, children }: Nav2Props) {
       <div className="flex h-screen flex-col">
         <Header />
         <Sidebar.Provider defaultOpen>
-          <Sidebar.Root>
+          <Sidebar.Root style={{ '--cn-sidebar-container-full-width': '256px' } as React.CSSProperties}>
             <Sidebar.Content>
             {/* Main nav */}
             <Sidebar.Group>
@@ -32,7 +33,10 @@ export function Nav2({ activeSection, children }: Nav2Props) {
               <Sidebar.Item
                 icon={'engineering-insights' as never}
                 title="Engineering Insights"
-                active={activeSection === 'insights' || activeSection === 'canvas' || activeSection === 'org-tree' || activeSection === 'teams' || activeSection === 'project' || activeSection === 'account-mgmt'}
+                active={activeSection === 'insights' || activeSection === 'canvas' || activeSection === 'configuration' || activeSection === 'org-tree' || activeSection === 'teams' || activeSection === 'project' || activeSection === 'account-mgmt' || activeSection === 'settings'}
+                actionButtons={[
+                  { iconName: 'pin' },
+                ]}
               >
                 <Sidebar.MenuSubItem
                   title="Insights"
@@ -46,25 +50,14 @@ export function Nav2({ activeSection, children }: Nav2Props) {
                 />
                 <Sidebar.Separator />
                 <Sidebar.MenuSubItem
-                  title="Org Trees"
-                  to="/module/sei/configuration/org-tree"
-                  active={activeSection === 'org-tree'}
+                  title="Configuration"
+                  to="/module/sei/configuration"
+                  active={activeSection === 'configuration' || activeSection === 'org-tree' || activeSection === 'teams' || activeSection === 'project'}
                 />
                 <Sidebar.MenuSubItem
-                  title="Teams"
+                  title="Settings"
                   to="#"
-                  active={activeSection === 'teams'}
-                />
-                <Sidebar.MenuSubItem
-                  title="Project"
-                  to="#"
-                  active={activeSection === 'project'}
-                />
-                <Sidebar.Separator />
-                <Sidebar.MenuSubItem
-                  title="Account Management"
-                  to="#"
-                  active={activeSection === 'account-mgmt'}
+                  active={activeSection === 'settings' || activeSection === 'account-mgmt'}
                 />
               </Sidebar.Item>
 

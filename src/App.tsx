@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 const pages = [
   { path: '/module/sei/insights', icon: 'dashboard', title: 'Insights', description: 'Dashboard listing with search, filters, and create flow' },
   { path: '/module/sei/canvas', icon: 'layout', title: 'Canvas', description: 'Insight listings with search, filters, and status tracking' },
+  { path: '/module/sei/configuration', icon: 'settings', title: 'Configuration', description: 'Org trees, teams, projects, integrations, and profiles' },
   { path: '/module/sei/configuration/org-tree', icon: 'pin', title: 'Org Trees', description: 'Organization tree configuration with profile mapping' },
   { path: '/module/sei/configuration/profile/efficiency', icon: 'settings', title: 'Efficiency Profile', description: 'Configure metrics, weights, and settings for efficiency scoring' },
   { path: '/module/sei/configuration/integration', icon: 'connectors', title: 'Integrations', description: 'Manage integrations with Jira, GitHub, Harness, and other tools' },

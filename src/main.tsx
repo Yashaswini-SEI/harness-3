@@ -19,6 +19,7 @@ import { ComponentGallery } from './pages/ComponentGallery'
 import { EfficiencyProfilePage } from './pages/EfficiencyProfilePage'
 import { IntegrationsPage } from './pages/IntegrationsPage'
 import { CanvasPage } from './pages/CanvasPage'
+import { ConfigurationPage } from './pages/ConfigurationPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -39,6 +40,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/module/sei/insights/custom/:id" element={<CustomInsightPage />} />
         <Route path="/module/sei/insights/custom/:id/widget-builder" element={<WidgetBuilderPage />} />
         <Route path="/module/sei/canvas" element={<CanvasPage />} />
+        <Route path="/module/sei/configuration" element={<ConfigurationPage />} />
         <Route path="/module/sei/configuration/org-tree" element={<OrgTreePage />} />
         <Route path="/module/sei/configuration/profile/efficiency" element={<EfficiencyProfilePage />} />
         <Route path="/module/sei/configuration/integration" element={<IntegrationsPage />} />

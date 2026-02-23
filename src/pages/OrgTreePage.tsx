@@ -132,13 +132,13 @@ function ProfileLink({ value, href }: { value: string | null; href?: string }) {
   }
   if (href) {
     return (
-      <a href={href} className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }}>
+      <a href={href} className="text-sm text-foreground-2 hover:text-foreground-1">
         {value}
       </a>
     )
   }
   return (
-    <button className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }}>
+    <button className="text-sm text-foreground-2 hover:text-foreground-1">
       {value}
     </button>
   )
@@ -319,7 +319,7 @@ export function OrgTreePage() {
             {pagedData.map((row) => (
               <Table.Row key={row.name}>
                 <Table.Cell>
-                  <button className="text-sm" style={{ color: 'var(--cn-brand, #006DEA)' }} onClick={() => openDrawer(row.name)}>{row.name}</button>
+                  <button className="text-sm text-foreground-2 hover:text-foreground-1" onClick={() => openDrawer(row.name)}>{row.name}</button>
                 </Table.Cell>
                 <Table.Cell>
                   <Text variant="body-normal" color="foreground-3">{row.teams}</Text>
