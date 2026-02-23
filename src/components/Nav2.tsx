@@ -22,7 +22,7 @@ export function Nav2({ activeSection, children }: Nav2Props) {
     <TooltipProvider>
       <div className="flex h-screen flex-col">
         <Header />
-        <Sidebar.Provider open defaultOpen>
+        <Sidebar.Provider defaultOpen>
           <Sidebar.Root>
             <Sidebar.Content>
             {/* Main nav */}
