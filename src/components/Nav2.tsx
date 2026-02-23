@@ -44,6 +44,7 @@ export function Nav2({ activeSection, children }: Nav2Props) {
                   to="/module/sei/canvas"
                   active={activeSection === 'canvas'}
                 />
+                <Sidebar.Separator />
                 <Sidebar.MenuSubItem
                   title="Org Trees"
                   to="/module/sei/configuration/org-tree"
@@ -59,6 +60,7 @@ export function Nav2({ activeSection, children }: Nav2Props) {
                   to="#"
                   active={activeSection === 'project'}
                 />
+                <Sidebar.Separator />
                 <Sidebar.MenuSubItem
                   title="Account Management"
                   to="#"
