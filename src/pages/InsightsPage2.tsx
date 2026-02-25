@@ -575,7 +575,7 @@ export function InsightsPage2() {
                 </div>
               </div>
               {harnessInsightsOpen && (
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-4">
                   {harnessInsights.map((insight) => (
                     <Link key={insight.id} to={`/module/sei/insights/harness/${insight.id}`} className="rounded-lg no-underline">
                       <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2 cursor-pointer">
@@ -608,7 +608,7 @@ export function InsightsPage2() {
                 Custom insights
               </Text>
               {hasCustomInsight ? (
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-4">
                   <a href="/module/sei/insights/custom/1" className="rounded-lg">
                     <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2 cursor-pointer">
                       <Card.Content>
