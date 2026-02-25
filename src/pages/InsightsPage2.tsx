@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import {
   Text,
@@ -6,17 +6,11 @@ import {
   IconV2,
   SearchInput,
   Tag,
-  Tree,
-  Folder,
-  File,
   Card,
   Tabs,
   Select,
   TextInput,
 } from '@harnessio/ui/components'
-import { ExecutionState } from '@harnessio/ui/views'
-import iconOrg from '../assets/icon-org.svg'
-import iconOrgTree from '../assets/icon-org-tree.svg'
 import imgEmptyState from '../assets/img-empty-state.svg'
 import { Nav2 } from '../components/Nav2'
 
@@ -30,28 +24,6 @@ import thumb6 from '../assets/dashboard-thumbnails/6-light.svg'
 import thumb7 from '../assets/dashboard-thumbnails/7-light.svg'
 import thumb8 from '../assets/dashboard-thumbnails/8-light.svg'
 
-const S = ExecutionState.SUCCESS
-
-function OrgFolder({
-  element, value, duration, level = 1, children, onSettingsClick,
-}: {
-  element: string; value: string; duration: string; level?: number; children: React.ReactNode;
-  onSettingsClick?: (nodeId: string) => void;
-}) {
-  return (
-    <div className="group/gear relative" data-node-id={value}>
-      <Folder className="org-child" element={element} value={value} status={S} level={level} duration={duration}>
-        {children}
-      </Folder>
-      <button
-        className="absolute right-1 top-0.5 z-10 rounded p-0.5 opacity-0 transition-opacity hover:bg-cn-2 group-hover/gear:opacity-100"
-        onClick={(e) => { e.stopPropagation(); onSettingsClick?.(value); }}
-      >
-        <IconV2 name="settings" size="xs" className="text-foreground-4" />
-      </button>
-    </div>
-  );
-}
 
 // ── Org tree data ──
 interface OrgNode {
@@ -169,10 +141,6 @@ const orgTreeData: OrgNode[] = [
   },
 ]
 
-function countDescendants(node: OrgNode): number {
-  if (!node.children) return 0
-  return node.children.reduce((sum, child) => sum + 1 + countDescendants(child), 0)
-}
 
 function nodeMatchesSearch(node: OrgNode, query: string): boolean {
   const q = query.toLowerCase()
@@ -202,30 +170,110 @@ function collectIds(nodes: OrgNode[]): string[] {
   return nodes.flatMap((n) => [n.id, ...(n.children ? collectIds(n.children) : [])])
 }
 
-function RenderOrgNode({ node, level, onSettingsClick }: { node: OrgNode; level: number; onSettingsClick?: (nodeId: string) => void }) {
-  const count = countDescendants(node)
-  const hasChildren = node.children && node.children.length > 0
-  if (level === 0) {
-    return (
-      <Folder className="org-top" element={node.name} value={node.id} status={S} level={0} {...(hasChildren ? { 'data-node-id': node.id } : {})}>
-        {hasChildren
-          ? node.children!.map((child) => <RenderOrgNode key={child.id} node={child} level={1} onSettingsClick={onSettingsClick} />)
-          : <File className="org-leaf" value={`${node.id}-empty`} status={S} level={1}>{' '}</File>
-        }
-      </Folder>
-    )
-  }
-  if (!hasChildren) {
-    return (
-      <File className="org-leaf" value={node.id} status={S} level={level}>{node.name}</File>
-    )
-  }
+function collectNodeIds(node: OrgNode): string[] {
+  return [node.id, ...(node.children ? node.children.flatMap(collectNodeIds) : [])]
+}
+
+function getCheckState(node: OrgNode, checked: Set<string>): 'checked' | 'unchecked' | 'indeterminate' {
+  const ids = collectNodeIds(node)
+  const count = ids.filter((id) => checked.has(id)).length
+  if (count === 0) return 'unchecked'
+  if (count === ids.length) return 'checked'
+  return 'indeterminate'
+}
+
+function OrgCheckboxTree({
+  nodes,
+  checked,
+  onToggle,
+  search,
+  level = 0,
+}: {
+  nodes: OrgNode[]
+  checked: Set<string>
+  onToggle: (node: OrgNode) => void
+  search: string
+  level?: number
+}) {
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+
+  const filtered = useMemo(() => {
+    if (!search) return nodes
+    return filterTree(nodes, search)
+  }, [nodes, search])
+
   return (
-    <OrgFolder element={node.name} value={node.id} duration={String(count)} level={level} onSettingsClick={onSettingsClick}>
-      {node.children!.map((child) => (
-        <RenderOrgNode key={child.id} node={child} level={level + 1} onSettingsClick={onSettingsClick} />
-      ))}
-    </OrgFolder>
+    <>
+      {filtered.map((node) => {
+        const state = getCheckState(node, checked)
+        const hasChildren = node.children && node.children.length > 0
+        const isCollapsed = collapsed.has(node.id) && !search
+
+        return (
+          <div key={node.id}>
+            <div
+              className="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-cn-2"
+              style={{ paddingLeft: 8 + level * 20 }}
+            >
+              {/* Expand/collapse chevron */}
+              <button
+                className="flex h-4 w-4 shrink-0 items-center justify-center"
+                onClick={() => {
+                  if (!hasChildren) return
+                  setCollapsed((prev) => {
+                    const next = new Set(prev)
+                    next.has(node.id) ? next.delete(node.id) : next.add(node.id)
+                    return next
+                  })
+                }}
+              >
+                {hasChildren && (
+                  <IconV2 name={isCollapsed ? 'nav-arrow-right' : 'nav-arrow-down'} size="xs" className="text-foreground-3" />
+                )}
+              </button>
+
+              {/* Checkbox */}
+              <button
+                className="flex h-4 w-4 shrink-0 items-center justify-center rounded border"
+                style={{
+                  backgroundColor: state === 'checked' ? 'var(--cn-brand, #006DEA)' : state === 'indeterminate' ? 'var(--cn-brand, #006DEA)' : 'transparent',
+                  borderColor: state !== 'unchecked' ? 'var(--cn-brand, #006DEA)' : '#D0D5DD',
+                }}
+                onClick={() => onToggle(node)}
+              >
+                {state === 'checked' && (
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+                {state === 'indeterminate' && (
+                  <svg width="8" height="2" viewBox="0 0 8 2" fill="none">
+                    <path d="M1 1H7" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                )}
+              </button>
+
+              {/* Label */}
+              <span className="flex-1 truncate text-sm text-foreground-1">{node.name}</span>
+              {hasChildren && (
+                <span className="text-xs text-foreground-4">{node.children!.length}</span>
+              )}
+            </div>
+
+            {/* Children */}
+            {hasChildren && !isCollapsed && (
+              <OrgCheckboxTree
+                nodes={node.children!}
+                checked={checked}
+                onToggle={onToggle}
+                search={search}
+                level={level + 1}
+              />
+            )}
+          </div>
+        )
+      })}
+    </>
   )
 }
 
@@ -342,7 +390,7 @@ function findNodeName(nodes: OrgNode[], id: string): string | undefined {
   }
 }
 
-export function InsightsPage() {
+export function InsightsPage2() {
   const location = useLocation()
   const savedInsight = (location.state as { insightSaved?: boolean; insightName?: string } | null)
   const [hasCustomInsight, setHasCustomInsight] = useState(false)
@@ -355,38 +403,30 @@ export function InsightsPage() {
   }, [savedInsight])
 
   const [search, setSearch] = useState('')
-  const [expandAll, setExpandAll] = useState(false)
-  const [treeKey, setTreeKey] = useState(0)
-  const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
   const [settingsNode, setSettingsNode] = useState<string | null>(null)
   const [panelVisible, setPanelVisible] = useState(false)
   const [panelOpen, setPanelOpen] = useState(false)
   const [harnessInsightsOpen, setHarnessInsightsOpen] = useState(true)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout>>()
 
-  // Org tree panel state
-  const [orgPanelVisible, setOrgPanelVisible] = useState(false)
-  const [orgPanelOpen, setOrgPanelOpen] = useState(false)
-  const orgCloseTimerRef = useRef<ReturnType<typeof setTimeout>>()
+  // Org tree dropdown state
+  const [orgDropdownOpen, setOrgDropdownOpen] = useState(false)
+  const [orgSearch, setOrgSearch] = useState('')
+  const [checkedOrgIds, setCheckedOrgIds] = useState<Set<string>>(new Set())
+  const orgDropdownRef = useRef<HTMLDivElement>(null)
 
-  const openOrgPanel = useCallback(() => {
-    clearTimeout(orgCloseTimerRef.current)
-    setOrgPanelVisible(true)
-    requestAnimationFrame(() => requestAnimationFrame(() => setOrgPanelOpen(true)))
-  }, [])
-
-  const closeOrgPanel = useCallback(() => {
-    setOrgPanelOpen(false)
-    orgCloseTimerRef.current = setTimeout(() => setOrgPanelVisible(false), 300)
-  }, [])
-
-  const openSettings = useCallback((nodeId: string) => {
-    clearTimeout(closeTimerRef.current)
-    setSettingsNode(nodeId)
-    setPanelVisible(true)
-    // Next frame: trigger the CSS transition
-    requestAnimationFrame(() => requestAnimationFrame(() => setPanelOpen(true)))
-  }, [])
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!orgDropdownOpen) return
+    const handler = (e: MouseEvent) => {
+      if (orgDropdownRef.current && !orgDropdownRef.current.contains(e.target as Node)) {
+        setOrgDropdownOpen(false)
+        setOrgSearch('')
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [orgDropdownOpen])
 
   const closeSettings = useCallback(() => {
     setPanelOpen(false)
@@ -397,185 +437,9 @@ export function InsightsPage() {
     }, 300)
   }, [])
 
-  const filteredTree = useMemo(() => filterTree(orgTreeData, search), [search])
-  const allIds = useMemo(() => collectIds(filteredTree), [filteredTree])
-  const expandedIds = useMemo(() => {
-    if (search) return allIds
-    if (expandAll) return allIds
-    return ['harness-sei', 'arvind']
-  }, [search, expandAll, allIds])
-
-  const filteredInsights = useMemo(() => {
-    // Simple string hash to deterministically pick a subset per node
-    let hash = 0
-    for (let i = 0; i < selectedNodeId.length; i++) {
-      hash = ((hash << 5) - hash + selectedNodeId.charCodeAt(i)) | 0
-    }
-    const absHash = Math.abs(hash)
-    // Pick 4–8 cards based on the hash
-    const count = 4 + (absHash % (harnessInsights.length - 3))
-    // Shuffle using the hash as seed, then take `count` items
-    const indices = harnessInsights.map((_, i) => i)
-    for (let i = indices.length - 1; i > 0; i--) {
-      const j = ((absHash * (i + 1) * 2654435761) >>> 0) % (i + 1)
-      ;[indices[i], indices[j]] = [indices[j], indices[i]]
-    }
-    return indices.slice(0, count).sort((a, b) => a - b).map((i) => harnessInsights[i])
-  }, [selectedNodeId])
-
-  const handleTreeCapture = useCallback((e: React.MouseEvent) => {
-    let el = e.target as HTMLElement
-    let nodeId: string | null = null
-    while (el && el !== e.currentTarget) {
-      // Settings gear button — let it handle itself
-      if (el.tagName === 'BUTTON' && el.classList.contains('absolute')) return
-      // Chevron SVG (direct child of the org-top/org-child trigger button)
-      if (el.tagName.toLowerCase() === 'svg' &&
-        el.parentElement?.tagName === 'BUTTON' &&
-        (el.parentElement.classList.contains('org-child') || el.parentElement.classList.contains('org-top'))) {
-        return
-      }
-      if (!nodeId && el instanceof HTMLElement && el.dataset.nodeId) {
-        nodeId = el.dataset.nodeId
-      }
-      el = el.parentElement as HTMLElement
-    }
-    if (nodeId) {
-      e.stopPropagation()
-      e.preventDefault()
-      setSelectedNodeId(nodeId)
-    }
-  }, [])
 
   return (
     <Nav2 activeSection="insights">
-      <>
-      {/* Override execution tree styles: replace status icons with org icons, hide duration/counts */}
-      <style>{`
-        .org-tree { scrollbar-width: none; overflow-x: hidden; }
-        .org-tree .overflow-hidden { overflow: visible !important; }
-        .org-tree::-webkit-scrollbar { display: none; }
-        .org-tree .size-5.flex-none.items-center.justify-center > * { visibility: hidden; }
-        .org-tree span.text-cn-1 > span.text-cn-3 { display: none !important; }
-        .org-tree .org-leaf span.text-cn-2.flex-none.select-none { display: none !important; }
-        .org-tree .org-top span.text-cn-2.flex-none.select-none { display: none !important; }
-        .org-tree .org-child span.text-cn-2.flex-none.select-none {
-          font-size: 12px; line-height: 18px; border: 1px solid var(--cn-borders-3, #E7E8E9);
-          border-radius: 6px; padding: 0 6px; color: var(--cn-foreground-3, #6b6f79);
-          margin-right: 28px;
-        }
-        .org-tree .org-top .size-5.flex-none.items-center.justify-center {
-          background: url("${iconOrg}") center / 16px 16px no-repeat;
-        }
-        .org-tree .org-child .size-5.flex-none.items-center.justify-center {
-          background: url("${iconOrgTree}") center / 16px 16px no-repeat;
-        }
-        .org-tree .org-leaf .size-5.flex-none.items-center.justify-center { display: none !important; }
-        .org-tree .px-cn-lg { padding-right: 0 !important; }
-        .org-tree .text-cn-size-2 { font-size: 14px !important; }
-        .org-tree .gap-x-cn-xs.flex.w-full.justify-between > .flex {
-          min-width: 0;
-          overflow: hidden;
-        }
-        .org-tree span.text-cn-1 {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .org-tree .group\\/gear {
-          position: relative;
-        }
-        .org-tree .group\\/gear > div > button > svg,
-        .org-tree .org-top > svg {
-          position: relative;
-          z-index: 2;
-          background: var(--cn-bg-3);
-          box-shadow: 0 0 0 4px var(--cn-bg-3);
-        }
-        .org-tree > .flex.flex-col > .pb-cn-sm::after {
-          content: '';
-          position: absolute;
-          left: 26px;
-          top: -20px;
-          bottom: -20px;
-          width: 1px;
-          background: var(--cn-borders-3, #E7E8E9);
-          pointer-events: none;
-          z-index: 1;
-          display: none;
-        }
-        .org-tree > .flex.flex-col > .pb-cn-sm:has([data-state=open])::after {
-          display: block;
-        }
-        .org-tree > .flex.flex-col > .pb-cn-sm:first-child::after {
-          top: 0;
-        }
-        .org-tree > .flex.flex-col > .pb-cn-sm:last-child::after {
-          bottom: auto;
-          height: 14px;
-        }
-        .org-tree .group\\/gear::after {
-          content: '';
-          position: absolute;
-          left: 34px;
-          top: -20px;
-          bottom: -20px;
-          width: 1px;
-          background: var(--cn-borders-2, #d0d5dd);
-          pointer-events: none;
-          z-index: 1;
-          display: none;
-        }
-        .org-tree .group\\/gear:has([data-state=open])::after {
-          display: block;
-        }
-        .org-tree .group\\/gear:first-child::after {
-          top: 0;
-        }
-        .org-tree .group\\/gear:last-child::after {
-          bottom: auto;
-          height: 14px;
-        }
-        .org-tree .org-leaf {
-          padding-left: 29px;
-        }
-        .org-tree .group\\/gear .group\\/gear {
-          padding-left: 0px;
-        }
-        .org-tree .group\\/gear .group\\/gear > div > button.px-cn-lg {
-          padding-left: 28px !important;
-        }
-        .org-tree .group\\/gear .group\\/gear .org-leaf {
-          padding-left: 36px;
-        }
-        .org-tree .duration-200 {
-          transition-duration: 75ms !important;
-        }
-        .org-tree [data-state=open],
-        .org-tree [data-state=closed] {
-          animation-duration: 75ms !important;
-        }
-        .org-tree [data-node-id="${selectedNodeId}"] > button.org-top > div,
-        .org-tree [data-node-id="${selectedNodeId}"] > div > button.org-child > div {
-          background-color: var(--cn-bg-2);
-          border-radius: 6px;
-          padding: 6px 0 6px 14px;
-          margin: -6px 0;
-          position: relative;
-        }
-        .org-tree [data-node-id="${selectedNodeId}"] > button.org-top > div::before,
-        .org-tree [data-node-id="${selectedNodeId}"] > div > button.org-child > div::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 10px;
-          bottom: 10px;
-          width: 3px;
-          border-radius: 2px;
-          background-color: var(--cn-brand-default, #0078D4);
-        }
-      `}</style>
-
       {/* Page content */}
       <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-6">
         {/* Page title */}
@@ -590,11 +454,91 @@ export function InsightsPage() {
               onChange={(value) => setSearch(value)}
             />
           </div>
-          <Button variant="outline" size="md" onClick={openOrgPanel}>
-            <IconV2 name={'organization-solid' as never} size="sm" />
-            Org Tree
-            <IconV2 name="nav-arrow-down" size="sm" />
-          </Button>
+          <div className="relative" ref={orgDropdownRef}>
+            <Button variant="outline" size="md" onClick={() => { setOrgDropdownOpen((p) => !p); setOrgSearch('') }}>
+              <IconV2 name={'organization-solid' as never} size="sm" />
+              Org Tree
+              {checkedOrgIds.size > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-cn-brand px-1 text-xs text-white">
+                  {checkedOrgIds.size}
+                </span>
+              )}
+              <IconV2 name="nav-arrow-down" size="sm" />
+            </Button>
+
+            {orgDropdownOpen && (
+              <div
+                className="absolute left-0 top-full z-50 mt-1 flex w-[360px] flex-col rounded-lg border border-borders-2"
+                style={{ backgroundColor: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.04), 0 2px 4px rgba(0,0,0,0.04)', borderRadius: 8 }}
+                ref={(el) => {
+                  if (!el) return
+                  const rect = el.parentElement!.getBoundingClientRect()
+                  const spaceBelow = window.innerHeight - rect.bottom - 16
+                  const spaceAbove = rect.top - 16
+                  if (spaceBelow >= spaceAbove) {
+                    el.style.top = '100%'
+                    el.style.bottom = 'auto'
+                    el.style.maxHeight = `${spaceBelow}px`
+                    el.style.marginTop = '4px'
+                    el.style.marginBottom = '0'
+                  } else {
+                    el.style.top = 'auto'
+                    el.style.bottom = '100%'
+                    el.style.maxHeight = `${spaceAbove}px`
+                    el.style.marginTop = '0'
+                    el.style.marginBottom = '4px'
+                  }
+                }}
+              >
+                {/* Search */}
+                <div className="border-b border-borders-2 p-2">
+                  <SearchInput
+                    placeholder="Search org tree..."
+                    searchValue={orgSearch}
+                    onChange={(v) => setOrgSearch(v)}
+                  />
+                </div>
+
+                {/* Select all / Clear */}
+                <div className="flex items-center justify-between border-b border-borders-2 px-3 py-1.5">
+                  <button
+                    className="text-xs text-foreground-3 hover:text-foreground-1"
+                    onClick={() => setCheckedOrgIds(new Set(collectIds(orgTreeData)))}
+                  >
+                    Select all
+                  </button>
+                  <button
+                    className="text-xs text-foreground-3 hover:text-foreground-1"
+                    onClick={() => setCheckedOrgIds(new Set())}
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                {/* Tree */}
+                <div className="flex-1 overflow-y-auto py-1">
+                  <OrgCheckboxTree
+                    nodes={orgTreeData}
+                    checked={checkedOrgIds}
+                    onToggle={(node) => {
+                      setCheckedOrgIds((prev) => {
+                        const next = new Set(prev)
+                        const ids = collectNodeIds(node)
+                        const allChecked = ids.every((id) => next.has(id))
+                        if (allChecked) {
+                          ids.forEach((id) => next.delete(id))
+                        } else {
+                          ids.forEach((id) => next.add(id))
+                        }
+                        return next
+                      })
+                    }}
+                    search={orgSearch}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
           <Button variant="outline" size="md">
             Tag
             <IconV2 name="nav-arrow-down" size="sm" />
@@ -610,26 +554,8 @@ export function InsightsPage() {
           </Button>
         </div>
 
-        {/* Main content: tree nav + insights */}
-        <div className="flex gap-5">
-          {/* Left: tree navigation */}
-          <div className="w-[300px] shrink-0 pr-3">
-            <div className="mb-2">
-              <Button variant="link" size="sm" onClick={() => { setExpandAll((v) => !v); setTreeKey((k) => k + 1); }}>
-                {expandAll ? 'Collapse all' : 'Expand all'}
-              </Button>
-            </div>
-            <div onClickCapture={handleTreeCapture}>
-              <Tree key={`${search}-${treeKey}`} className="org-tree" initialExpendedItems={expandedIds} initialSelectedId="abdul" indicator>
-                {filteredTree.map((node) => (
-                  <RenderOrgNode key={node.id} node={node} level={0} onSettingsClick={openSettings} />
-                ))}
-              </Tree>
-            </div>
-          </div>
-
-          {/* Right: insights overview */}
-          <div className="flex-1 flex flex-col gap-5">
+        {/* Insights overview */}
+        <div className="flex flex-col gap-5">
             {/* "Insights by Harness" collapsible section */}
             <div className="flex flex-col gap-5">
               <div className="flex items-center justify-between">
@@ -650,7 +576,7 @@ export function InsightsPage() {
               </div>
               {harnessInsightsOpen && (
                 <div className="grid grid-cols-3 gap-3">
-                  {filteredInsights.map((insight) => (
+                  {harnessInsights.map((insight) => (
                     <Link key={insight.id} to={`/module/sei/insights/harness/${insight.id}`} className="rounded-lg no-underline">
                       <Card.Root size="sm" orientation="horizontal" className="border-0 shadow-none transition-colors hover:bg-cn-2 cursor-pointer">
                         <Card.Content>
@@ -715,7 +641,6 @@ export function InsightsPage() {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Settings side panel */}
       {panelVisible && (
@@ -833,36 +758,6 @@ export function InsightsPage() {
           </div>
         </>
       )}
-
-      {/* Org Tree panel */}
-      {orgPanelVisible && (
-        <>
-          <div
-            className="fixed inset-0 z-40 transition-opacity duration-300 ease-in-out"
-            style={{ backgroundColor: orgPanelOpen ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)' }}
-            onClick={closeOrgPanel}
-          />
-          <div
-            className="fixed right-2 top-2 bottom-2 z-50 flex w-[480px] flex-col overflow-hidden border border-cn-1 bg-cn-3 shadow-xl"
-            style={{
-              borderRadius: 16,
-              transform: orgPanelOpen ? 'translateX(0)' : 'translateX(100%)',
-              transition: 'transform 300ms ease-in-out',
-            }}
-          >
-            <div className="flex items-center justify-between px-5 py-4">
-              <Text variant="heading-subsection" color="foreground-1">Org Tree</Text>
-              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={closeOrgPanel}>
-                <IconV2 name="xmark" size="sm" />
-              </Button>
-            </div>
-            <div className="flex flex-1 items-center justify-center px-5">
-              <Text variant="body-normal" color="foreground-4">Under development</Text>
-            </div>
-          </div>
-        </>
-      )}
-      </>
     </Nav2>
   )
 }

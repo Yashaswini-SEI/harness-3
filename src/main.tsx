@@ -20,6 +20,7 @@ import { EfficiencyProfilePage } from './pages/EfficiencyProfilePage'
 import { IntegrationsPage } from './pages/IntegrationsPage'
 import { CanvasPage } from './pages/CanvasPage'
 import { ConfigurationPage } from './pages/ConfigurationPage'
+import { InsightsPage2 } from './pages/InsightsPage2'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/gallery" element={<ComponentGallery />} />
         </Route>
         <Route path="/module/sei/insights" element={<InsightsPage />} />
+        <Route path="/module/sei/insights2" element={<InsightsPage2 />} />
         <Route path="/module/sei/insights/harness/ai-insights" element={<AIInsightsPage />} />
         <Route path="/module/sei/insights/harness/business-alignment" element={<BusinessAlignmentPage />} />
         <Route path="/module/sei/insights/harness/efficiency-dora" element={<EfficiencyDoraPage />} />
