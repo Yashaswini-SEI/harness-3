@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import {
   Text,
   Button,
+  Card,
   IconV2,
   StatusBadge,
   Tag,
@@ -131,13 +132,15 @@ export function CustomInsightPage() {
 
           {hasWidget ? (
             <div className="flex-1 p-5">
-              <div className="rounded-lg border border-borders-2 bg-white p-5 dark:bg-cn-1">
-                <div className="mb-4 flex flex-col gap-1">
-                  <Text variant="body-strong" color="foreground-1">Issues by project</Text>
-                  <Text variant="body-normal" color="foreground-3">Widget represents issues by projects</Text>
-                </div>
-                <BarChart2 data={widgetChartData} height={320} seriesName="Issue Key Count" />
-              </div>
+              <Card.Root>
+                <Card.Content>
+                  <div className="mb-4 flex flex-col gap-1">
+                    <Text variant="body-strong" color="foreground-1">Issues by project</Text>
+                    <Text variant="body-normal" color="foreground-3">Widget represents issues by projects</Text>
+                  </div>
+                  <BarChart2 data={widgetChartData} height={320} seriesName="Issue Key Count" />
+                </Card.Content>
+              </Card.Root>
             </div>
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-4 pb-20">

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import {
   Text,
   Button,
+  Card,
   Tabs,
   Table,
   DropdownMenu,
@@ -335,7 +336,7 @@ export function SprintMetricsPage() {
         </div>
 
         {/* Sprint Details — grouped & segmented bar chart */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">Sprint Details</Text>
             <ExportMenu />
@@ -564,7 +565,7 @@ export function SprintMetricsPage() {
               />
             </div>
           </div>
-        </div>
+        </Card.Root>
       </div>
     </Nav2>
   )

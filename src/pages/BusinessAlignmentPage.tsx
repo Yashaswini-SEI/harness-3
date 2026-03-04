@@ -3,6 +3,7 @@ import {
   Text,
   Button,
   IconV2,
+  Card,
   Tabs,
   Table,
   Select,
@@ -148,22 +149,24 @@ function MetricCard({ label, value, trend, color }: { label: string; value: stri
   const isNegative = trend.startsWith('-')
 
   return (
-    <div className="flex flex-col gap-1 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
-      <div className="flex items-center gap-1.5">
-        <span className="inline-block shrink-0 rounded-sm" style={{ width: 8, height: 8, backgroundColor: color }} />
-        <Text variant="caption-normal" color="foreground-3">{label}</Text>
-      </div>
-      <div className="flex items-end gap-2">
-        <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>
-          {value}
-        </span>
-        {trend && (
-          <span className={`mb-0.5 text-xs font-medium ${isNegative ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
-            {trend}
+    <Card.Root size="sm">
+      <Card.Content className="flex flex-col gap-1">
+        <div className="flex items-center gap-1.5">
+          <span className="inline-block shrink-0 rounded-sm" style={{ width: 8, height: 8, backgroundColor: color }} />
+          <Text variant="caption-normal" color="foreground-3">{label}</Text>
+        </div>
+        <div className="flex items-end gap-2">
+          <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>
+            {value}
           </span>
-        )}
-      </div>
-    </div>
+          {trend && (
+            <span className={`mb-0.5 text-xs font-medium ${isNegative ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
+              {trend}
+            </span>
+          )}
+        </div>
+      </Card.Content>
+    </Card.Root>
   )
 }
 
@@ -308,7 +311,7 @@ export function BusinessAlignmentPage() {
         </div>
 
         {/* Row 2: Interactive stacked bar chart */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <div className="flex flex-col gap-0.5">
               <Text variant="body-strong" color="foreground-1">Work Categorization Over Time</Text>
@@ -438,7 +441,7 @@ export function BusinessAlignmentPage() {
                 />
               </div>
             </div>
-        </div>
+        </Card.Root>
       </div>
     </Nav2>
   )

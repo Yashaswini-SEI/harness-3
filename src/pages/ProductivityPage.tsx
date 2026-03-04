@@ -9,6 +9,7 @@ import {
   Pagination,
   CounterBadge,
   Select,
+  Card,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { StackedBarChart } from '../components/Charts'
@@ -439,7 +440,7 @@ export function ProductivityPage() {
         </div>
 
         {/* PR Velocity Per Dev */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">PR Velocity Per Dev</Text>
             <div className="flex items-center gap-2">
@@ -633,10 +634,10 @@ export function ProductivityPage() {
               />
             </div>
           </div>
-        </div>
+        </Card.Root>
 
         {/* PR Cycle Time */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">PR Cycle Time</Text>
             <div className="flex items-center gap-2">
@@ -797,10 +798,10 @@ export function ProductivityPage() {
               />
             </div>
           </div>
-        </div>
+        </Card.Root>
 
         {/* Work Completed Per Dev */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">Work Completed Per Dev</Text>
             <div className="flex items-center gap-2">
@@ -959,10 +960,10 @@ export function ProductivityPage() {
               />
             </div>
           </div>
-        </div>
+        </Card.Root>
 
         {/* Coding Days Per Dev */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">Coding Days Per Dev</Text>
             <ExportMenu />
@@ -984,10 +985,10 @@ export function ProductivityPage() {
               showBarValues
             />
           </div>
-        </div>
+        </Card.Root>
 
         {/* Number of Comments Per PR */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">Number of Comments Per PR</Text>
             <ExportMenu />
@@ -1008,10 +1009,10 @@ export function ProductivityPage() {
               showBarValues
             />
           </div>
-        </div>
+        </Card.Root>
 
         {/* Average Time to First Comment */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">Average Time to First Comment</Text>
             <ExportMenu />
@@ -1033,10 +1034,10 @@ export function ProductivityPage() {
               showBarValues
             />
           </div>
-        </div>
+        </Card.Root>
 
         {/* Code Rework */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <Text variant="body-strong" color="foreground-1">Code Rework</Text>
             <div className="flex items-center gap-2">
@@ -1157,7 +1158,7 @@ export function ProductivityPage() {
               />
             </div>
           </div>
-        </div>
+        </Card.Root>
       </div>
     </Nav2>
   )

@@ -3,6 +3,7 @@ import {
   Text,
   Button,
   IconV2,
+  Card,
   Tabs,
   Table,
   Select,
@@ -271,13 +272,13 @@ function DonutMetricCard({ title, subtitle, data, metric, metricLabel, color, tr
   children?: React.ReactNode
 }) {
   return (
-    <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+    <Card.Root className="group/card flex flex-col">
       <div className="flex flex-col gap-4 p-5">
         <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
         <DonutChart data={data} height={210} color={color} metric={metric} metricLabel={metricLabel} trend={trend} />
       </div>
       {children}
-    </div>
+    </Card.Root>
   )
 }
 
@@ -290,15 +291,17 @@ function ChartCard({ title, subtitle, tooltip, children }: {
   children: React.ReactNode
 }) {
   return (
-    <div className="group/card flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
-      <div className="flex items-start justify-between">
-        <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
-        <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-          <IconV2 name="more-horizontal" size="sm" />
-        </Button>
-      </div>
-      {children}
-    </div>
+    <Card.Root className="group/card">
+      <Card.Content className="flex flex-col gap-4">
+        <div className="flex items-start justify-between">
+          <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
+          <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+            <IconV2 name="more-horizontal" size="sm" />
+          </Button>
+        </div>
+        {children}
+      </Card.Content>
+    </Card.Root>
   )
 }
 
@@ -482,7 +485,7 @@ export function AIInsightsPage() {
               ))}
             </div>
           </DonutMetricCard>
-          <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+          <Card.Root className="group/card flex flex-col">
             <div className="flex flex-col gap-4 p-5">
               <CardTitle title="Velocity" subtitle="" tooltip="Average PRs merged per developer in this period" />
               <div className="flex items-center justify-center" style={{ height: 210 }}>
@@ -513,7 +516,7 @@ export function AIInsightsPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </Card.Root>
           <DonutMetricCard
             title="Quality"
             subtitle=""
@@ -554,7 +557,8 @@ export function AIInsightsPage() {
         </div>
 
         {/* Active users table */}
-        <div className="group/card overflow-hidden rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+        <Card.Root className="group/card overflow-hidden">
+          <Card.Content>
           <div className="flex items-center pb-3">
             <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Developers</Text>
@@ -663,6 +667,7 @@ export function AIInsightsPage() {
               </Table.Body>
             </Table.Root>
           </div>
+          </Card.Content>
           <div className="rounded-b-cn-2 border border-t-0 border-borders-2 px-4 pb-3 pt-0.5">
             <Pagination
               totalItems={filteredUsers.length}
@@ -674,11 +679,12 @@ export function AIInsightsPage() {
               className="!mt-cn-sm"
             />
           </div>
-        </div>
+        </Card.Root>
 
         {/* Lines Added + Acceptance Rate charts */}
         <div className="grid grid-cols-2 gap-5">
-          <div className="group/card flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+          <Card.Root className="group/card">
+          <Card.Content className="flex flex-col gap-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-1.5">
                 <Text variant="body-strong" color="foreground-1">Lines Added per Active AI Developer</Text>
@@ -709,8 +715,10 @@ export function AIInsightsPage() {
               </Button>
             </div>
             <GroupedBarChart data={linesPerDevData} series={ASSISTANT_SERIES} height={240} />
-          </div>
-          <div className="group/card flex flex-col gap-4 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+          </Card.Content>
+          </Card.Root>
+          <Card.Root className="group/card">
+          <Card.Content className="flex flex-col gap-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-1.5">
                 <Text variant="body-strong" color="foreground-1">Acceptance Rate</Text>
@@ -752,7 +760,8 @@ export function AIInsightsPage() {
               </Button>
             </div>
             <GroupedBarChart data={acceptanceRateData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
-          </div>
+          </Card.Content>
+          </Card.Root>
         </div>
       </div>
     </Nav2>

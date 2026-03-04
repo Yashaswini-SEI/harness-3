@@ -9,6 +9,7 @@ import {
   StatusBadge,
   Pagination,
   DropdownMenu,
+  Card,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { StackedBarChart } from '../components/Charts'
@@ -203,7 +204,7 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier }: {
   const tierTheme = TIER_THEMES[tier] ?? TIER_THEMES.Low
 
   return (
-    <div className="flex flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+    <Card.Root size="sm"><Card.Content className="flex flex-col gap-2">
       <Text variant="caption-normal" color="foreground-3">{label}</Text>
       <div className="flex items-end gap-2">
         <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>
@@ -223,7 +224,7 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier }: {
           {tier}
         </span>
       </div>
-    </div>
+    </Card.Content></Card.Root>
   )
 }
 
@@ -683,7 +684,7 @@ export function EfficiencyDoraPage() {
         </div>
 
         {/* Row 2: Lead Time for Changes — segmented bar chart */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <div className="flex flex-col gap-0.5">
               <Text variant="body-strong" color="foreground-1">Lead Time for Changes</Text>
@@ -1011,10 +1012,10 @@ export function EfficiencyDoraPage() {
             </div>
             )
           })()}
-        </div>
+        </Card.Root>
 
         {/* Row 3: Deployment Frequency bar chart with drilldown */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <div className="flex flex-col gap-0.5">
               <Text variant="body-strong" color="foreground-1">Deployment Frequency</Text>
@@ -1023,7 +1024,7 @@ export function EfficiencyDoraPage() {
           </div>
 
           {/* Metric box */}
-          <div className="mx-5 mt-3 flex w-1/5 flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+          <Card.Root size="sm" className="mx-5 mt-3 w-1/5"><Card.Content className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <Text variant="caption-normal" color="foreground-3">Total Deployments</Text>
               <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#ECFDF3', color: '#027A48' }}>Elite</span>
@@ -1033,7 +1034,7 @@ export function EfficiencyDoraPage() {
               <Text variant="body-normal" color="foreground-3">(5.25/wk)</Text>
             </div>
             <span className="text-xs text-[#EF4444]">↘ 43.24%</span>
-          </div>
+          </Card.Content></Card.Root>
 
           <div className="p-5 pt-3">
             <svg width="0" height="0">
@@ -1166,10 +1167,10 @@ export function EfficiencyDoraPage() {
               />
             </div>
           </div>
-        </div>
+        </Card.Root>
 
         {/* Row 4: Change Failure Rate */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Change Failure Rate</Text>
@@ -1187,14 +1188,14 @@ export function EfficiencyDoraPage() {
           </div>
 
           {/* Metric box */}
-          <div className="mx-5 mt-3 flex w-1/5 flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+          <Card.Root size="sm" className="mx-5 mt-3 w-1/5"><Card.Content className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <Text variant="caption-normal" color="foreground-3">Change Failure Rate</Text>
               <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#FEF3F2', color: '#B42318' }}>Low</span>
             </div>
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>147.62%</span>
             <Text variant="caption-normal" color="foreground-3">31 failures · 21 deployments</Text>
-          </div>
+          </Card.Content></Card.Root>
 
           <div className="p-5 pt-3">
             <ResponsiveContainer width="100%" height={260}>
@@ -1315,10 +1316,10 @@ export function EfficiencyDoraPage() {
               />
             </div>
           </div>
-        </div>
+        </Card.Root>
 
         {/* Row 5: Mean Time to Restore */}
-        <div className="group/card flex flex-col rounded-cn-2 border border-borders-2 bg-white dark:bg-cn-1">
+        <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Mean Time to Restore</Text>
@@ -1337,14 +1338,14 @@ export function EfficiencyDoraPage() {
           </div>
 
           {/* Metric box */}
-          <div className="mx-5 mt-3 flex w-1/5 flex-col gap-2 rounded-cn-2 border border-borders-2 bg-white p-5 dark:bg-cn-1">
+          <Card.Root size="sm" className="mx-5 mt-3 w-1/5"><Card.Content className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <Text variant="caption-normal" color="foreground-3">Mean Time to Restore</Text>
               <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#FEF3F2', color: '#B42318' }}>Low</span>
             </div>
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>44d 16h</span>
             <Text variant="caption-normal" color="foreground-3">118 tickets</Text>
-          </div>
+          </Card.Content></Card.Root>
 
           <div className="p-5 pt-3">
             <ResponsiveContainer width="100%" height={260}>
@@ -1473,7 +1474,7 @@ export function EfficiencyDoraPage() {
               />
             </div>
           </div>
-        </div>
+        </Card.Root>
       </div>
     </Nav2>
   )
