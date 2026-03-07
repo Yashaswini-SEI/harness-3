@@ -29,6 +29,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   'business-alignment': 'Business Alignment',
   'ai-insights': 'AI Insights',
   teams: 'Teams',
+  developers: 'Developers',
 }
 
 function generateBreadcrumbs(pathname: string): Breadcrumb2Item[] {

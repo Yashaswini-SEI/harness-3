@@ -22,6 +22,7 @@ import { CanvasPage } from './pages/CanvasPage'
 import { ConfigurationPage } from './pages/ConfigurationPage'
 import { InsightsPage2 } from './pages/InsightsPage2'
 import { TeamsPage } from './pages/TeamsPage'
+import { DevelopersPage } from './pages/DevelopersPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -48,6 +49,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/module/sei/configuration/profile/efficiency" element={<EfficiencyProfilePage />} />
         <Route path="/module/sei/configuration/integration" element={<IntegrationsPage />} />
         <Route path="/module/sei/orgs/default/projects/harness_demo/teams" element={<TeamsPage />} />
+        <Route path="/module/sei/configuration/developers" element={<DevelopersPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

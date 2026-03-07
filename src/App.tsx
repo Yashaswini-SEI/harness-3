@@ -15,6 +15,7 @@ const pages = [
   { path: '/module/sei/insights/harness/efficiency-sprint-metrics', icon: 'flag', title: 'Sprint Metrics', description: '15 sprint metric cards with grouped bar chart and drilldown' },
   { path: '/module/sei/insights/harness/productivity', icon: 'code-branch', title: 'Productivity', description: 'PR velocity, cycle time, work completed, coding days, and code rework' },
   { path: '/module/sei/insights/harness/ai-insights', icon: 'sparkle', title: 'AI Insights', description: 'AI-powered engineering insights and recommendations' },
+  { path: '/module/sei/configuration/developers', icon: 'code-branch', title: 'Developers', description: 'Developer records, data management, and CSV uploads' },
 ]
 
 const galleries = [
