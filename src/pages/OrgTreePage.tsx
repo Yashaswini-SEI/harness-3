@@ -10,7 +10,7 @@ import {
   TextInput,
   Select,
 } from '@harnessio/ui/components'
-import { Nav2 } from '../components/Nav2'
+import { AppShell } from '../components/AppShell'
 
 interface OrgTreeRow {
   name: string
@@ -253,7 +253,7 @@ export function OrgTreePage() {
   return (
 
 
-    <Nav2 activeSection="org-tree">
+    <AppShell activeSection="org-tree">
       <>
       <div className="flex flex-1 flex-col gap-5 overflow-auto px-5 pb-5 pt-6">
 
@@ -554,6 +554,6 @@ export function OrgTreePage() {
         </>
       )}
       </>
-    </Nav2>
+    </AppShell>
   )
 }

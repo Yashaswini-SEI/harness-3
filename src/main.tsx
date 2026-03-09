@@ -23,6 +23,7 @@ import { ConfigurationPage } from './pages/ConfigurationPage'
 import { InsightsPage2 } from './pages/InsightsPage2'
 import { TeamsPage } from './pages/TeamsPage'
 import { DevelopersPage } from './pages/DevelopersPage'
+import { NavVariationsPage } from './pages/NavVariationsPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -50,6 +51,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/module/sei/configuration/integration" element={<IntegrationsPage />} />
         <Route path="/module/sei/orgs/default/projects/harness_demo/teams" element={<TeamsPage />} />
         <Route path="/module/sei/configuration/developers" element={<DevelopersPage />} />
+        <Route path="/nav-variations" element={<NavVariationsPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
