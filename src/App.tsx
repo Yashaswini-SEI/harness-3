@@ -21,6 +21,7 @@ const pages = [
 const galleries = [
   { path: '/gallery', icon: 'grip-dots', title: 'Component Gallery', description: 'All reusable components, charts, primitives, and design tokens' },
   { path: '/tables', icon: 'grip-dots', title: 'Tables', description: 'Data tables with sorting, pagination, and row actions' },
+  { path: '/nav-variations', icon: 'sidebar', title: 'Nav Variations', description: '8 navigation patterns for 4-level hierarchy with recommended approach' },
 ]
 
 function DirectoryCard({ path, icon, title, description }: { path: string; icon: string; title: string; description: string }) {

@@ -517,7 +517,7 @@ function Variation7() {
         />
         {query && (
           <button onClick={() => setQuery('')} className="shrink-0 text-foreground-4 hover:text-foreground-2">
-            <IconV2 name="x-mark" size="xs" />
+            <IconV2 name="xmark" size="xs" />
           </button>
         )}
       </div>

@@ -64,7 +64,7 @@ function AIChatPanel({ onClose }: { onClose: () => void }) {
               <IconV2 name="edit" size="sm" />
             </Button>
             <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={onClose}>
-              <IconV2 name="columns-2" size="sm" />
+              <IconV2 name={'columns-2' as never} size="sm" />
             </Button>
             <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
               <IconV2 name="more-horizontal" size="sm" />
@@ -89,7 +89,7 @@ function AIChatPanel({ onClose }: { onClose: () => void }) {
 
 // ── Content Header (breadcrumbs) ──
 
-function ContentHeader({ onToggleChat, chatOpen }: { onToggleChat: () => void; chatOpen: boolean }) {
+function ContentHeader({ onToggleChat }: { onToggleChat: () => void; chatOpen: boolean }) {
   const location = useLocation()
   const crumbs = generateBreadcrumbs(location.pathname)
 
@@ -105,7 +105,7 @@ function ContentHeader({ onToggleChat, chatOpen }: { onToggleChat: () => void; c
         ignoreIconOnlyTooltip
         onClick={onToggleChat}
       >
-        <IconV2 name="columns-2" size="sm" />
+        <IconV2 name={'columns-2' as never} size="sm" />
       </Button>
 
       <Breadcrumb.Root>
@@ -155,7 +155,7 @@ export function AppShell({ activeSection, children }: AppShellProps) {
                   </div>
                 </div>
                 <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                  <IconV2 name="chevron-right" size="xs" />
+                  <IconV2 name={'chevron-right' as never} size="xs" />
                 </Button>
               </div>
             </Sidebar.Header>
