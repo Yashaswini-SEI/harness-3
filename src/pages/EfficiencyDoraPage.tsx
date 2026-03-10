@@ -207,18 +207,26 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier, tooltip }: 
 
   return (
     <Card.Root size="sm" className="overflow-visible"><Card.Content className="flex flex-col gap-2 overflow-visible">
-      <div className="flex items-center gap-1">
-        <Text variant="caption-normal" color="foreground-3">{label}</Text>
-        {tooltip && (
-          <div className="group/tip relative">
-            <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
-            <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
-              <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
-                {tooltip.split('\n').map((p, i) => <p key={i}>{p}</p>)}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <Text variant="caption-normal" color="foreground-3">{label}</Text>
+          {tooltip && (
+            <div className="group/tip relative">
+              <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+              <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                  {tooltip.split('\n').map((p, i) => <p key={i}>{p}</p>)}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+        <span
+          className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+          style={{ backgroundColor: tierTheme.bg, color: tierTheme.text }}
+        >
+          {tier}
+        </span>
       </div>
       <div className="flex items-end gap-2">
         <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>
@@ -234,12 +242,6 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier, tooltip }: 
             <span className="text-xs text-foreground-3">last 4 weeks</span>
           </>
         )}
-        <span
-          className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-          style={{ backgroundColor: tierTheme.bg, color: tierTheme.text }}
-        >
-          {tier}
-        </span>
       </div>
     </Card.Content></Card.Root>
   )
