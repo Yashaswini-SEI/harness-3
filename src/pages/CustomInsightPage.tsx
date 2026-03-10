@@ -31,8 +31,6 @@ export function CustomInsightPage() {
   const [searchParams] = useSearchParams()
   const insightName = searchParams.get('name') || 'Process Efficiency'
   const insightDesc = searchParams.get('desc') || ''
-  const insightTagsParam = searchParams.get('tags') || ''
-  const tags = insightTagsParam ? insightTagsParam.split(',') : []
   const [hasWidget, setHasWidget] = useState(false)
   const [showToast, setShowToast] = useState(true)
   const [timeRange, setTimeRange] = useState('7D')

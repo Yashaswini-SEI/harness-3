@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import {
   Button,
-  IconV2,
   Tree,
   Folder,
   File,

@@ -732,11 +732,11 @@ export function EfficiencyDoraPage() {
 
             {showLeadTimeBreakdown && (() => {
               const teams = [
-                { name: 'Alex N Markov', time: '12d 4h', planning: 28, coding: 22, review: 18, build: 15, deploy: 17 },
-                { name: 'Abdul Asheem', time: '9d 11h', planning: 20, coding: 30, review: 15, build: 20, deploy: 15 },
-                { name: 'Kate Williams', time: '15d 2h', planning: 35, coding: 18, review: 22, build: 12, deploy: 13 },
-                { name: 'Minash Ranjan', time: '8d 7h', planning: 15, coding: 25, review: 20, build: 25, deploy: 15 },
-                { name: 'Sachin Walunj', time: '11d 19h', planning: 22, coding: 20, review: 25, build: 18, deploy: 15 },
+                { name: 'Alex N Markov', time: '12d 4h', tier: 'Medium', planning: 28, coding: 22, review: 18, build: 15, deploy: 17 },
+                { name: 'Abdul Asheem', time: '9d 11h', tier: 'Elite', planning: 20, coding: 30, review: 15, build: 20, deploy: 15 },
+                { name: 'Kate Williams', time: '15d 2h', tier: 'Medium', planning: 35, coding: 18, review: 22, build: 12, deploy: 13 },
+                { name: 'Minash Ranjan', time: '8d 7h', tier: 'Elite', planning: 15, coding: 25, review: 20, build: 25, deploy: 15 },
+                { name: 'Sachin Walunj', time: '11d 19h', tier: 'High', planning: 22, coding: 20, review: 25, build: 18, deploy: 15 },
               ]
               return (
                 <div className="w-[320px] shrink-0 border-l border-borders-1 p-4 flex flex-col gap-4">
@@ -745,7 +745,15 @@ export function EfficiencyDoraPage() {
                     <div key={team.name} className="flex flex-col gap-1.5">
                       <div className="flex items-center justify-between">
                         <Text variant="caption-normal" color="foreground-1" className="font-medium">{team.name}</Text>
-                        <Text variant="caption-normal" color="foreground-3">{team.time}</Text>
+                        <div className="flex items-center gap-2">
+                          <Text variant="caption-normal" color="foreground-3">{team.time}</Text>
+                          <span
+                            className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none"
+                            style={{ backgroundColor: (TIER_THEMES[team.tier] ?? TIER_THEMES.Medium).bg, color: (TIER_THEMES[team.tier] ?? TIER_THEMES.Medium).text }}
+                          >
+                            {team.tier}
+                          </span>
+                        </div>
                       </div>
                       <div className="flex w-full" style={{ gap: 2, height: 14 }}>
                         <div style={{ width: `${team.planning}%`, backgroundColor: STAGE_COLORS.planning, borderRadius: 3 }} />
