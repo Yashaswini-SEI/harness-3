@@ -239,7 +239,7 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier, tooltip }: 
             <span className={`text-xs font-medium ${isRed ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
               {arrow} {trend}
             </span>
-            <span className="text-xs text-foreground-3">last 4 weeks</span>
+            <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
           </>
         )}
       </div>
@@ -741,6 +741,7 @@ export function EfficiencyDoraPage() {
                   </div>
                 </div>
               </div>
+              <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
             </div>
             <div className="flex w-full" style={{ gap: 3, height: 22 }}>
               <div style={{ width: `${avgSegments.planning}%`, backgroundColor: STAGE_COLORS.planning, borderRadius: 4 }} className="transition-all" />
@@ -1085,7 +1086,7 @@ export function EfficiencyDoraPage() {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xs text-[#EF4444]">↘ 43.24%</span>
-              <span className="text-xs text-foreground-3">last 4 weeks</span>
+              <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
             </div>
           </Card.Content></Card.Root>
 
@@ -1249,7 +1250,7 @@ export function EfficiencyDoraPage() {
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>147.62%</span>
             <div className="flex items-center gap-3">
               <Text variant="caption-normal" color="foreground-3">31 failures · 21 deployments</Text>
-              <span className="text-xs text-foreground-3">last 4 weeks</span>
+              <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
             </div>
           </Card.Content></Card.Root>
 
@@ -1402,7 +1403,7 @@ export function EfficiencyDoraPage() {
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>44d 16h</span>
             <div className="flex items-center gap-3">
               <Text variant="caption-normal" color="foreground-3">118 tickets</Text>
-              <span className="text-xs text-foreground-3">last 4 weeks</span>
+              <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
             </div>
           </Card.Content></Card.Root>
 
