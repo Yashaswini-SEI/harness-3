@@ -1074,7 +1074,10 @@ export function EfficiencyDoraPage() {
                 </div>
               </div>
             </div>
-            <ExportMenu />
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm">Breakdown</Button>
+              <ExportMenu />
+            </div>
           </div>
 
           {/* Metric box */}
@@ -1241,7 +1244,10 @@ export function EfficiencyDoraPage() {
                 </div>
               </div>
             </div>
-            <ExportMenu />
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm">Breakdown</Button>
+              <ExportMenu />
+            </div>
           </div>
 
           {/* Metric box */}
@@ -1394,7 +1400,10 @@ export function EfficiencyDoraPage() {
                 </div>
               </div>
             </div>
-            <ExportMenu />
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm">Breakdown</Button>
+              <ExportMenu />
+            </div>
           </div>
 
           {/* Metric box */}
