@@ -213,7 +213,7 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier, tooltip }: 
           {tooltip && (
             <div className="group/tip relative">
               <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
-              <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+              <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
                 <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
                   {tooltip.split('\n').map((p, i) => <p key={i}>{p}</p>)}
                 </div>
@@ -711,7 +711,10 @@ export function EfficiencyDoraPage() {
                 </div>
               </div>
             </div>
-            <ExportMenu />
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm">Breakdown</Button>
+              <ExportMenu />
+            </div>
           </div>
 
           {/* Segmented stacked bar chart */}
