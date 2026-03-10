@@ -7,7 +7,6 @@ import {
   Tabs,
   Table,
   Select,
-  StatusBadge,
   Tag,
   Pagination,
 } from '@harnessio/ui/components'
@@ -395,30 +394,6 @@ export function AIInsightsPage() {
             <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
               <IconV2 name="more-horizontal" size="sm" />
             </Button>
-          </div>
-        </div>
-
-        {/* Metadata row */}
-        <div className="flex items-center gap-10">
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Status</Text>
-            <StatusBadge variant="outline" theme="success" size="sm">Published</StatusBadge>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Created:</Text>
-            <Text variant="body-normal" color="foreground-1">01 Nov 2025, 03:19pm</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Updated:</Text>
-            <Text variant="body-normal" color="foreground-1">01 Jan 2026, 09:38am</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Org</Text>
-            <Text variant="body-normal" color="foreground-1">Harness SEI</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Tags</Text>
-            <Tag variant="outline" theme="gray" size="sm" value="AI Insights" />
           </div>
         </div>
 

@@ -4,8 +4,6 @@ import {
   Button,
   Card,
   IconV2,
-  StatusBadge,
-  Tag,
   Tabs,
 } from '@harnessio/ui/components'
 import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom'
@@ -78,35 +76,6 @@ export function CustomInsightPage() {
               <Button size="sm" disabled={!hasWidget} onClick={() => navigate('/module/sei/insights', { state: { insightSaved: true, insightName } })}>Save</Button>
             </div>
           </div>
-
-          {/* Metadata row */}
-          <div className="flex items-center gap-10">
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Status</Text>
-            <StatusBadge variant="outline" theme="info" size="sm">Draft</StatusBadge>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Created:</Text>
-            <Text variant="body-normal" color="foreground-1">
-              {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })},{' '}
-              {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase()}
-            </Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Updated:</Text>
-            <Text variant="body-normal" color="foreground-1">&ndash;</Text>
-          </div>
-          {tags.length > 0 && (
-            <div className="flex flex-col gap-1">
-              <Text variant="body-normal" color="foreground-3">Tags</Text>
-              <div className="flex gap-1">
-                {tags.map((tag) => (
-                  <Tag key={tag} variant="outline" theme="gray" size="sm" value={tag} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
 
         </div>
 

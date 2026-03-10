@@ -138,22 +138,6 @@ export function SprintMetricsPage() {
           </div>
         </div>
 
-        {/* Metadata row */}
-        <div className="flex items-center gap-10">
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Created:</Text>
-            <Text variant="body-normal" color="foreground-1">10 Jan 2026, 09:30am</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Updated:</Text>
-            <Text variant="body-normal" color="foreground-1">18 Feb 2026, 04:12pm</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Team:</Text>
-            <Text variant="body-normal" color="foreground-1">Harness SEI / Arvind Srinivaaolu / Abdul Asheem</Text>
-          </div>
-        </div>
-
         {/* Time range tabs */}
         <div className="flex items-center gap-3">
           <Tabs.Root value={timeRange} onValueChange={setTimeRange}>

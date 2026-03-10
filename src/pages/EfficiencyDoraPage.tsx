@@ -12,6 +12,7 @@ import {
   Card,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
+import { OrgTreeNav } from '../components/OrgTreeNav'
 import { StackedBarChart } from '../components/Charts'
 import {
   ResponsiveContainer,
@@ -191,12 +192,13 @@ const TIER_THEMES: Record<string, { bg: string; text: string }> = {
   Low: { bg: '#FEF3F2', text: '#B42318' },
 }
 
-function DoraMetricCard({ label, value, trend, trendDirection, tier }: {
+function DoraMetricCard({ label, value, trend, trendDirection, tier, tooltip }: {
   label: string
   value: string
   trend: string
   trendDirection: 'up' | 'down'
   tier: string
+  tooltip?: string
 }) {
   // For DORA metrics, red = bad regardless of direction
   const isRed = true
@@ -204,8 +206,20 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier }: {
   const tierTheme = TIER_THEMES[tier] ?? TIER_THEMES.Low
 
   return (
-    <Card.Root size="sm"><Card.Content className="flex flex-col gap-2">
-      <Text variant="caption-normal" color="foreground-3">{label}</Text>
+    <Card.Root size="sm" className="overflow-visible"><Card.Content className="flex flex-col gap-2 overflow-visible">
+      <div className="flex items-center gap-1">
+        <Text variant="caption-normal" color="foreground-3">{label}</Text>
+        {tooltip && (
+          <div className="group/tip relative">
+            <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+            <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+              <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                {tooltip.split('\n').map((p, i) => <p key={i}>{p}</p>)}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
       <div className="flex items-end gap-2">
         <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>
           {value}
@@ -213,9 +227,12 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier }: {
       </div>
       <div className="flex items-center gap-3">
         {trend && (
-          <span className={`text-xs font-medium ${isRed ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
-            {arrow} {trend}
-          </span>
+          <>
+            <span className={`text-xs font-medium ${isRed ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
+              {arrow} {trend}
+            </span>
+            <span className="text-xs text-foreground-3">last 4 weeks</span>
+          </>
         )}
         <span
           className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
@@ -302,6 +319,7 @@ export function EfficiencyDoraPage() {
   const [drillPage, setDrillPage] = useState(1)
   const [drillPageSize, setDrillPageSize] = useState(5)
   const [showTrendline, setShowTrendline] = useState(false)
+  const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
   const [aggregation, setAggregation] = useState('mean')
   const [selectedStage, setSelectedStage] = useState<number | null>(null)
   const [stagedrillPage, setStagedrillPage] = useState(1)
@@ -618,27 +636,11 @@ export function EfficiencyDoraPage() {
           <div className="flex flex-col gap-1">
             <Text as="h1" variant="heading-hero" color="foreground-1">DORA</Text>
             <Text variant="body-normal" color="foreground-3">
-              DORA metrics measure software delivery performance.
+              DORA metrics measure software delivery performance, helping teams improve speed, stability, and reliability.
             </Text>
           </div>
           <div className="flex items-center gap-3">
             <ExportMenu variant="outline" />
-          </div>
-        </div>
-
-        {/* Metadata row */}
-        <div className="flex items-center gap-10">
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Created:</Text>
-            <Text variant="body-normal" color="foreground-1">20 Nov 2025, 03:16pm</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Updated:</Text>
-            <Text variant="body-normal" color="foreground-1">16 Jan 2026, 09:38pm</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Team:</Text>
-            <Text variant="body-normal" color="foreground-1">Harness SEI / Arvind Srinivaaolu / Abdul Asheem</Text>
           </div>
         </div>
 
@@ -675,19 +677,37 @@ export function EfficiencyDoraPage() {
           </div>
         </div>
 
+        {/* Main content: tree nav + dashboard */}
+        <div className="flex gap-5">
+          {/* Left: tree navigation */}
+          <OrgTreeNav selectedNodeId={selectedNodeId} onSelectNode={setSelectedNodeId} />
+
+          {/* Right: dashboard content */}
+          <div className="flex-1 flex flex-col gap-5 min-w-0">
+
         {/* Row 1: 4 DORA Metric Cards */}
         <div className="grid grid-cols-4 gap-5">
-          <DoraMetricCard label="Lead Time for Changes" value={doraMetrics.leadTime} trend={doraMetrics.leadTimeTrend} trendDirection={doraMetrics.leadTimeTrendDir} tier={doraMetrics.leadTimeTier} />
-          <DoraMetricCard label="Total Deployments" value={doraMetrics.totalDeployments} trend={doraMetrics.deploymentsTrend} trendDirection={doraMetrics.deploymentsTrendDir} tier={doraMetrics.deploymentsTier} />
-          <DoraMetricCard label="Change Failure Rate" value={doraMetrics.changeFailureRate} trend={doraMetrics.changeFailureTrend} trendDirection={doraMetrics.changeFailureTrendDir} tier={doraMetrics.changeFailureTier} />
-          <DoraMetricCard label="Mean Time to Restore" value={doraMetrics.mttr} trend={doraMetrics.mttrTrend} trendDirection={doraMetrics.mttrTrendDir} tier={doraMetrics.mttrTier} />
+          <DoraMetricCard label="Lead Time for Changes" value={doraMetrics.leadTime} trend={doraMetrics.leadTimeTrend} trendDirection={doraMetrics.leadTimeTrendDir} tier={doraMetrics.leadTimeTier} tooltip={"The Lead Time for Changes metric captures how long it takes for a code change to go from request to production.\nThis includes all stages — development, review, testing, and deployment.\nThe metric is defined in your Org Tree's Efficiency profile and automatically rolls up across teams for org-level visibility."} />
+          <DoraMetricCard label="Total Deployments" value={doraMetrics.totalDeployments} trend={doraMetrics.deploymentsTrend} trendDirection={doraMetrics.deploymentsTrendDir} tier={doraMetrics.deploymentsTier} tooltip={"The Deployment Frequency metric represents how often an organization successfully releases software to production.\nThe metric is defined in your Org Tree's Efficiency profile and automatically rolls up across teams for org-level visibility."} />
+          <DoraMetricCard label="Change Failure Rate" value={doraMetrics.changeFailureRate} trend={doraMetrics.changeFailureTrend} trendDirection={doraMetrics.changeFailureTrendDir} tier={doraMetrics.changeFailureTier} tooltip={"The Change Failure Rate metric represents the percentage of deployments that cause a failure in production. The metric is defined in your Org Tree's Efficiency profile and automatically rolls up across teams for org-level visibility.\nThe metric is calculated using the formula = Change Failure Rate = Deployments that caused a failure or incident in production / Total deployments"} />
+          <DoraMetricCard label="Mean Time to Restore" value={doraMetrics.mttr} trend={doraMetrics.mttrTrend} trendDirection={doraMetrics.mttrTrendDir} tier={doraMetrics.mttrTier} tooltip={"The Mean Time to Restore metric indicates how long it takes an organization to recover from a failure or incidents in production.\nThe metric is defined in your Org Tree's Efficiency profile (source of failure) and automatically rolls up across teams for org-level visibility.\nThe source of deployment is the same as defined in the Deployment frequency definition in the Efficiency profile."} />
         </div>
 
         {/* Row 2: Lead Time for Changes — segmented bar chart */}
-        <Card.Root className="group/card flex flex-col">
+        <Card.Root className="group/card flex flex-col overflow-visible">
           <div className="flex items-start justify-between p-5 pb-0">
-            <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Lead Time for Changes</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>The Lead Time for Changes metric captures how long it takes for a code change to go from request to production.</p>
+                    <p>This includes all stages — development, review, testing, and deployment.</p>
+                    <p>The metric is defined in your Org Tree's Efficiency profile and automatically rolls up across teams for org-level visibility.</p>
+                  </div>
+                </div>
+              </div>
             </div>
             <ExportMenu />
           </div>
@@ -1015,10 +1035,19 @@ export function EfficiencyDoraPage() {
         </Card.Root>
 
         {/* Row 3: Deployment Frequency bar chart with drilldown */}
-        <Card.Root className="group/card flex flex-col">
+        <Card.Root className="group/card flex flex-col overflow-visible">
           <div className="flex items-start justify-between p-5 pb-0">
-            <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Deployment Frequency</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>The Deployment Frequency metric represents how often an organization successfully releases software to production.</p>
+                    <p>The metric is defined in your Org Tree's Efficiency profile and automatically rolls up across teams for org-level visibility.</p>
+                  </div>
+                </div>
+              </div>
             </div>
             <ExportMenu />
           </div>
@@ -1033,7 +1062,10 @@ export function EfficiencyDoraPage() {
               <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>21</span>
               <Text variant="body-normal" color="foreground-3">(5.25/wk)</Text>
             </div>
-            <span className="text-xs text-[#EF4444]">↘ 43.24%</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-[#EF4444]">↘ 43.24%</span>
+              <span className="text-xs text-foreground-3">last 4 weeks</span>
+            </div>
           </Card.Content></Card.Root>
 
           <div className="p-5 pt-3">
@@ -1170,7 +1202,7 @@ export function EfficiencyDoraPage() {
         </Card.Root>
 
         {/* Row 4: Change Failure Rate */}
-        <Card.Root className="group/card flex flex-col">
+        <Card.Root className="group/card flex flex-col overflow-visible">
           <div className="flex items-start justify-between p-5 pb-0">
             <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Change Failure Rate</Text>
@@ -1194,7 +1226,10 @@ export function EfficiencyDoraPage() {
               <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#FEF3F2', color: '#B42318' }}>Low</span>
             </div>
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>147.62%</span>
-            <Text variant="caption-normal" color="foreground-3">31 failures · 21 deployments</Text>
+            <div className="flex items-center gap-3">
+              <Text variant="caption-normal" color="foreground-3">31 failures · 21 deployments</Text>
+              <span className="text-xs text-foreground-3">last 4 weeks</span>
+            </div>
           </Card.Content></Card.Root>
 
           <div className="p-5 pt-3">
@@ -1319,7 +1354,7 @@ export function EfficiencyDoraPage() {
         </Card.Root>
 
         {/* Row 5: Mean Time to Restore */}
-        <Card.Root className="group/card flex flex-col">
+        <Card.Root className="group/card flex flex-col overflow-visible">
           <div className="flex items-start justify-between p-5 pb-0">
             <div className="flex items-center gap-1.5">
               <Text variant="body-strong" color="foreground-1">Mean Time to Restore</Text>
@@ -1344,7 +1379,10 @@ export function EfficiencyDoraPage() {
               <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: '#FEF3F2', color: '#B42318' }}>Low</span>
             </div>
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>44d 16h</span>
-            <Text variant="caption-normal" color="foreground-3">118 tickets</Text>
+            <div className="flex items-center gap-3">
+              <Text variant="caption-normal" color="foreground-3">118 tickets</Text>
+              <span className="text-xs text-foreground-3">last 4 weeks</span>
+            </div>
           </Card.Content></Card.Root>
 
           <div className="p-5 pt-3">
@@ -1475,6 +1513,9 @@ export function EfficiencyDoraPage() {
             </div>
           </div>
         </Card.Root>
+
+          </div>{/* end dashboard content */}
+        </div>{/* end flex row */}
       </div>
     </Nav2>
   )

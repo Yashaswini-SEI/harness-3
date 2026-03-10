@@ -3,8 +3,6 @@ import {
   Text,
   Button,
   IconV2,
-  StatusBadge,
-  Tag,
   Table,
   Pagination,
   Select,
@@ -371,26 +369,6 @@ export function WidgetBuilderPage() {
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => navigate(`/module/sei/insights/custom/${id}`)}>Cancel</Button>
           <Button size="sm" onClick={() => navigate(`/module/sei/insights/custom/${id}`, { state: { widgetAdded: true } })}>Add Widget</Button>
-        </div>
-      </div>
-
-      {/* Metadata row */}
-      <div className="flex items-center gap-10">
-        <div className="flex flex-col gap-1">
-          <Text variant="body-normal" color="foreground-3">Status</Text>
-          <StatusBadge variant="outline" theme="info" size="sm">Draft</StatusBadge>
-        </div>
-        <div className="flex flex-col gap-1">
-          <Text variant="body-normal" color="foreground-3">Created:</Text>
-          <Text variant="body-normal" color="foreground-1">–</Text>
-        </div>
-        <div className="flex flex-col gap-1">
-          <Text variant="body-normal" color="foreground-3">Updated:</Text>
-          <Text variant="body-normal" color="foreground-1">–</Text>
-        </div>
-        <div className="flex flex-col gap-1">
-          <Text variant="body-normal" color="foreground-3">Tags</Text>
-          <Tag variant="outline" theme="gray" size="sm" value="Product hierarchy" />
         </div>
       </div>
 

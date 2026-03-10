@@ -254,30 +254,6 @@ export function BusinessAlignmentPage() {
           </div>
         </div>
 
-        {/* Metadata row */}
-        <div className="flex items-center gap-10">
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Status</Text>
-            <StatusBadge variant="outline" theme="success" size="sm">Published</StatusBadge>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Created:</Text>
-            <Text variant="body-normal" color="foreground-1">15 Dec 2025, 10:22am</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Updated:</Text>
-            <Text variant="body-normal" color="foreground-1">18 Feb 2026, 02:15pm</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Org</Text>
-            <Text variant="body-normal" color="foreground-1">Harness SEI</Text>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Text variant="body-normal" color="foreground-3">Tags</Text>
-            <Tag variant="outline" theme="gray" size="sm" value="Alignment" />
-          </div>
-        </div>
-
         {/* Time range tabs */}
         <div className="flex items-center gap-3">
           <Tabs.Root value={timeRange} onValueChange={setTimeRange}>
