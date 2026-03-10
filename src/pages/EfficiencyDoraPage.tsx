@@ -334,6 +334,7 @@ export function EfficiencyDoraPage() {
   const [mttrDrillPageSize, setMttrDrillPageSize] = useState(5)
   const [expandedPrRows, setExpandedPrRows] = useState<Set<string>>(new Set())
   const [expandedCommitRows, setExpandedCommitRows] = useState<Set<string>>(new Set())
+  const [showLeadTimeBreakdown, setShowLeadTimeBreakdown] = useState(false)
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
@@ -712,20 +713,52 @@ export function EfficiencyDoraPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">Breakdown</Button>
+              <Button variant="outline" size="sm" onClick={() => setShowLeadTimeBreakdown(v => !v)}>Breakdown</Button>
               <ExportMenu />
             </div>
           </div>
 
-          {/* Segmented stacked bar chart */}
-          <div className="p-5 pt-3">
-            <StackedBarChart
-              data={leadTimeData}
-              series={STAGE_SERIES}
-              height={300}
-              yAxisLabel="Hours"
-              showTrendline={showTrendline}
-            />
+          {/* Segmented stacked bar chart + optional breakdown */}
+          <div className={`flex ${showLeadTimeBreakdown ? 'gap-0' : ''}`}>
+            <div className={`p-5 pt-3 ${showLeadTimeBreakdown ? 'flex-1 min-w-0' : 'w-full'}`}>
+              <StackedBarChart
+                data={leadTimeData}
+                series={STAGE_SERIES}
+                height={300}
+                yAxisLabel="Hours"
+                showTrendline={showTrendline}
+              />
+            </div>
+
+            {showLeadTimeBreakdown && (() => {
+              const teams = [
+                { name: 'Alex N Markov', time: '12d 4h', planning: 28, coding: 22, review: 18, build: 15, deploy: 17 },
+                { name: 'Abdul Asheem', time: '9d 11h', planning: 20, coding: 30, review: 15, build: 20, deploy: 15 },
+                { name: 'Kate Williams', time: '15d 2h', planning: 35, coding: 18, review: 22, build: 12, deploy: 13 },
+                { name: 'Minash Ranjan', time: '8d 7h', planning: 15, coding: 25, review: 20, build: 25, deploy: 15 },
+                { name: 'Sachin Walunj', time: '11d 19h', planning: 22, coding: 20, review: 25, build: 18, deploy: 15 },
+              ]
+              return (
+                <div className="w-[320px] shrink-0 border-l border-borders-1 p-4 flex flex-col gap-4">
+                  <Text variant="body-strong" color="foreground-1">Team Breakdown</Text>
+                  {teams.map((team) => (
+                    <div key={team.name} className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <Text variant="caption-normal" color="foreground-1" className="font-medium">{team.name}</Text>
+                        <Text variant="caption-normal" color="foreground-3">{team.time}</Text>
+                      </div>
+                      <div className="flex w-full" style={{ gap: 2, height: 14 }}>
+                        <div style={{ width: `${team.planning}%`, backgroundColor: STAGE_COLORS.planning, borderRadius: 3 }} />
+                        <div style={{ width: `${team.coding}%`, backgroundColor: STAGE_COLORS.coding, borderRadius: 3 }} />
+                        <div style={{ width: `${team.review}%`, backgroundColor: STAGE_COLORS.review, borderRadius: 3 }} />
+                        <div style={{ width: `${team.build}%`, backgroundColor: STAGE_COLORS.build, borderRadius: 3 }} />
+                        <div style={{ width: `${team.deploy}%`, backgroundColor: STAGE_COLORS.deploy, borderRadius: 3 }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
 
           {/* Average lead time horizontal bar */}
