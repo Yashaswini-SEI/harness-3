@@ -9,6 +9,7 @@ import {
 import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { BarChart2 } from '../components/Charts'
 import { Nav2 } from '../components/Nav2'
+import { OrgTreeNav } from '../components/OrgTreeNav'
 import imgEmptyState from '../assets/img-empty-state.svg'
 
 const widgetChartData = [
@@ -34,6 +35,7 @@ export function CustomInsightPage() {
   const [hasWidget, setHasWidget] = useState(false)
   const [showToast, setShowToast] = useState(true)
   const [timeRange, setTimeRange] = useState('7D')
+  const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
 
   useEffect(() => {
     const state = location.state as { widgetAdded?: boolean } | null
@@ -97,8 +99,11 @@ export function CustomInsightPage() {
             </Button>
           </div>
 
+          <div className="flex flex-1 gap-5 px-5 py-3">
+            <OrgTreeNav selectedNodeId={selectedNodeId} onSelectNode={setSelectedNodeId} />
+            <div className="flex-1 flex flex-col gap-5 min-w-0">
           {hasWidget ? (
-            <div className="flex-1 p-5">
+            <div className="flex-1">
               <Card.Root>
                 <Card.Content>
                   <div className="mb-4 flex flex-col gap-1">
@@ -119,6 +124,8 @@ export function CustomInsightPage() {
               </Button>
             </div>
           )}
+            </div>{/* end dashboard content */}
+          </div>{/* end flex row */}
         </div>
       </div>
 

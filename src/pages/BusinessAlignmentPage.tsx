@@ -12,6 +12,7 @@ import {
   Pagination,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
+import { OrgTreeNav } from '../components/OrgTreeNav'
 import { StackedBarChart } from '../components/Charts'
 
 // ── Deterministic jitter ──
@@ -174,6 +175,7 @@ function MetricCard({ label, value, trend, color }: { label: string; value: stri
 
 export function BusinessAlignmentPage() {
   const [timeRange, setTimeRange] = useState('12M')
+  const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
   const [metricType, setMetricType] = useState('ticket-count')
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [drillPage, setDrillPage] = useState(1)
@@ -276,6 +278,11 @@ export function BusinessAlignmentPage() {
             onChange={(val) => setMetricType(val)}
           />
         </div>
+
+        {/* Main content: tree nav + dashboard */}
+        <div className="flex gap-5">
+          <OrgTreeNav selectedNodeId={selectedNodeId} onSelectNode={setSelectedNodeId} />
+          <div className="flex-1 flex flex-col gap-5 min-w-0">
 
         {/* Row 1: Metric cards */}
         <div className="grid grid-cols-5 gap-5">
@@ -418,6 +425,9 @@ export function BusinessAlignmentPage() {
               </div>
             </div>
         </Card.Root>
+
+          </div>{/* end dashboard content */}
+        </div>{/* end flex row */}
       </div>
     </Nav2>
   )

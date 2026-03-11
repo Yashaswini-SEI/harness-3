@@ -12,6 +12,7 @@ import {
   Card,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
+import { OrgTreeNav } from '../components/OrgTreeNav'
 import { StackedBarChart } from '../components/Charts'
 import { InsightMetricCard } from '../components/InsightMetricCard'
 
@@ -76,6 +77,7 @@ function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
 
 export function ProductivityPage() {
   const [timeRange, setTimeRange] = useState('6M')
+  const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
   const [showTrendline, setShowTrendline] = useState(false)
   const [prDrillPage, setPrDrillPage] = useState(1)
   const [prDrillPageSize, setPrDrillPageSize] = useState(5)
@@ -422,6 +424,11 @@ export function ProductivityPage() {
             </Button>
           </div>
         </div>
+
+        {/* Main content: tree nav + dashboard */}
+        <div className="flex gap-5">
+          <OrgTreeNav selectedNodeId={selectedNodeId} onSelectNode={setSelectedNodeId} />
+          <div className="flex-1 flex flex-col gap-5 min-w-0">
 
         {/* PR Velocity Per Dev */}
         <Card.Root className="group/card flex flex-col">
@@ -1143,6 +1150,9 @@ export function ProductivityPage() {
             </div>
           </div>
         </Card.Root>
+
+          </div>{/* end dashboard content */}
+        </div>{/* end flex row */}
       </div>
     </Nav2>
   )

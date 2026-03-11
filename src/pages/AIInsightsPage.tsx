@@ -11,6 +11,7 @@ import {
   Pagination,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
+import { OrgTreeNav } from '../components/OrgTreeNav'
 import { DonutChart, GroupedBarChart } from '../components/Charts'
 
 // ── Time range config ──
@@ -308,6 +309,7 @@ function ChartCard({ title, subtitle, tooltip, children }: {
 
 export function AIInsightsPage() {
   const [timeRange, setTimeRange] = useState('12M')
+  const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
   const [assistantFilter, setAssistantFilter] = useState('all')
   const [compareTo, setCompareTo] = useState('')
   const [devTab, setDevTab] = useState('active')
@@ -428,6 +430,11 @@ export function AIInsightsPage() {
             onChange={(val) => setCompareTo(val ?? '')}
           />
         </div>
+
+        {/* Main content: tree nav + dashboard */}
+        <div className="flex gap-5">
+          <OrgTreeNav selectedNodeId={selectedNodeId} onSelectNode={setSelectedNodeId} />
+          <div className="flex-1 flex flex-col gap-5 min-w-0">
 
         {/* AI Summary */}
         <AISummaryPanel />
@@ -738,6 +745,9 @@ export function AIInsightsPage() {
           </Card.Content>
           </Card.Root>
         </div>
+
+          </div>{/* end dashboard content */}
+        </div>{/* end flex row */}
       </div>
     </Nav2>
   )

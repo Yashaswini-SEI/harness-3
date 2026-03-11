@@ -16,6 +16,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
 import { Nav2 } from '../components/Nav2'
+import { OrgTreeNav } from '../components/OrgTreeNav'
 import { InsightMetricCard } from '../components/InsightMetricCard'
 
 function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
@@ -36,6 +37,7 @@ function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
 
 export function SprintMetricsPage() {
   const [timeRange, setTimeRange] = useState('6M')
+  const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
   const [selectedSprintBar, setSelectedSprintBar] = useState<number | null>(null)
   const [sprintDrillPage, setSprintDrillPage] = useState(1)
   const [sprintDrillPageSize, setSprintDrillPageSize] = useState(5)
@@ -175,6 +177,11 @@ export function SprintMetricsPage() {
             </Button>
           </div>
         </div>
+
+        {/* Main content: tree nav + dashboard */}
+        <div className="flex gap-5">
+          <OrgTreeNav selectedNodeId={selectedNodeId} onSelectNode={setSelectedNodeId} />
+          <div className="flex-1 flex flex-col gap-5 min-w-0">
 
         {/* Metric cards — 4-col grid */}
         <div className="grid grid-cols-4 gap-5">
@@ -550,6 +557,9 @@ export function SprintMetricsPage() {
             </div>
           </div>
         </Card.Root>
+
+          </div>{/* end dashboard content */}
+        </div>{/* end flex row */}
       </div>
     </Nav2>
   )
