@@ -10,6 +10,7 @@ export interface InsightMetricCardProps {
   badge?: string
   infoTooltip?: string
   noData?: boolean
+  periodLabel?: string
 }
 
 export function InsightMetricCard({
@@ -21,6 +22,7 @@ export function InsightMetricCard({
   badge,
   infoTooltip,
   noData,
+  periodLabel,
 }: InsightMetricCardProps) {
   return (
     <Card.Root size="sm">
@@ -53,9 +55,12 @@ export function InsightMetricCard({
             {subtitle && <Text variant="body-normal" color="foreground-3">{subtitle}</Text>}
           </div>
           {!noData && trend && (
-            <span className={`text-xs ${trend.includes('↓') || trend.includes('↘') ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
-              {trend}
-            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className={`text-xs ${trend.includes('↓') || trend.includes('↘') ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
+                {trend}
+              </span>
+              {periodLabel && <span className="text-xs text-cn-foreground-6">{periodLabel}</span>}
+            </div>
           )}
         </div>
         {/* Bottom: description or no data */}

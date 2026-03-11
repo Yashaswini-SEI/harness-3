@@ -78,6 +78,7 @@ function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
 export function ProductivityPage() {
   const [timeRange, setTimeRange] = useState('6M')
   const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
+  const [interval, setInterval] = useState('monthly')
   const [showTrendline, setShowTrendline] = useState(false)
   const [prDrillPage, setPrDrillPage] = useState(1)
   const [prDrillPageSize, setPrDrillPageSize] = useState(5)
@@ -414,6 +415,15 @@ export function ProductivityPage() {
               <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
             </Tabs.List>
           </Tabs.Root>
+          <Select
+            value={interval}
+            options={[
+              { label: 'Weekly', value: 'weekly' },
+              { label: 'Monthly', value: 'monthly' },
+              { label: 'Quarterly', value: 'quarterly' },
+            ]}
+            onChange={(val) => setInterval(val)}
+          />
           <div className="ml-auto">
             <Button
               variant="outline"
@@ -433,7 +443,18 @@ export function ProductivityPage() {
         {/* PR Velocity Per Dev */}
         <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
-            <Text variant="body-strong" color="foreground-1">PR Velocity Per Dev</Text>
+            <div className="flex items-center gap-1.5">
+              <Text variant="body-strong" color="foreground-1">PR Velocity Per Dev</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>Definition — PR Velocity per Dev represents the average number of pull requests a developer merges in a given time period. It helps you understand how frequently developers are shipping code.</p>
+                    <p>Computation — PR Velocity per Dev = (Total PRs Merged by all Developers in the team) / (Number of Developers)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <Select
                 value={prVelocityView}
@@ -454,6 +475,7 @@ export function ProductivityPage() {
               value="3.98"
               subtitle="per week"
               trend="↓ 11.67%"
+              periodLabel="last 6 months"
             />
           </div>
 
@@ -630,7 +652,18 @@ export function ProductivityPage() {
         {/* PR Cycle Time */}
         <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
-            <Text variant="body-strong" color="foreground-1">PR Cycle Time</Text>
+            <div className="flex items-center gap-1.5">
+              <Text variant="body-strong" color="foreground-1">PR Cycle Time</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>Definition — PR Cycle Time measures how long it takes for a pull request to progress from the first commit to merging the pull request. It highlights delays across the review process and helps identify where engineering workflow friction occurs.</p>
+                    <p>Computation — PR Cycle Time = Sum of time spent in each stage / Number of merged PRs</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <Select
                 value={prCycleView}
@@ -794,7 +827,18 @@ export function ProductivityPage() {
         {/* Work Completed Per Dev */}
         <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
-            <Text variant="body-strong" color="foreground-1">Work Completed Per Dev</Text>
+            <div className="flex items-center gap-1.5">
+              <Text variant="body-strong" color="foreground-1">Work Completed Per Dev</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>Definition — Work Completed per Developer measures how much meaningful work (such as features, bugs, or uncategorized work) each developer completes in a given time period. It helps you understand output patterns and delivery consistency across teams.</p>
+                    <p>Computation — Work Completed per Dev = (Total Completed Work Items) / (Number of Active Developers)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <Select
                 value={workTypeFilter}
@@ -956,7 +1000,18 @@ export function ProductivityPage() {
         {/* Coding Days Per Dev */}
         <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
-            <Text variant="body-strong" color="foreground-1">Coding Days Per Dev</Text>
+            <div className="flex items-center gap-1.5">
+              <Text variant="body-strong" color="foreground-1">Coding Days Per Dev</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>Definition — Coding Days per Developer represents the number of distinct days in which a developer made at least one meaningful code contribution (commit).</p>
+                    <p>Computation — Coding Days per Dev = (Sum of distinct commit days for all developers) / (Total developers)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <ExportMenu />
           </div>
           <div className="mx-5 mt-3 w-1/5">
@@ -981,7 +1036,18 @@ export function ProductivityPage() {
         {/* Number of Comments Per PR */}
         <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
-            <Text variant="body-strong" color="foreground-1">Number of Comments Per PR</Text>
+            <div className="flex items-center gap-1.5">
+              <Text variant="body-strong" color="foreground-1">Number of Comments Per PR</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>Definition — Number of Review Comments per PR tracks the average volume of review discussion (comments) on pull requests. SEI counts all review comments (including inline comments and general) on each PR, then averages this across all PRs merged in the selected time period.</p>
+                    <p>Computation — Avg Review Comments per PR = Total Review Comments on PRs / Number of PRs</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <ExportMenu />
           </div>
           <div className="mx-5 mt-3 w-1/5">
@@ -1005,7 +1071,17 @@ export function ProductivityPage() {
         {/* Average Time to First Comment */}
         <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
-            <Text variant="body-strong" color="foreground-1">Average Time to First Comment</Text>
+            <div className="flex items-center gap-1.5">
+              <Text variant="body-strong" color="foreground-1">Average Time to First Comment</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>Average Time to First Comment measures the average elapsed time from when a pull request is opened to when the first review comment is posted.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <ExportMenu />
           </div>
           <div className="mx-5 mt-3 w-1/5">
@@ -1030,7 +1106,18 @@ export function ProductivityPage() {
         {/* Code Rework */}
         <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
-            <Text variant="body-strong" color="foreground-1">Code Rework</Text>
+            <div className="flex items-center gap-1.5">
+              <Text variant="body-strong" color="foreground-1">Code Rework</Text>
+              <div className="group/tip relative">
+                <IconV2 name="info-circle" size="xs" className="cursor-help text-foreground-4" />
+                <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                  <div className="w-80 rounded-lg border border-borders-2 bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg space-y-2">
+                    <p>Definition — Code Rework represents the portion of development effort spent refactoring code rather than adding new lines of code. It is computed using the balance heuristic: for each merged change, reworked lines = min(additions, deletions) representing the part of the code that was replaced or rewritten as part of the pull request.</p>
+                    <p>"Recent code" refers to code introduced within the past X days (default 30 days unless customized in the productivity profile). "Legacy code" refers to any code introduced before the recent-code window (i.e., older than 30 days, unless the threshold is customized).</p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
