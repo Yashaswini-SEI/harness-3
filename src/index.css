@@ -55,7 +55,7 @@
 /* AI summary loading shimmer */
 .ai-shimmer {
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--cn-bg-2) 25%, var(--cn-bg-3) 50%, var(--cn-bg-2) 75%);
+  background: linear-gradient(90deg, #d8dbe2 25%, #e4e7ec 50%, #d8dbe2 75%);
   background-size: 200% 100%;
   animation: ai-shimmer 1.5s ease-in-out infinite;
 }
