@@ -1663,7 +1663,7 @@ export function EfficiencyDoraPage() {
                   {mttrDrilldownData.slice((mttrDrillPage - 1) * mttrDrillPageSize, mttrDrillPage * mttrDrillPageSize).map((row) => (
                     <Table.Row key={row.ticketId}>
                       <Table.Cell>
-                        <span className="text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.ticketId}</span>
+                        <span className="text-xs text-foreground-1">{row.ticketId}</span>
                       </Table.Cell>
                       <Table.Cell className="max-w-[250px]">
                         <Text variant="body-normal" color="foreground-1" className="truncate">{row.summary}</Text>
