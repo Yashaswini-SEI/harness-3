@@ -663,6 +663,15 @@ export function EfficiencyDoraPage() {
             </Tabs.List>
           </Tabs.Root>
           <Select
+            value="monthly"
+            options={[
+              { label: 'Weekly', value: 'weekly' },
+              { label: 'Monthly', value: 'monthly' },
+              { label: 'Quarterly', value: 'quarterly' },
+            ]}
+            onChange={() => {}}
+          />
+          <Select
             value={aggregation}
             options={[
               { label: 'Mean', value: 'mean' },
