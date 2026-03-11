@@ -169,7 +169,7 @@ function CopyButton({ text }: { text: string }) {
 
 // ── Export dropdown menu ──
 
-function ExportMenu({ variant = 'ghost' }: { variant?: 'ghost' | 'outline' }) {
+function ExportMenu({ variant = 'outline' }: { variant?: 'ghost' | 'outline' }) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
