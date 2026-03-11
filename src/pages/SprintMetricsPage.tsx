@@ -339,18 +339,23 @@ export function SprintMetricsPage() {
               label="Total Work Delivered"
               value="83.12%"
               badge="Delivery"
+              trend="↑ 4.2%"
+              trendPositive
               infoTooltip="Percentage of total work (committed + creep) that was delivered during the sprint."
             />
             <InsightMetricCard
               label="Committed Work Delivered (%)"
               value="78.59%"
               badge="Work"
+              trend="↓ 2.1%"
               infoTooltip="Percentage of originally committed work that was completed during the sprint."
             />
             <InsightMetricCard
               label="Creep Work Delivered"
               value="86.92%"
               badge="Work"
+              trend="↑ 6.8%"
+              trendPositive
               infoTooltip="Percentage of scope creep work that was completed during the sprint."
             />
           </div>
@@ -523,7 +528,7 @@ export function SprintMetricsPage() {
                   {paginatedSprintDrill.map((row) => (
                     <Table.Row key={row.sprint}>
                       <Table.Cell>
-                        <span className="text-xs whitespace-nowrap" style={{ color: 'var(--cn-brand, #006DEA)' }}>{row.sprint}</span>
+                        <span className="text-xs whitespace-nowrap text-foreground-1">{row.sprint}</span>
                       </Table.Cell>
                       <Table.Cell className="whitespace-nowrap">
                         <Text variant="body-normal" color="foreground-3">{row.startDate}</Text>

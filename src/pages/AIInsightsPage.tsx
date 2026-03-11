@@ -241,12 +241,12 @@ function CardTitle({ title, subtitle, tooltip }: { title: string; subtitle: stri
       <div className="flex items-center gap-1.5">
         <Text variant="body-strong" color="foreground-1">{title}</Text>
         {tooltip && (
-          <div className="relative opacity-0 transition-opacity group-hover/card:opacity-100">
+          <div className="relative">
             <div className="group/tip">
               <IconV2 name="info-circle" size="xs" className="text-foreground-4 cursor-help" />
-              <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
-                <div className="w-56 rounded-lg bg-cn-0 px-3 py-2 text-xs text-foreground-2 shadow-lg border border-borders-2">
-                  {tooltip}
+              <div className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 opacity-0 transition-opacity group-hover/tip:pointer-events-auto group-hover/tip:opacity-100">
+                <div className="w-80 rounded-lg bg-cn-0 px-4 py-3 text-xs text-foreground-2 shadow-lg border border-borders-2 space-y-2">
+                  {tooltip.split('\n').map((p, i) => <p key={i}>{p}</p>)}
                 </div>
               </div>
             </div>
@@ -272,7 +272,7 @@ function DonutMetricCard({ title, subtitle, data, metric, metricLabel, color, tr
   children?: React.ReactNode
 }) {
   return (
-    <Card.Root className="group/card flex flex-col">
+    <Card.Root className="group/card flex flex-col overflow-visible">
       <div className="flex flex-col gap-4 p-5">
         <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
         <DonutChart data={data} height={210} color={color} metric={metric} metricLabel={metricLabel} trend={trend} />
@@ -444,7 +444,7 @@ export function AIInsightsPage() {
           <DonutMetricCard
             title="Adoption"
             subtitle=""
-            tooltip="Percentage of developers actively using AI coding assistants out of total developers on the team."
+            tooltip={"Definition — Percentage of developers who have an active license for an AI coding assistant during the selected time period.\nComputation — Adoption = (Developers with Active Licenses for AI Code Assistants ÷ Total Developers) × 100\nBreakdown — Assistant-specific counts show how many developers hold an active license for each AI assistant. Unassigned represents developers who do not have an active AI assistant license.\nWhat does this metric mean to me? Provides visibility into AI adoption maturity and highlights gaps in licensing coverage or rollout across teams."}
             data={adoptionData}
             metric={`${profile.adoptionRate}%`}
             metricLabel="Adoption Rate"
@@ -467,9 +467,9 @@ export function AIInsightsPage() {
               ))}
             </div>
           </DonutMetricCard>
-          <Card.Root className="group/card flex flex-col">
+          <Card.Root className="group/card flex flex-col overflow-visible">
             <div className="flex flex-col gap-4 p-5">
-              <CardTitle title="Velocity" subtitle="" tooltip="Average PRs merged per developer in this period" />
+              <CardTitle title="Velocity" subtitle="" tooltip={"Definition — Average number of pull requests merged per developer in the selected period.\nComputation — PR Velocity = Total PRs Merged ÷ Number of Developers\nBreakdown — Shown per AI tool to compare productivity patterns. Trend percentage indicates change compared to the previous equivalent period.\nWhat does this metric mean to me? Provides a directional signal on throughput and developer productivity, without optimizing for PR size or volume alone."} />
               <div className="flex items-center justify-center" style={{ height: 210 }}>
                 <div className="flex flex-col items-center" style={{ gap: 2 }}>
                   <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 42, lineHeight: 1 }}>
@@ -502,7 +502,7 @@ export function AIInsightsPage() {
           <DonutMetricCard
             title="Quality"
             subtitle=""
-            tooltip="Percentage of code being rewritten per developer in this period."
+            tooltip={"Definition — Percentage of code that was rewritten after being initially committed during the selected period.\nComputation — Code Rework = (Lines Refactored after addition in Last 30 days ÷ Total Lines Refactored) × 100\nBreakdown — Recent: Rework on code first written within the last 30 days. Legacy: Rework on code written more than 30 days ago. Tool-level view enables comparison of quality impact across AI-assisted and non-assisted development.\nWhat does this metric mean to me? Lower rework indicates higher first-pass quality and better code stability, which is especially important when assessing the impact of AI-assisted coding."}
             data={reworkData}
             metric={`${profile.reworkRate}%`}
             metricLabel="Code Rework"
