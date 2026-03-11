@@ -798,7 +798,14 @@ export function EfficiencyDoraPage() {
 
           {/* Development stages visualization */}
           <div className="mx-5 mb-5 mt-3 rounded-lg bg-cn-2 p-5">
-            <Text variant="body-strong" color="foreground-1" className="mb-4">Lead time by stages</Text>
+            <Text variant="body-strong" color="foreground-1">Lead time by stages</Text>
+            <Tabs.Root defaultValue="marcus" className="mb-6 mt-2">
+              <Tabs.List variant="underlined">
+                <Tabs.Trigger value="marcus">Marcus Thompson</Tabs.Trigger>
+                <Tabs.Trigger value="direct-reports">Direct Reports of Marcus Thompson</Tabs.Trigger>
+                <Tabs.Trigger value="samantha">Samantha Wright</Tabs.Trigger>
+              </Tabs.List>
+            </Tabs.Root>
             {(() => {
               const stages = stageData.filter(s => s.stageName)
               const tipSize = 16
