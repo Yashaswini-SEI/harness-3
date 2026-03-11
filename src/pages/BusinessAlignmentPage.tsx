@@ -176,6 +176,7 @@ function MetricCard({ label, value, trend, color }: { label: string; value: stri
 export function BusinessAlignmentPage() {
   const [timeRange, setTimeRange] = useState('12M')
   const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
+  const [interval, setInterval] = useState('monthly')
   const [metricType, setMetricType] = useState('ticket-count')
   const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null)
   const [drillPage, setDrillPage] = useState(1)
@@ -269,6 +270,15 @@ export function BusinessAlignmentPage() {
             </Tabs.List>
           </Tabs.Root>
           <Select
+            value={interval}
+            options={[
+              { label: 'Weekly', value: 'weekly' },
+              { label: 'Monthly', value: 'monthly' },
+              { label: 'Quarterly', value: 'quarterly' },
+            ]}
+            onChange={(val) => setInterval(val)}
+          />
+          <Select
             value={metricType}
             options={[
               { label: 'Showing Story Points', value: 'story-points' },
@@ -297,7 +307,7 @@ export function BusinessAlignmentPage() {
         <Card.Root className="group/card flex flex-col">
           <div className="flex items-start justify-between p-5 pb-0">
             <div className="flex flex-col gap-0.5">
-              <Text variant="body-strong" color="foreground-1">Work Categorization Over Time</Text>
+              <Text variant="body-strong" color="foreground-1">Business Alignment</Text>
               <Text variant="caption-normal" color="foreground-3">Click a bar to see ticket-level breakdown</Text>
             </div>
             <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
