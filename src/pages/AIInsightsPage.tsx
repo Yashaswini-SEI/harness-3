@@ -9,6 +9,7 @@ import {
   Select,
   Tag,
   Pagination,
+  DropdownMenu,
 } from '@harnessio/ui/components'
 import { Nav2 } from '../components/Nav2'
 import { OrgTreeNav } from '../components/OrgTreeNav'
@@ -258,6 +259,22 @@ function CardTitle({ title, subtitle, tooltip }: { title: string; subtitle: stri
   )
 }
 
+function ExportMenu() {
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
+          <IconV2 name="more-horizontal" size="sm" />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="end">
+        <DropdownMenu.Item title="Export PDF" />
+        <DropdownMenu.Item title="Export CSV" />
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  )
+}
+
 // ── Donut metric card ──
 
 function DonutMetricCard({ title, subtitle, data, metric, metricLabel, color, trend, tooltip, children }: {
@@ -273,10 +290,13 @@ function DonutMetricCard({ title, subtitle, data, metric, metricLabel, color, tr
 }) {
   return (
     <Card.Root className="group/card flex flex-col overflow-visible">
-      <div className="flex flex-col gap-4 p-5">
-        <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
+      <Card.Content className="flex flex-col gap-4 pb-6">
+        <div className="flex items-start justify-between">
+          <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
+          <ExportMenu />
+        </div>
         <DonutChart data={data} height={210} color={color} metric={metric} metricLabel={metricLabel} trend={trend} />
-      </div>
+      </Card.Content>
       {children}
     </Card.Root>
   )
@@ -295,9 +315,7 @@ function ChartCard({ title, subtitle, tooltip, children }: {
       <Card.Content className="flex flex-col gap-4">
         <div className="flex items-start justify-between">
           <CardTitle title={title} subtitle={subtitle} tooltip={tooltip} />
-          <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-            <IconV2 name="more-horizontal" size="sm" />
-          </Button>
+          <ExportMenu />
         </div>
         {children}
       </Card.Content>
@@ -468,8 +486,11 @@ export function AIInsightsPage() {
             </div>
           </DonutMetricCard>
           <Card.Root className="group/card flex flex-col overflow-visible">
-            <div className="flex flex-col gap-4 p-5">
-              <CardTitle title="Velocity" subtitle="" tooltip={"Definition — Average number of pull requests merged per developer in the selected period.\nComputation — PR Velocity = Total PRs Merged ÷ Number of Developers\nBreakdown — Shown per AI tool to compare productivity patterns. Trend percentage indicates change compared to the previous equivalent period.\nWhat does this metric mean to me? Provides a directional signal on throughput and developer productivity, without optimizing for PR size or volume alone."} />
+            <Card.Content className="flex flex-col gap-4 pb-6">
+              <div className="flex items-start justify-between">
+                <CardTitle title="Velocity" subtitle="" tooltip={"Definition — Average number of pull requests merged per developer in the selected period.\nComputation — PR Velocity = Total PRs Merged ÷ Number of Developers\nBreakdown — Shown per AI tool to compare productivity patterns. Trend percentage indicates change compared to the previous equivalent period.\nWhat does this metric mean to me? Provides a directional signal on throughput and developer productivity, without optimizing for PR size or volume alone."} />
+                <ExportMenu />
+              </div>
               <div className="flex items-center justify-center" style={{ height: 210 }}>
                 <div className="flex flex-col items-center" style={{ gap: 2 }}>
                   <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 42, lineHeight: 1 }}>
@@ -481,7 +502,7 @@ export function AIInsightsPage() {
                   </span>
                 </div>
               </div>
-            </div>
+            </Card.Content>
             <div className="border-t border-borders-2">
               {[
                 { label: 'Cursor', value: '4.7', change: '+9.95%', color: 'success' as const },
@@ -578,7 +599,7 @@ export function AIInsightsPage() {
                 </div>
               </div>
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
               <Tabs.Root value={devTab} onValueChange={(v) => { setDevTab(v); setDevPage(1) }}>
                 <Tabs.List variant="outlined">
                   <Tabs.Trigger value="active">Active</Tabs.Trigger>
@@ -586,6 +607,7 @@ export function AIInsightsPage() {
                   <Tabs.Trigger value="unlicensed">Unlicensed</Tabs.Trigger>
                 </Tabs.List>
               </Tabs.Root>
+              <ExportMenu />
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -692,9 +714,7 @@ export function AIInsightsPage() {
                   </div>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                <IconV2 name="more-horizontal" size="sm" />
-              </Button>
+              <ExportMenu />
             </div>
             <GroupedBarChart data={linesPerDevData} series={ASSISTANT_SERIES} height={240} />
           </Card.Content>
@@ -737,9 +757,7 @@ export function AIInsightsPage() {
                   </div>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
-                <IconV2 name="more-horizontal" size="sm" />
-              </Button>
+              <ExportMenu />
             </div>
             <GroupedBarChart data={acceptanceRateData} series={ASSISTANT_SERIES} height={240} yAxisFormatter={(v) => `${v}%`} />
           </Card.Content>
