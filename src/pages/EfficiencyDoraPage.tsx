@@ -239,7 +239,7 @@ function DoraMetricCard({ label, value, trend, trendDirection, tier, tooltip }: 
             <span className={`text-xs font-medium ${isRed ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>
               {arrow} {trend}
             </span>
-            <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
+            <span className="text-xs text-cn-foreground-6">last 6 months</span>
           </>
         )}
       </div>
@@ -335,6 +335,9 @@ export function EfficiencyDoraPage() {
   const [expandedPrRows, setExpandedPrRows] = useState<Set<string>>(new Set())
   const [expandedCommitRows, setExpandedCommitRows] = useState<Set<string>>(new Set())
   const [showLeadTimeBreakdown, setShowLeadTimeBreakdown] = useState(false)
+  const [showDeployBreakdown, setShowDeployBreakdown] = useState(false)
+  const [showCfrBreakdown, setShowCfrBreakdown] = useState(false)
+  const [showMttrBreakdown, setShowMttrBreakdown] = useState(false)
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
@@ -785,7 +788,7 @@ export function EfficiencyDoraPage() {
                   </div>
                 </div>
               </div>
-              <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
+              <span className="text-xs text-cn-foreground-6">last 6 months</span>
             </div>
             <div className="flex w-full" style={{ gap: 3, height: 22 }}>
               <div style={{ width: `${avgSegments.planning}%`, backgroundColor: STAGE_COLORS.planning, borderRadius: 4 }} className="transition-all" />
@@ -1123,7 +1126,7 @@ export function EfficiencyDoraPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">Breakdown</Button>
+              <Button variant="outline" size="sm" onClick={() => setShowDeployBreakdown(v => !v)}>Breakdown</Button>
               <ExportMenu />
             </div>
           </div>
@@ -1140,74 +1143,111 @@ export function EfficiencyDoraPage() {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xs text-[#EF4444]">↘ 43.24%</span>
-              <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
+              <span className="text-xs text-cn-foreground-6">last 6 months</span>
             </div>
           </Card.Content></Card.Root>
 
-          <div className="p-5 pt-3">
-            <svg width="0" height="0">
-              <defs>
-                <filter id="deploy-bar-shadow">
-                  <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor="rgba(41, 173, 255, 0.25)" floodOpacity="1" />
-                </filter>
-              </defs>
-            </svg>
-            <ResponsiveContainer width="100%" height={260}>
-              <ComposedChart
-                data={deployFreqData}
-                margin={CHART_MARGIN}
-                onClick={(state: Record<string, unknown>) => {
-                  const idx = state?.activeTooltipIndex
-                  if (typeof idx === 'number') { handleDeployBarClick(idx); return }
-                  const label = state?.activeLabel
-                  if (label != null) {
-                    const i = deployFreqData.findIndex(d => d.name === label)
-                    if (i >= 0) handleDeployBarClick(i)
-                  }
-                }}
-                style={{ cursor: 'pointer' }}
-              >
-                <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
-                <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
-                <YAxis
-                  tickFormatter={formatYAxis}
-                  tick={TICK_STYLE}
-                  axisLine={false}
-                  tickLine={false}
-                  width={48}
-                  label={{ value: 'Deployments', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#6B7280' } }}
-                />
-                <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(0, 0, 0, 0.06)' }} />
-                <Bar
-                  dataKey="value"
-                  name="Deployments"
-                  fill="var(--cn-comp-data-viz-01-blue, lch(65% 56 255))"
-                  radius={[4, 4, 0, 0]}
-                  barSize={48}
-                  style={{ filter: 'url(#deploy-bar-shadow)' }}
-                  animationDuration={150}
-                  cursor="pointer"
+          <div className={`flex ${showDeployBreakdown ? 'gap-0' : ''}`}>
+            <div className={`p-5 pt-3 ${showDeployBreakdown ? 'flex-1 min-w-0' : 'w-full'}`}>
+              <svg width="0" height="0">
+                <defs>
+                  <filter id="deploy-bar-shadow">
+                    <feDropShadow dx="0" dy="5" stdDeviation="6.5" floodColor="rgba(41, 173, 255, 0.25)" floodOpacity="1" />
+                  </filter>
+                </defs>
+              </svg>
+              <ResponsiveContainer width="100%" height={260}>
+                <ComposedChart
+                  data={deployFreqData}
+                  margin={CHART_MARGIN}
+                  onClick={(state: Record<string, unknown>) => {
+                    const idx = state?.activeTooltipIndex
+                    if (typeof idx === 'number') { handleDeployBarClick(idx); return }
+                    const label = state?.activeLabel
+                    if (label != null) {
+                      const i = deployFreqData.findIndex(d => d.name === label)
+                      if (i >= 0) handleDeployBarClick(i)
+                    }
+                  }}
+                  style={{ cursor: 'pointer' }}
                 >
-                  {selectedBarIndex != null && deployFreqData.map((_, i) => (
-                    <Cell key={i} fillOpacity={i === selectedBarIndex ? 1 : 0.3} />
-                  ))}
-                </Bar>
-                {showTrendline && (
-                  <Line
-                    type="linear"
-                    dataKey="_trend"
-                    name="Trend"
-                    stroke="#0E1218"
-                    strokeWidth={2}
-                    strokeDasharray="6 3"
-                    dot={false}
-                    activeDot={false}
-                    animationDuration={300}
-                    legendType="line"
+                  <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
+                  <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
+                  <YAxis
+                    tickFormatter={formatYAxis}
+                    tick={TICK_STYLE}
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
+                    label={{ value: 'Deployments', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#6B7280' } }}
                   />
-                )}
-              </ComposedChart>
-            </ResponsiveContainer>
+                  <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(0, 0, 0, 0.06)' }} />
+                  <Bar
+                    dataKey="value"
+                    name="Deployments"
+                    fill="var(--cn-comp-data-viz-01-blue, lch(65% 56 255))"
+                    radius={[4, 4, 0, 0]}
+                    barSize={48}
+                    style={{ filter: 'url(#deploy-bar-shadow)' }}
+                    animationDuration={150}
+                    cursor="pointer"
+                  >
+                    {selectedBarIndex != null && deployFreqData.map((_, i) => (
+                      <Cell key={i} fillOpacity={i === selectedBarIndex ? 1 : 0.3} />
+                    ))}
+                  </Bar>
+                  {showTrendline && (
+                    <Line
+                      type="linear"
+                      dataKey="_trend"
+                      name="Trend"
+                      stroke="#0E1218"
+                      strokeWidth={2}
+                      strokeDasharray="6 3"
+                      dot={false}
+                      activeDot={false}
+                      animationDuration={300}
+                      legendType="line"
+                    />
+                  )}
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            {showDeployBreakdown && (() => {
+              const teams = [
+                { name: 'Direct Reports of Marcus Thompson', deployments: 14, rate: '3.5/wk', tier: 'High' },
+                { name: 'Samantha Wright', deployments: 7, rate: '1.75/wk', tier: 'Medium' },
+              ]
+              const maxDeploy = Math.max(...teams.map(t => t.deployments))
+              return (
+                <div className="w-[320px] shrink-0 border-l border-borders-1 p-4 flex flex-col gap-4">
+                  <Text variant="body-strong" color="foreground-1">Team Breakdown</Text>
+                  {teams.map((team) => (
+                    <div key={team.name} className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <Text variant="caption-normal" color="foreground-1" className="font-medium">{team.name}</Text>
+                        <div className="flex items-center gap-2">
+                          <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap">{team.deployments} ({team.rate})</Text>
+                          <span
+                            className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none"
+                            style={{ backgroundColor: (TIER_THEMES[team.tier] ?? TIER_THEMES.Medium).bg, color: (TIER_THEMES[team.tier] ?? TIER_THEMES.Medium).text }}
+                          >
+                            {team.tier}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="h-3.5 w-full rounded-full" style={{ backgroundColor: '#F2F4F7' }}>
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{ width: `${(team.deployments / maxDeploy) * 100}%`, backgroundColor: 'var(--cn-comp-data-viz-01-blue, lch(65% 56 255))' }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
 
           {/* Drilldown table */}
@@ -1293,7 +1333,7 @@ export function EfficiencyDoraPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">Breakdown</Button>
+              <Button variant="outline" size="sm" onClick={() => setShowCfrBreakdown(v => !v)}>Breakdown</Button>
               <ExportMenu />
             </div>
           </div>
@@ -1307,60 +1347,97 @@ export function EfficiencyDoraPage() {
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>147.62%</span>
             <div className="flex items-center gap-3">
               <Text variant="caption-normal" color="foreground-3">31 failures · 21 deployments</Text>
-              <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
+              <span className="text-xs text-cn-foreground-6">last 6 months</span>
             </div>
           </Card.Content></Card.Root>
 
-          <div className="p-5 pt-3">
-            <ResponsiveContainer width="100%" height={260}>
-              <ComposedChart
-                data={cfrChartData}
-                margin={CHART_MARGIN}
-                onClick={(state: Record<string, unknown>) => {
-                  const idx = state?.activeTooltipIndex
-                  if (typeof idx === 'number') { handleCfrBarClick(idx); return }
-                }}
-                style={{ cursor: 'pointer' }}
-              >
-                <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
-                <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
-                <YAxis
-                  tickFormatter={(v: number) => `${v}%`}
-                  tick={TICK_STYLE}
-                  axisLine={false}
-                  tickLine={false}
-                  width={48}
-                />
-                <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value: number | undefined) => [`${value ?? 0}%`, 'Failure Rate']} />
-                <Bar
-                  dataKey="value"
-                  name="Failure Rate"
-                  fill="var(--cn-comp-data-viz-03-pink, lch(58% 70 350))"
-                  radius={[4, 4, 0, 0]}
-                  barSize={48}
-                  animationDuration={150}
-                  cursor="pointer"
+          <div className={`flex ${showCfrBreakdown ? 'gap-0' : ''}`}>
+            <div className={`p-5 pt-3 ${showCfrBreakdown ? 'flex-1 min-w-0' : 'w-full'}`}>
+              <ResponsiveContainer width="100%" height={260}>
+                <ComposedChart
+                  data={cfrChartData}
+                  margin={CHART_MARGIN}
+                  onClick={(state: Record<string, unknown>) => {
+                    const idx = state?.activeTooltipIndex
+                    if (typeof idx === 'number') { handleCfrBarClick(idx); return }
+                  }}
+                  style={{ cursor: 'pointer' }}
                 >
-                  {selectedCfrBar != null && profile.labels.map((_, i) => (
-                    <Cell key={i} fillOpacity={i === selectedCfrBar ? 1 : 0.3} />
-                  ))}
-                </Bar>
-                {showTrendline && (
-                  <Line
-                    type="linear"
-                    dataKey="_trend"
-                    name="Trend"
-                    stroke="#0E1218"
-                    strokeWidth={2}
-                    strokeDasharray="6 3"
-                    dot={false}
-                    activeDot={false}
-                    animationDuration={300}
-                    legendType="line"
+                  <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
+                  <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
+                  <YAxis
+                    tickFormatter={(v: number) => `${v}%`}
+                    tick={TICK_STYLE}
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
                   />
-                )}
-              </ComposedChart>
-            </ResponsiveContainer>
+                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value: number | undefined) => [`${value ?? 0}%`, 'Failure Rate']} />
+                  <Bar
+                    dataKey="value"
+                    name="Failure Rate"
+                    fill="var(--cn-comp-data-viz-03-pink, lch(58% 70 350))"
+                    radius={[4, 4, 0, 0]}
+                    barSize={48}
+                    animationDuration={150}
+                    cursor="pointer"
+                  >
+                    {selectedCfrBar != null && profile.labels.map((_, i) => (
+                      <Cell key={i} fillOpacity={i === selectedCfrBar ? 1 : 0.3} />
+                    ))}
+                  </Bar>
+                  {showTrendline && (
+                    <Line
+                      type="linear"
+                      dataKey="_trend"
+                      name="Trend"
+                      stroke="#0E1218"
+                      strokeWidth={2}
+                      strokeDasharray="6 3"
+                      dot={false}
+                      activeDot={false}
+                      animationDuration={300}
+                      legendType="line"
+                    />
+                  )}
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            {showCfrBreakdown && (() => {
+              const teams = [
+                { name: 'Direct Reports of Marcus Thompson', value: '168.4%', failures: 22, deployments: 14, tier: 'Low' },
+                { name: 'Samantha Wright', value: '128.6%', failures: 9, deployments: 7, tier: 'Low' },
+              ]
+              return (
+                <div className="w-[320px] shrink-0 border-l border-borders-1 p-4 flex flex-col gap-4">
+                  <Text variant="body-strong" color="foreground-1">Team Breakdown</Text>
+                  {teams.map((team) => (
+                    <div key={team.name} className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <Text variant="caption-normal" color="foreground-1" className="font-medium">{team.name}</Text>
+                        <div className="flex items-center gap-2">
+                          <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap">{team.value}</Text>
+                          <span
+                            className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none"
+                            style={{ backgroundColor: (TIER_THEMES[team.tier] ?? TIER_THEMES.Medium).bg, color: (TIER_THEMES[team.tier] ?? TIER_THEMES.Medium).text }}
+                          >
+                            {team.tier}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="h-3.5 w-full rounded-full" style={{ backgroundColor: '#F2F4F7' }}>
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{ width: `${Math.min(parseFloat(team.value), 100)}%`, backgroundColor: 'var(--cn-comp-data-viz-03-pink, lch(58% 70 350))' }}
+                        />
+                      </div>
+                      <Text variant="caption-normal" color="foreground-3">{team.failures} failures · {team.deployments} deployments</Text>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
 
           {/* CFR Drilldown table */}
@@ -1449,7 +1526,7 @@ export function EfficiencyDoraPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">Breakdown</Button>
+              <Button variant="outline" size="sm" onClick={() => setShowMttrBreakdown(v => !v)}>Breakdown</Button>
               <ExportMenu />
             </div>
           </div>
@@ -1463,60 +1540,98 @@ export function EfficiencyDoraPage() {
             <span className="text-foreground-1 font-semibold" style={{ fontFamily: "'Inter', sans-serif", fontSize: 32, lineHeight: 1 }}>44d 16h</span>
             <div className="flex items-center gap-3">
               <Text variant="caption-normal" color="foreground-3">118 tickets</Text>
-              <span className="text-xs text-cn-foreground-6">last 4 weeks</span>
+              <span className="text-xs text-cn-foreground-6">last 6 months</span>
             </div>
           </Card.Content></Card.Root>
 
-          <div className="p-5 pt-3">
-            <ResponsiveContainer width="100%" height={260}>
-              <ComposedChart
-                data={mttrChartData}
-                margin={CHART_MARGIN}
-                onClick={(state: Record<string, unknown>) => {
-                  const idx = state?.activeTooltipIndex
-                  if (typeof idx === 'number') { handleMttrBarClick(idx); return }
-                }}
-                style={{ cursor: 'pointer' }}
-              >
-                <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
-                <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
-                <YAxis
-                  tickFormatter={(v: number) => `${v}h`}
-                  tick={TICK_STYLE}
-                  axisLine={false}
-                  tickLine={false}
-                  width={48}
-                />
-                <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value: number | undefined) => [`${value ?? 0}h`, 'MTTR']} />
-                <Bar
-                  dataKey="value"
-                  name="MTTR"
-                  fill="var(--cn-comp-data-viz-04-green, lch(56% 78 125))"
-                  radius={[4, 4, 0, 0]}
-                  barSize={48}
-                  animationDuration={150}
-                  cursor="pointer"
+          <div className={`flex ${showMttrBreakdown ? 'gap-0' : ''}`}>
+            <div className={`p-5 pt-3 ${showMttrBreakdown ? 'flex-1 min-w-0' : 'w-full'}`}>
+              <ResponsiveContainer width="100%" height={260}>
+                <ComposedChart
+                  data={mttrChartData}
+                  margin={CHART_MARGIN}
+                  onClick={(state: Record<string, unknown>) => {
+                    const idx = state?.activeTooltipIndex
+                    if (typeof idx === 'number') { handleMttrBarClick(idx); return }
+                  }}
+                  style={{ cursor: 'pointer' }}
                 >
-                  {selectedMttrBar != null && profile.labels.map((_, i) => (
-                    <Cell key={i} fillOpacity={i === selectedMttrBar ? 1 : 0.3} />
-                  ))}
-                </Bar>
-                {showTrendline && (
-                  <Line
-                    type="linear"
-                    dataKey="_trend"
-                    name="Trend"
-                    stroke="#0E1218"
-                    strokeWidth={2}
-                    strokeDasharray="6 3"
-                    dot={false}
-                    activeDot={false}
-                    animationDuration={300}
-                    legendType="line"
+                  <CartesianGrid strokeDasharray="8 6" vertical={false} stroke={GRID_STROKE} />
+                  <XAxis dataKey="name" tick={TICK_STYLE} axisLine={AXIS_LINE} tickLine={false} />
+                  <YAxis
+                    tickFormatter={(v: number) => `${v}h`}
+                    tick={TICK_STYLE}
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
                   />
-                )}
-              </ComposedChart>
-            </ResponsiveContainer>
+                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value: number | undefined) => [`${value ?? 0}h`, 'MTTR']} />
+                  <Bar
+                    dataKey="value"
+                    name="MTTR"
+                    fill="var(--cn-comp-data-viz-04-green, lch(56% 78 125))"
+                    radius={[4, 4, 0, 0]}
+                    barSize={48}
+                    animationDuration={150}
+                    cursor="pointer"
+                  >
+                    {selectedMttrBar != null && profile.labels.map((_, i) => (
+                      <Cell key={i} fillOpacity={i === selectedMttrBar ? 1 : 0.3} />
+                    ))}
+                  </Bar>
+                  {showTrendline && (
+                    <Line
+                      type="linear"
+                      dataKey="_trend"
+                      name="Trend"
+                      stroke="#0E1218"
+                      strokeWidth={2}
+                      strokeDasharray="6 3"
+                      dot={false}
+                      activeDot={false}
+                      animationDuration={300}
+                      legendType="line"
+                    />
+                  )}
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            {showMttrBreakdown && (() => {
+              const teams = [
+                { name: 'Direct Reports of Marcus Thompson', value: '52d 8h', hours: 1256, tickets: 78, tier: 'Low' },
+                { name: 'Samantha Wright', value: '31d 4h', hours: 748, tickets: 40, tier: 'Medium' },
+              ]
+              const maxHours = Math.max(...teams.map(t => t.hours))
+              return (
+                <div className="w-[320px] shrink-0 border-l border-borders-1 p-4 flex flex-col gap-4">
+                  <Text variant="body-strong" color="foreground-1">Team Breakdown</Text>
+                  {teams.map((team) => (
+                    <div key={team.name} className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <Text variant="caption-normal" color="foreground-1" className="font-medium">{team.name}</Text>
+                        <div className="flex items-center gap-2">
+                          <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap">{team.value}</Text>
+                          <span
+                            className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none"
+                            style={{ backgroundColor: (TIER_THEMES[team.tier] ?? TIER_THEMES.Medium).bg, color: (TIER_THEMES[team.tier] ?? TIER_THEMES.Medium).text }}
+                          >
+                            {team.tier}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="h-3.5 w-full rounded-full" style={{ backgroundColor: '#F2F4F7' }}>
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{ width: `${(team.hours / maxHours) * 100}%`, backgroundColor: 'var(--cn-comp-data-viz-04-green, lch(56% 78 125))' }}
+                        />
+                      </div>
+                      <Text variant="caption-normal" color="foreground-3">{team.tickets} tickets</Text>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
 
           {/* MTTR Drilldown table */}
