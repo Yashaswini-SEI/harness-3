@@ -411,44 +411,40 @@ export function AIInsightsPage() {
             </Text>
           </div>
           <div className="flex items-center gap-3">
+            <Select
+              value={timeRange}
+              options={[
+                { label: 'Last 7 days', value: '7D' },
+                { label: 'Last 1 month', value: '1M' },
+                { label: 'Last 3 months', value: '3M' },
+                { label: 'Last 6 months', value: '6M' },
+                { label: 'Last 12 months', value: '12M' },
+                { label: 'Custom', value: 'custom' },
+              ]}
+              onChange={(val) => { if (val) setTimeRange(val) }}
+            />
+            <Select
+              value={assistantFilter}
+              options={[
+                { label: 'All Assistants', value: 'all' },
+                { label: 'Windsurf', value: 'windsurf' },
+                { label: 'Cursor', value: 'cursor' },
+              ]}
+              onChange={(val) => { if (val) setAssistantFilter(val) }}
+            />
+            <Select
+              value={compareTo}
+              options={[
+                { label: 'Compare to', value: '' },
+                { label: 'PR Velocity per Dev', value: 'pr-velocity' },
+                { label: 'PR Cycle Time', value: 'pr-cycle-time' },
+              ]}
+              onChange={(val) => setCompareTo(val ?? '')}
+            />
             <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
               <IconV2 name="more-horizontal" size="sm" />
             </Button>
           </div>
-        </div>
-
-        {/* Controls bar */}
-        <div className="flex items-center gap-3">
-          <Select
-            value={timeRange}
-            options={[
-              { label: 'Last 7 days', value: '7D' },
-              { label: 'Last 1 month', value: '1M' },
-              { label: 'Last 3 months', value: '3M' },
-              { label: 'Last 6 months', value: '6M' },
-              { label: 'Last 12 months', value: '12M' },
-              { label: 'Custom', value: 'custom' },
-            ]}
-            onChange={(val) => { if (val) setTimeRange(val) }}
-          />
-          <Select
-            value={assistantFilter}
-            options={[
-              { label: 'All Assistants', value: 'all' },
-              { label: 'Windsurf', value: 'windsurf' },
-              { label: 'Cursor', value: 'cursor' },
-            ]}
-            onChange={(val) => { if (val) setAssistantFilter(val) }}
-          />
-          <Select
-            value={compareTo}
-            options={[
-              { label: 'Compare to', value: '' },
-              { label: 'PR Velocity per Dev', value: 'pr-velocity' },
-              { label: 'PR Cycle Time', value: 'pr-cycle-time' },
-            ]}
-            onChange={(val) => setCompareTo(val ?? '')}
-          />
         </div>
 
         {/* Main content: tree nav + dashboard */}

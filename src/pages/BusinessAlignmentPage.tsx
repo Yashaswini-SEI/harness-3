@@ -250,44 +250,40 @@ export function BusinessAlignmentPage() {
             </Text>
           </div>
           <div className="flex items-center gap-3">
+            <Select
+              value={timeRange}
+              options={[
+                { label: 'Last 7 days', value: '7D' },
+                { label: 'Last 1 month', value: '1M' },
+                { label: 'Last 3 months', value: '3M' },
+                { label: 'Last 6 months', value: '6M' },
+                { label: 'Last 12 months', value: '12M' },
+                { label: 'Custom', value: 'custom' },
+              ]}
+              onChange={(val) => setTimeRange(val)}
+            />
+            <Select
+              value={interval}
+              options={[
+                { label: 'Weekly', value: 'weekly' },
+                { label: 'Monthly', value: 'monthly' },
+                { label: 'Quarterly', value: 'quarterly' },
+              ]}
+              onChange={(val) => setInterval(val)}
+            />
+            <Select
+              value={metricType}
+              options={[
+                { label: 'Showing Story Points', value: 'story-points' },
+                { label: 'Showing Ticket Count', value: 'ticket-count' },
+                { label: 'Showing Ticket Time Spent', value: 'ticket-time-spent' },
+              ]}
+              onChange={(val) => setMetricType(val)}
+            />
             <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip>
               <IconV2 name="more-horizontal" size="sm" />
             </Button>
           </div>
-        </div>
-
-        {/* Time range tabs */}
-        <div className="flex items-center gap-3">
-          <Select
-            value={timeRange}
-            options={[
-              { label: 'Last 7 days', value: '7D' },
-              { label: 'Last 1 month', value: '1M' },
-              { label: 'Last 3 months', value: '3M' },
-              { label: 'Last 6 months', value: '6M' },
-              { label: 'Last 12 months', value: '12M' },
-              { label: 'Custom', value: 'custom' },
-            ]}
-            onChange={(val) => setTimeRange(val)}
-          />
-          <Select
-            value={interval}
-            options={[
-              { label: 'Weekly', value: 'weekly' },
-              { label: 'Monthly', value: 'monthly' },
-              { label: 'Quarterly', value: 'quarterly' },
-            ]}
-            onChange={(val) => setInterval(val)}
-          />
-          <Select
-            value={metricType}
-            options={[
-              { label: 'Showing Story Points', value: 'story-points' },
-              { label: 'Showing Ticket Count', value: 'ticket-count' },
-              { label: 'Showing Ticket Time Spent', value: 'ticket-time-spent' },
-            ]}
-            onChange={(val) => setMetricType(val)}
-          />
         </div>
 
         {/* Main content: tree nav + dashboard */}

@@ -646,44 +646,37 @@ export function EfficiencyDoraPage() {
             </Text>
           </div>
           <div className="flex items-center gap-3">
-            <ExportMenu variant="outline" />
-          </div>
-        </div>
-
-        {/* Time range tabs + aggregation + trendline */}
-        <div className="flex items-center gap-3">
-          <Select
-            value={timeRange}
-            options={[
-              { label: 'Last 7 days', value: '7D' },
-              { label: 'Last 1 month', value: '1M' },
-              { label: 'Last 3 months', value: '3M' },
-              { label: 'Last 6 months', value: '6M' },
-              { label: 'Last 12 months', value: '12M' },
-              { label: 'Custom', value: 'custom' },
-            ]}
-            onChange={(val) => setTimeRange(val)}
-          />
-          <Select
-            value="monthly"
-            options={[
-              { label: 'Weekly', value: 'weekly' },
-              { label: 'Monthly', value: 'monthly' },
-              { label: 'Quarterly', value: 'quarterly' },
-            ]}
-            onChange={() => {}}
-          />
-          <Select
-            value={aggregation}
-            options={[
-              { label: 'Mean', value: 'mean' },
-              { label: 'Median', value: 'median' },
-              { label: 'P90', value: 'p90' },
-              { label: 'P95', value: 'p95' },
-            ]}
-            onChange={(val) => setAggregation(val)}
-          />
-          <div className="ml-auto">
+            <Select
+              value={timeRange}
+              options={[
+                { label: 'Last 7 days', value: '7D' },
+                { label: 'Last 1 month', value: '1M' },
+                { label: 'Last 3 months', value: '3M' },
+                { label: 'Last 6 months', value: '6M' },
+                { label: 'Last 12 months', value: '12M' },
+                { label: 'Custom', value: 'custom' },
+              ]}
+              onChange={(val) => setTimeRange(val)}
+            />
+            <Select
+              value="monthly"
+              options={[
+                { label: 'Weekly', value: 'weekly' },
+                { label: 'Monthly', value: 'monthly' },
+                { label: 'Quarterly', value: 'quarterly' },
+              ]}
+              onChange={() => {}}
+            />
+            <Select
+              value={aggregation}
+              options={[
+                { label: 'Mean', value: 'mean' },
+                { label: 'Median', value: 'median' },
+                { label: 'P90', value: 'p90' },
+                { label: 'P95', value: 'p95' },
+              ]}
+              onChange={(val) => setAggregation(val)}
+            />
             <Button
               variant="outline"
               size="sm"
@@ -691,6 +684,7 @@ export function EfficiencyDoraPage() {
             >
               {showTrendline ? 'Hide Trendline' : 'Show Trendline'}
             </Button>
+            <ExportMenu variant="outline" />
           </div>
         </div>
 

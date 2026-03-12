@@ -135,40 +135,33 @@ export function SprintMetricsPage() {
             </Text>
           </div>
           <div className="flex items-center gap-3">
-            <ExportMenu variant="outline" />
-          </div>
-        </div>
-
-        {/* Time range tabs */}
-        <div className="flex items-center gap-3">
-          <Select
-            value={timeRange}
-            options={[
-              { label: 'Last 7 days', value: '7D' },
-              { label: 'Last 1 month', value: '1M' },
-              { label: 'Last 3 months', value: '3M' },
-              { label: 'Last 6 months', value: '6M' },
-              { label: 'Last 12 months', value: '12M' },
-              { label: 'Custom', value: 'custom' },
-            ]}
-            onChange={(val) => setTimeRange(val)}
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setGrouped(!grouped)}
-          >
-            {grouped ? 'Ungroup by Sprint Metrics' : 'Group by Sprint Metrics'}
-          </Button>
-          <Select
-            value={viewBy}
-            options={[
-              { label: 'View by Story Points', value: 'story-points' },
-              { label: 'View by Work Item Count', value: 'work-item-count' },
-            ]}
-            onChange={(val) => setViewBy(val)}
-          />
-          <div className="ml-auto">
+            <Select
+              value={timeRange}
+              options={[
+                { label: 'Last 7 days', value: '7D' },
+                { label: 'Last 1 month', value: '1M' },
+                { label: 'Last 3 months', value: '3M' },
+                { label: 'Last 6 months', value: '6M' },
+                { label: 'Last 12 months', value: '12M' },
+                { label: 'Custom', value: 'custom' },
+              ]}
+              onChange={(val) => setTimeRange(val)}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setGrouped(!grouped)}
+            >
+              {grouped ? 'Ungroup by Sprint Metrics' : 'Group by Sprint Metrics'}
+            </Button>
+            <Select
+              value={viewBy}
+              options={[
+                { label: 'View by Story Points', value: 'story-points' },
+                { label: 'View by Work Item Count', value: 'work-item-count' },
+              ]}
+              onChange={(val) => setViewBy(val)}
+            />
             <Button
               variant="outline"
               size="sm"
@@ -176,6 +169,7 @@ export function SprintMetricsPage() {
             >
               {showTrendline ? 'Hide Trendline' : 'Show Trendline'}
             </Button>
+            <ExportMenu variant="outline" />
           </div>
         </div>
 
