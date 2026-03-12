@@ -326,7 +326,7 @@ function ChartCard({ title, subtitle, tooltip, children }: {
 // ── Main page ──
 
 export function AIInsightsPage() {
-  const [timeRange, setTimeRange] = useState('12M')
+  const [timeRange, setTimeRange] = useState('6M')
   const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
   const [assistantFilter, setAssistantFilter] = useState('all')
   const [compareTo, setCompareTo] = useState('')
@@ -419,16 +419,18 @@ export function AIInsightsPage() {
 
         {/* Controls bar */}
         <div className="flex items-center gap-3">
-          <Tabs.Root value={timeRange} onValueChange={setTimeRange}>
-            <Tabs.List variant="outlined">
-              <Tabs.Trigger value="7D">7D</Tabs.Trigger>
-              <Tabs.Trigger value="1M">1M</Tabs.Trigger>
-              <Tabs.Trigger value="3M">3M</Tabs.Trigger>
-              <Tabs.Trigger value="6M">6M</Tabs.Trigger>
-              <Tabs.Trigger value="12M">12M</Tabs.Trigger>
-              <Tabs.Trigger value="custom" icon="calendar">Custom</Tabs.Trigger>
-            </Tabs.List>
-          </Tabs.Root>
+          <Select
+            value={timeRange}
+            options={[
+              { label: 'Last 7 days', value: '7D' },
+              { label: 'Last 1 month', value: '1M' },
+              { label: 'Last 3 months', value: '3M' },
+              { label: 'Last 6 months', value: '6M' },
+              { label: 'Last 12 months', value: '12M' },
+              { label: 'Custom', value: 'custom' },
+            ]}
+            onChange={(val) => { if (val) setTimeRange(val) }}
+          />
           <Select
             value={assistantFilter}
             options={[
