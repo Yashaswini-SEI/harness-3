@@ -323,7 +323,9 @@ export function EfficiencyDoraPage() {
   const [showTrendline, setShowTrendline] = useState(false)
   const [selectedNodeId, setSelectedNodeId] = useState('harness-sei')
   const [aggregation, setAggregation] = useState('mean')
+  const [showDrilldown, setShowDrilldown] = useState(false)
   const [selectedStage, setSelectedStage] = useState<number | null>(null)
+  const [expandedStages, setExpandedStages] = useState<Set<number>>(new Set())
   const [stagedrillPage, setStagedrillPage] = useState(1)
   const [stagedrillPageSize, setStagedrillPageSize] = useState(5)
   const [selectedCfrBar, setSelectedCfrBar] = useState<number | null>(null)
@@ -513,26 +515,26 @@ export function EfficiencyDoraPage() {
   ]
 
   const STAGE_TICKET_POOL = useMemo(() => [
-    { workId: 'CCM-28146', summary: 'feat: [CCM-28146]: Add new recommendations api for azure & gcp', prs: 1, startDate: '2025-12-02 08:32:54', endDate: '2026-02-11 12:45:21', leadTimeDays: 72 },
-    { workId: 'CCM-28119', summary: 'fix: [CCM-28119]: Recommendations API not returning updated data', prs: 0, startDate: '2025-12-02 08:38:02', endDate: '2026-02-11 08:15:39', leadTimeDays: 71.98 },
-    { workId: 'CCM-27898', summary: 'feat: [CCM-27898]: Add cost anomaly detection for K8s workloads', prs: 4, startDate: '2025-11-15 10:12:33', endDate: '2026-01-28 14:50:12', leadTimeDays: 74.19 },
-    { workId: 'CCM-27654', summary: 'chore: [CCM-27654]: Migrate cloud cost dashboards to new viz framework', prs: 8, startDate: '2025-11-08 09:45:17', endDate: '2026-01-22 11:30:45', leadTimeDays: 75.07 },
-    { workId: 'CCM-28201', summary: 'fix: [CCM-28201]: Budget alert thresholds not triggering notifications', prs: 1, startDate: '2025-12-10 14:22:08', endDate: '2026-02-15 09:18:33', leadTimeDays: 66.79 },
-    { workId: 'CCM-27990', summary: 'feat: [CCM-27990]: Implement shared cost allocation rules engine', prs: 3, startDate: '2025-11-22 11:05:42', endDate: '2026-02-03 16:42:19', leadTimeDays: 73.23 },
-    { workId: 'CCM-28055', summary: 'fix: [CCM-28055]: AWS connector sync failing for gov-cloud regions', prs: 2, startDate: '2025-11-28 07:55:31', endDate: '2026-02-08 10:20:15', leadTimeDays: 72.1 },
-    { workId: 'CCM-27801', summary: 'feat: [CCM-27801]: Add perspective drill-down by namespace and label', prs: 5, startDate: '2025-11-12 13:18:44', endDate: '2026-01-25 08:55:02', leadTimeDays: 73.82 },
-    { workId: 'CCM-28310', summary: 'chore: [CCM-28310]: Upgrade BigQuery client library to v3.x', prs: 1, startDate: '2025-12-18 09:30:00', endDate: '2026-02-18 15:12:47', leadTimeDays: 62.24 },
-    { workId: 'CCM-27745', summary: 'feat: [CCM-27745]: Multi-cloud cost comparison report builder', prs: 6, startDate: '2025-11-05 16:42:11', endDate: '2026-01-20 12:08:33', leadTimeDays: 75.81 },
-    { workId: 'CCM-28088', summary: 'fix: [CCM-28088]: Idle cost calculation incorrect for spot instances', prs: 2, startDate: '2025-11-30 10:15:22', endDate: '2026-02-09 14:38:50', leadTimeDays: 71.18 },
-    { workId: 'CCM-27922', summary: 'feat: [CCM-27922]: Add tag-based cost allocation for ECS services', prs: 3, startDate: '2025-11-18 08:20:15', endDate: '2026-01-30 11:45:30', leadTimeDays: 73.14 },
-    { workId: 'CCM-28175', summary: 'fix: [CCM-28175]: Currency conversion rates not updating daily', prs: 1, startDate: '2025-12-05 15:48:33', endDate: '2026-02-13 09:22:17', leadTimeDays: 69.73 },
-    { workId: 'CCM-27855', summary: 'feat: [CCM-27855]: Implement FinOps scorecard with maturity metrics', prs: 7, startDate: '2025-11-14 11:30:05', endDate: '2026-01-27 16:15:42', leadTimeDays: 74.2 },
-    { workId: 'CCM-28260', summary: 'chore: [CCM-28260]: Optimize cost data ingestion pipeline throughput', prs: 2, startDate: '2025-12-14 07:10:48', endDate: '2026-02-16 13:55:20', leadTimeDays: 64.28 },
-    { workId: 'CCM-27968', summary: 'feat: [CCM-27968]: Add Databricks cost tracking integration', prs: 4, startDate: '2025-11-20 14:55:30', endDate: '2026-02-01 10:30:18', leadTimeDays: 72.82 },
-    { workId: 'CCM-28222', summary: 'fix: [CCM-28222]: Autostopping rules not applying to new instances', prs: 1, startDate: '2025-12-12 09:42:15', endDate: '2026-02-14 08:10:55', leadTimeDays: 63.94 },
-    { workId: 'CCM-27700', summary: 'feat: [CCM-27700]: Real-time cost anomaly Slack/Teams notifications', prs: 3, startDate: '2025-11-02 12:25:40', endDate: '2026-01-18 15:48:22', leadTimeDays: 77.14 },
-    { workId: 'CCM-28130', summary: 'fix: [CCM-28130]: GCP billing export missing committed use discounts', prs: 2, startDate: '2025-12-03 16:05:18', endDate: '2026-02-12 11:30:45', leadTimeDays: 70.81 },
-    { workId: 'CCM-27830', summary: 'feat: [CCM-27830]: Budget forecast accuracy improvement with ML model', prs: 5, startDate: '2025-11-13 10:48:22', endDate: '2026-01-26 14:22:08', leadTimeDays: 74.15 },
+    { workId: 'CCM-28146', summary: 'feat: [CCM-28146]: Add new recommendations api for azure & gcp', prs: 1, pipelines: 3, startDate: '2025-12-02 08:32:54', endDate: '2026-02-11 12:45:21', leadTimeDays: 72, planningTotal: '4d 0h', codingTotal: '3d 14h', reviewTotal: '2d 8h', buildTotal: '1d 16h', deployTotal: '5d 2h', needsSpecs: '2d 4h', designReview: '1d 8h', readyForDev: '12h', timeToFirstComment: '4h 20m', timeToFirstApproval: '1d 2h', timeToMerge: '2d 8h' },
+    { workId: 'CCM-28119', summary: 'fix: [CCM-28119]: Recommendations API not returning updated data', prs: 0, pipelines: 2, startDate: '2025-12-02 08:38:02', endDate: '2026-02-11 08:15:39', leadTimeDays: 71.98, planningTotal: '2d 2h', codingTotal: '2d 13h', reviewTotal: '1d 18h', buildTotal: '1d 4h', deployTotal: '4d 8h', needsSpecs: '1d 12h', designReview: '8h', readyForDev: '6h', timeToFirstComment: '3h 15m', timeToFirstApproval: '18h', timeToMerge: '1d 4h' },
+    { workId: 'CCM-27898', summary: 'feat: [CCM-27898]: Add cost anomaly detection for K8s workloads', prs: 4, pipelines: 5, startDate: '2025-11-15 10:12:33', endDate: '2026-01-28 14:50:12', leadTimeDays: 74.19, planningTotal: '5d 12h', codingTotal: '4d 17h', reviewTotal: '3d 6h', buildTotal: '2d 2h', deployTotal: '6d 10h', needsSpecs: '3d 6h', designReview: '2d 4h', readyForDev: '1d 2h', timeToFirstComment: '6h 45m', timeToFirstApproval: '1d 8h', timeToMerge: '3d 12h' },
+    { workId: 'CCM-27654', summary: 'chore: [CCM-27654]: Migrate cloud cost dashboards to new viz framework', prs: 8, pipelines: 12, startDate: '2025-11-08 09:45:17', endDate: '2026-01-22 11:30:45', leadTimeDays: 75.07, planningTotal: '5d 10h', codingTotal: '4d 22h', reviewTotal: '3d 8h', buildTotal: '2d 4h', deployTotal: '6d 14h', needsSpecs: '2d 18h', designReview: '1d 16h', readyForDev: '20h', timeToFirstComment: '5h 30m', timeToFirstApproval: '1d 6h', timeToMerge: '2d 22h' },
+    { workId: 'CCM-28201', summary: 'fix: [CCM-28201]: Budget alert thresholds not triggering notifications', prs: 1, pipelines: 2, startDate: '2025-12-10 14:22:08', endDate: '2026-02-15 09:18:33', leadTimeDays: 66.79, planningTotal: '1d 22h', codingTotal: '2d 9h', reviewTotal: '1d 14h', buildTotal: '20h', deployTotal: '3d 18h', needsSpecs: '1d 8h', designReview: '10h', readyForDev: '4h', timeToFirstComment: '2h 45m', timeToFirstApproval: '14h', timeToMerge: '1d 6h' },
+    { workId: 'CCM-27990', summary: 'feat: [CCM-27990]: Implement shared cost allocation rules engine', prs: 3, pipelines: 4, startDate: '2025-11-22 11:05:42', endDate: '2026-02-03 16:42:19', leadTimeDays: 73.23, planningTotal: '4d 18h', codingTotal: '4d 9h', reviewTotal: '2d 22h', buildTotal: '1d 20h', deployTotal: '5d 16h', needsSpecs: '2d 12h', designReview: '1d 14h', readyForDev: '16h', timeToFirstComment: '5h 15m', timeToFirstApproval: '1d 4h', timeToMerge: '2d 18h' },
+    { workId: 'CCM-28055', summary: 'fix: [CCM-28055]: AWS connector sync failing for gov-cloud regions', prs: 2, pipelines: 3, startDate: '2025-11-28 07:55:31', endDate: '2026-02-08 10:20:15', leadTimeDays: 72.1, planningTotal: '2d 12h', codingTotal: '3d 6h', reviewTotal: '2d 4h', buildTotal: '1d 12h', deployTotal: '5d 0h', needsSpecs: '1d 16h', designReview: '12h', readyForDev: '8h', timeToFirstComment: '4h 10m', timeToFirstApproval: '20h', timeToMerge: '2d 2h' },
+    { workId: 'CCM-27801', summary: 'feat: [CCM-27801]: Add perspective drill-down by namespace and label', prs: 5, pipelines: 7, startDate: '2025-11-12 13:18:44', endDate: '2026-01-25 08:55:02', leadTimeDays: 73.82, planningTotal: '5d 14h', codingTotal: '4d 20h', reviewTotal: '3d 10h', buildTotal: '2d 6h', deployTotal: '6d 16h', needsSpecs: '2d 20h', designReview: '2d', readyForDev: '18h', timeToFirstComment: '6h 20m', timeToFirstApproval: '1d 10h', timeToMerge: '3d 6h' },
+    { workId: 'CCM-28310', summary: 'chore: [CCM-28310]: Upgrade BigQuery client library to v3.x', prs: 1, pipelines: 2, startDate: '2025-12-18 09:30:00', endDate: '2026-02-18 15:12:47', leadTimeDays: 62.24, planningTotal: '1d 17h', codingTotal: '2d 3h', reviewTotal: '1d 10h', buildTotal: '18h', deployTotal: '3d 12h', needsSpecs: '1d 4h', designReview: '8h', readyForDev: '5h', timeToFirstComment: '3h', timeToFirstApproval: '16h', timeToMerge: '1d 8h' },
+    { workId: 'CCM-27745', summary: 'feat: [CCM-27745]: Multi-cloud cost comparison report builder', prs: 6, pipelines: 9, startDate: '2025-11-05 16:42:11', endDate: '2026-01-20 12:08:33', leadTimeDays: 75.81, planningTotal: '5d 20h', codingTotal: '5d 2h', reviewTotal: '3d 14h', buildTotal: '2d 8h', deployTotal: '7d 0h', needsSpecs: '3d 2h', designReview: '2d 8h', readyForDev: '1d 4h', timeToFirstComment: '6h 50m', timeToFirstApproval: '1d 12h', timeToMerge: '3d 18h' },
+    { workId: 'CCM-28088', summary: 'fix: [CCM-28088]: Idle cost calculation incorrect for spot instances', prs: 2, pipelines: 3, startDate: '2025-11-30 10:15:22', endDate: '2026-02-09 14:38:50', leadTimeDays: 71.18, planningTotal: '2d 18h', codingTotal: '3d 10h', reviewTotal: '2d 6h', buildTotal: '1d 14h', deployTotal: '5d 4h', needsSpecs: '1d 18h', designReview: '14h', readyForDev: '10h', timeToFirstComment: '4h 30m', timeToFirstApproval: '22h', timeToMerge: '2d 6h' },
+    { workId: 'CCM-27922', summary: 'feat: [CCM-27922]: Add tag-based cost allocation for ECS services', prs: 3, pipelines: 4, startDate: '2025-11-18 08:20:15', endDate: '2026-01-30 11:45:30', leadTimeDays: 73.14, planningTotal: '4d 12h', codingTotal: '4d 3h', reviewTotal: '2d 20h', buildTotal: '1d 18h', deployTotal: '5d 14h', needsSpecs: '2d 10h', designReview: '1d 12h', readyForDev: '14h', timeToFirstComment: '5h 5m', timeToFirstApproval: '1d 2h', timeToMerge: '2d 16h' },
+    { workId: 'CCM-28175', summary: 'fix: [CCM-28175]: Currency conversion rates not updating daily', prs: 1, pipelines: 2, startDate: '2025-12-05 15:48:33', endDate: '2026-02-13 09:22:17', leadTimeDays: 69.73, planningTotal: '2d 2h', codingTotal: '2d 21h', reviewTotal: '1d 20h', buildTotal: '1d 2h', deployTotal: '4d 12h', needsSpecs: '1d 10h', designReview: '10h', readyForDev: '6h', timeToFirstComment: '3h 30m', timeToFirstApproval: '17h', timeToMerge: '1d 10h' },
+    { workId: 'CCM-27855', summary: 'feat: [CCM-27855]: Implement FinOps scorecard with maturity metrics', prs: 7, pipelines: 10, startDate: '2025-11-14 11:30:05', endDate: '2026-01-27 16:15:42', leadTimeDays: 74.2, planningTotal: '5d 18h', codingTotal: '4d 23h', reviewTotal: '3d 12h', buildTotal: '2d 7h', deployTotal: '6d 18h', needsSpecs: '2d 22h', designReview: '2d 6h', readyForDev: '22h', timeToFirstComment: '6h 40m', timeToFirstApproval: '1d 11h', timeToMerge: '3d 10h' },
+    { workId: 'CCM-28260', summary: 'chore: [CCM-28260]: Optimize cost data ingestion pipeline throughput', prs: 2, pipelines: 3, startDate: '2025-12-14 07:10:48', endDate: '2026-02-16 13:55:20', leadTimeDays: 64.28, planningTotal: '2d 8h', codingTotal: '2d 17h', reviewTotal: '1d 16h', buildTotal: '22h', deployTotal: '3d 22h', needsSpecs: '1d 14h', designReview: '11h', readyForDev: '7h', timeToFirstComment: '3h 50m', timeToFirstApproval: '19h', timeToMerge: '2d 4h' },
+    { workId: 'CCM-27968', summary: 'feat: [CCM-27968]: Add Databricks cost tracking integration', prs: 4, pipelines: 6, startDate: '2025-11-20 14:55:30', endDate: '2026-02-01 10:30:18', leadTimeDays: 72.82, planningTotal: '5d 3h', codingTotal: '4d 15h', reviewTotal: '3d 2h', buildTotal: '1d 22h', deployTotal: '6d 6h', needsSpecs: '2d 16h', designReview: '1d 18h', readyForDev: '17h', timeToFirstComment: '5h 40m', timeToFirstApproval: '1d 7h', timeToMerge: '2d 20h' },
+    { workId: 'CCM-28222', summary: 'fix: [CCM-28222]: Autostopping rules not applying to new instances', prs: 1, pipelines: 2, startDate: '2025-12-12 09:42:15', endDate: '2026-02-14 08:10:55', leadTimeDays: 63.94, planningTotal: '1d 20h', codingTotal: '2d 6h', reviewTotal: '1d 12h', buildTotal: '19h', deployTotal: '3d 15h', needsSpecs: '1d 6h', designReview: '9h', readyForDev: '5h', timeToFirstComment: '2h 55m', timeToFirstApproval: '15h', timeToMerge: '1d 7h' },
+    { workId: 'CCM-27700', summary: 'feat: [CCM-27700]: Real-time cost anomaly Slack/Teams notifications', prs: 3, pipelines: 4, startDate: '2025-11-02 12:25:40', endDate: '2026-01-18 15:48:22', leadTimeDays: 77.14, planningTotal: '6d 20h', codingTotal: '5d 16h', reviewTotal: '3d 22h', buildTotal: '2d 12h', deployTotal: '7d 10h', needsSpecs: '3d 4h', designReview: '2d 10h', readyForDev: '1d 6h', timeToFirstComment: '7h 10m', timeToFirstApproval: '1d 14h', timeToMerge: '3d 22h' },
+    { workId: 'CCM-28130', summary: 'fix: [CCM-28130]: GCP billing export missing committed use discounts', prs: 2, pipelines: 3, startDate: '2025-12-03 16:05:18', endDate: '2026-02-12 11:30:45', leadTimeDays: 70.81, planningTotal: '2d 18h', codingTotal: '3d 13h', reviewTotal: '2d 8h', buildTotal: '1d 16h', deployTotal: '5d 6h', needsSpecs: '1d 20h', designReview: '13h', readyForDev: '9h', timeToFirstComment: '4h 40m', timeToFirstApproval: '21h', timeToMerge: '2d 8h' },
+    { workId: 'CCM-27830', summary: 'feat: [CCM-27830]: Budget forecast accuracy improvement with ML model', prs: 5, pipelines: 8, startDate: '2025-11-13 10:48:22', endDate: '2026-01-26 14:22:08', leadTimeDays: 74.15, planningTotal: '5d 11h', codingTotal: '4d 18h', reviewTotal: '3d 7h', buildTotal: '2d 5h', deployTotal: '6d 12h', needsSpecs: '2d 14h', designReview: '2d 2h', readyForDev: '19h', timeToFirstComment: '6h 25m', timeToFirstApproval: '1d 9h', timeToMerge: '3d 8h' },
   ], [])
 
   const stageDrilldownData = useMemo(
@@ -624,7 +626,31 @@ export function EfficiencyDoraPage() {
   }
 
   const handleStageClick = (index: number) => {
-    setSelectedStage(prev => prev === index ? null : index)
+    if (!showDrilldown) {
+      // If drilldown not open, open it first with default view
+      setShowDrilldown(true)
+    } else {
+      // If drilldown already open, toggle the stage expansion
+      setExpandedStages(prev => {
+        const next = new Set(prev)
+        if (next.has(index)) {
+          next.delete(index)
+        } else {
+          next.add(index)
+        }
+        return next
+      })
+    }
+    setExpandedPrRows(new Set())
+    setExpandedCommitRows(new Set())
+    setStagedrillPage(1)
+  }
+
+  const handleBarClick = () => {
+    console.log('Bar clicked! Opening drilldown...')
+    setShowDrilldown(prev => !prev)
+    setExpandedStages(new Set())
+    setSelectedStage(null)
     setExpandedPrRows(new Set())
     setExpandedCommitRows(new Set())
     setStagedrillPage(1)
@@ -778,7 +804,18 @@ export function EfficiencyDoraPage() {
           </div>
 
           {/* Average lead time horizontal bar */}
-          <div className="mx-5 mb-2 rounded-lg bg-cn-2 p-4">
+          <div
+            className="mx-5 mb-2 rounded-lg bg-cn-2 p-4 cursor-pointer transition-all hover:bg-cn-3 hover:shadow-md border-2 border-transparent hover:border-blue-500"
+            onClick={() => {
+              console.log('Bar clicked!')
+              setShowDrilldown(prev => !prev)
+              setExpandedStages(new Set())
+              setExpandedPrRows(new Set())
+              setExpandedCommitRows(new Set())
+              setStagedrillPage(1)
+            }}
+            title="Click to view ticket breakdown"
+          >
             <div className="mb-3 flex items-center gap-2">
               <Text variant="body-normal" color="foreground-1" className="font-medium">
                 {doraMetrics.leadTime} (Average) · {avgSegments.totalTickets} tickets
@@ -891,18 +928,23 @@ export function EfficiencyDoraPage() {
           </div>
 
           {/* Stage drilldown table */}
-          {selectedStage != null && (() => {
+          {showDrilldown && (() => {
             const maxLeadTime = Math.max(...stageDrilldownData.map(r => r.leadTimeDays))
             return (
             <div className="px-5 pb-5 pt-2">
               <div className="flex items-center pb-2">
                 <div className="flex items-center gap-1.5">
                   <Text variant="body-strong" color="foreground-1">
-                    {stageData.filter(s => s.stageName)[selectedStage]?.stageName} — Ticket Breakdown
+                    Ticket Breakdown
                   </Text>
+                  {expandedStages.size > 0 && (
+                    <Text variant="caption-normal" color="foreground-3">
+                      ({Array.from(expandedStages).map(i => stageData[i]?.stageName).join(', ')} expanded)
+                    </Text>
+                  )}
                 </div>
                 <div className="ml-auto">
-                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setSelectedStage(null)}>
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setShowDrilldown(false)}>
                     <IconV2 name="xmark" size="sm" />
                   </Button>
                 </div>
@@ -914,9 +956,24 @@ export function EfficiencyDoraPage() {
                       <Table.Head>Work-ID</Table.Head>
                       <Table.Head>Ticket Summary</Table.Head>
                       <Table.Head>Pull Requests</Table.Head>
+                      <Table.Head>Pipelines</Table.Head>
+                      {expandedStages.has(0) && (
+                        <>
+                          <Table.Head>Needs Specs</Table.Head>
+                          <Table.Head>Design Review</Table.Head>
+                          <Table.Head>Ready for Dev</Table.Head>
+                        </>
+                      )}
+                      {expandedStages.has(1) && (
+                        <>
+                          <Table.Head>First Comment</Table.Head>
+                          <Table.Head>First Approval</Table.Head>
+                          <Table.Head>Time to Merge</Table.Head>
+                        </>
+                      )}
                       <Table.Head>Start Date</Table.Head>
                       <Table.Head>End Date</Table.Head>
-                      <Table.Head>Lead Time</Table.Head>
+                      <Table.Head>Total Lead Time</Table.Head>
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
@@ -925,6 +982,9 @@ export function EfficiencyDoraPage() {
                       const leadDays = Math.floor(row.leadTimeDays)
                       const leadHours = Math.round((row.leadTimeDays - leadDays) * 24)
                       const leadLabel = leadHours > 0 ? `${leadDays}d ${leadHours}h` : `${leadDays}d`
+                      let colSpan = 7 // Base columns: Work-ID, Summary, PRs, Pipelines, Start, End, Total
+                      if (expandedStages.has(0)) colSpan += 3
+                      if (expandedStages.has(1)) colSpan += 3
                       return (<>
                       <Table.Row key={row.workId}>
                         <Table.Cell>
@@ -946,6 +1006,35 @@ export function EfficiencyDoraPage() {
                             <Text variant="body-normal" color="foreground-3">0 PRs</Text>
                           )}
                         </Table.Cell>
+                        <Table.Cell>
+                          <Text variant="body-normal" color="foreground-1">{row.pipelines}</Text>
+                        </Table.Cell>
+                        {expandedStages.has(0) && (
+                          <>
+                            <Table.Cell className="bg-cn-2">
+                              <Text variant="body-normal" color="foreground-3">{row.needsSpecs}</Text>
+                            </Table.Cell>
+                            <Table.Cell className="bg-cn-2">
+                              <Text variant="body-normal" color="foreground-3">{row.designReview}</Text>
+                            </Table.Cell>
+                            <Table.Cell className="bg-cn-2">
+                              <Text variant="body-normal" color="foreground-3">{row.readyForDev}</Text>
+                            </Table.Cell>
+                          </>
+                        )}
+                        {expandedStages.has(1) && (
+                          <>
+                            <Table.Cell className="bg-cn-2">
+                              <Text variant="body-normal" color="foreground-3">{row.timeToFirstComment}</Text>
+                            </Table.Cell>
+                            <Table.Cell className="bg-cn-2">
+                              <Text variant="body-normal" color="foreground-3">{row.timeToFirstApproval}</Text>
+                            </Table.Cell>
+                            <Table.Cell className="bg-cn-2">
+                              <Text variant="body-normal" color="foreground-3">{row.timeToMerge}</Text>
+                            </Table.Cell>
+                          </>
+                        )}
                         <Table.Cell className="whitespace-nowrap">
                           <Text variant="body-normal" color="foreground-3">{row.startDate}</Text>
                         </Table.Cell>
@@ -979,7 +1068,7 @@ export function EfficiencyDoraPage() {
                       </Table.Row>
                       {expandedPrRows.has(row.workId) && row.prs > 0 && (
                         <Table.Row>
-                          <Table.Cell colSpan={6} className="!p-0">
+                          <Table.Cell colSpan={colSpan} className="!p-0">
                             <div className="bg-cn-2 px-8 py-3">
                               <Table.Root variant="default" size="normal">
                                 <Table.Header>
