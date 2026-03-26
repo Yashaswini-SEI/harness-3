@@ -340,6 +340,7 @@ export function EfficiencyDoraPage() {
   const [showDeployBreakdown, setShowDeployBreakdown] = useState(false)
   const [showCfrBreakdown, setShowCfrBreakdown] = useState(false)
   const [showMttrBreakdown, setShowMttrBreakdown] = useState(false)
+  const [selectedLeadTimeBar, setSelectedLeadTimeBar] = useState<number | null>(null)
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
@@ -502,6 +503,8 @@ export function EfficiencyDoraPage() {
 
   useEffect(() => {
     setSelectedBarIndex(null)
+    setSelectedLeadTimeBar(null)
+    setShowDrilldown(false)
   }, [timeRange])
 
   // ── Development stage data (matches Figma phases) ──
@@ -538,8 +541,8 @@ export function EfficiencyDoraPage() {
   ], [])
 
   const stageDrilldownData = useMemo(
-    () => seededShuffle(STAGE_TICKET_POOL, selectedStage != null ? (selectedStage + 1) * 5113 : 1),
-    [selectedStage, STAGE_TICKET_POOL]
+    () => seededShuffle(STAGE_TICKET_POOL, selectedLeadTimeBar != null ? (selectedLeadTimeBar + 1) * 5113 : 1),
+    [selectedLeadTimeBar, STAGE_TICKET_POOL]
   )
 
   const paginatedStageDrilldown = useMemo(() => {
@@ -646,9 +649,12 @@ export function EfficiencyDoraPage() {
     setStagedrillPage(1)
   }
 
-  const handleBarClick = () => {
-    console.log('Bar clicked! Opening drilldown...')
-    setShowDrilldown(prev => !prev)
+  const handleBarClick = (index: number) => {
+    setSelectedLeadTimeBar(prev => {
+      const isSameBar = prev === index
+      setShowDrilldown(!isSameBar)
+      return isSameBar ? null : index
+    })
     setExpandedStages(new Set())
     setSelectedStage(null)
     setExpandedPrRows(new Set())
@@ -761,6 +767,8 @@ export function EfficiencyDoraPage() {
                 height={300}
                 yAxisLabel="Hours"
                 showTrendline={showTrendline}
+                onBarClick={handleBarClick}
+                selectedIndex={selectedLeadTimeBar}
               />
             </div>
 
@@ -807,14 +815,14 @@ export function EfficiencyDoraPage() {
           <div
             className="mx-5 mb-2 rounded-lg bg-cn-2 p-4 cursor-pointer transition-all hover:bg-cn-3 hover:shadow-md border-2 border-transparent hover:border-blue-500"
             onClick={() => {
-              console.log('Bar clicked!')
+              setSelectedLeadTimeBar(null)
               setShowDrilldown(prev => !prev)
               setExpandedStages(new Set())
               setExpandedPrRows(new Set())
               setExpandedCommitRows(new Set())
               setStagedrillPage(1)
             }}
-            title="Click to view ticket breakdown"
+            title="Click to view all tickets"
           >
             <div className="mb-3 flex items-center gap-2">
               <Text variant="body-normal" color="foreground-1" className="font-medium">
@@ -937,6 +945,11 @@ export function EfficiencyDoraPage() {
                   <Text variant="body-strong" color="foreground-1">
                     Ticket Breakdown
                   </Text>
+                  {selectedLeadTimeBar != null && leadTimeData[selectedLeadTimeBar] && (
+                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: 'rgba(0,109,234,0.1)', color: 'var(--cn-brand, #006DEA)' }}>
+                      {leadTimeData[selectedLeadTimeBar].name}
+                    </span>
+                  )}
                   {expandedStages.size > 0 && (
                     <Text variant="caption-normal" color="foreground-3">
                       ({Array.from(expandedStages).map(i => stageData[i]?.stageName).join(', ')} expanded)
@@ -944,7 +957,10 @@ export function EfficiencyDoraPage() {
                   )}
                 </div>
                 <div className="ml-auto">
-                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setShowDrilldown(false)}>
+                  <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => {
+                    setShowDrilldown(false)
+                    setSelectedLeadTimeBar(null)
+                  }}>
                     <IconV2 name="xmark" size="sm" />
                   </Button>
                 </div>
