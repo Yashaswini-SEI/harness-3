@@ -24,6 +24,7 @@ import { InsightsPage2 } from './pages/InsightsPage2'
 import { TeamsPage } from './pages/TeamsPage'
 import { DevelopersPage } from './pages/DevelopersPage'
 import { NavVariationsPage } from './pages/NavVariationsPage'
+import { LeadTimeDrilldownPage } from './pages/LeadTimeDrilldownPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -39,6 +40,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/module/sei/insights/harness/ai-insights" element={<AIInsightsPage />} />
         <Route path="/module/sei/insights/harness/business-alignment" element={<BusinessAlignmentPage />} />
         <Route path="/module/sei/insights/harness/efficiency-dora" element={<EfficiencyDoraPage />} />
+        <Route path="/module/sei/insights/harness/lead-time-drilldown" element={<LeadTimeDrilldownPage />} />
         <Route path="/module/sei/insights/harness/efficiency-sprint-metrics" element={<SprintMetricsPage />} />
         <Route path="/module/sei/insights/harness/productivity" element={<ProductivityPage />} />
         <Route path="/module/sei/insights/harness/:slug" element={<HarnessReportPage />} />

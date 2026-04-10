@@ -30,6 +30,38 @@ function jitter(seed: string, base: number, variance: number): number {
   return Math.round(base + (t - 0.5) * 2 * variance)
 }
 
+// ── Time parsing & wait/run split helpers ──
+
+function parseTimeToMinutes(timeStr: string): number {
+  let total = 0
+  const dMatch = timeStr.match(/(\d+)d/)
+  const hMatch = timeStr.match(/(\d+)h/)
+  const mMatch = timeStr.match(/(\d+)m/)
+  if (dMatch) total += parseInt(dMatch[1]) * 24 * 60
+  if (hMatch) total += parseInt(hMatch[1]) * 60
+  if (mMatch) total += parseInt(mMatch[1])
+  return total || 1
+}
+
+function formatMinutes(mins: number): string {
+  if (mins < 60) return `${mins}m`
+  const d = Math.floor(mins / (24 * 60))
+  const h = Math.floor((mins % (24 * 60)) / 60)
+  const m = mins % 60
+  if (d > 0) return m > 0 ? `${d}d ${h}h ${m}m` : `${d}d ${h}h`
+  return m > 0 ? `${h}h ${m}m` : `${h}h`
+}
+
+function splitWaitRun(seed: string, totalTimeStr: string): { wait: string; run: string; waitPct: number } {
+  const totalMins = parseTimeToMinutes(totalTimeStr)
+  // Use jitter to get a deterministic wait ratio between 30-80%
+  const ratio = (jitter(seed + '-wr', 55, 25)) / 100
+  const clampedRatio = Math.max(0.15, Math.min(0.85, ratio))
+  const waitMins = Math.round(totalMins * clampedRatio)
+  const runMins = totalMins - waitMins
+  return { wait: formatMinutes(waitMins), run: formatMinutes(runMins), waitPct: Math.round(clampedRatio * 100) }
+}
+
 // ── Time range profiles ──
 
 const TIME_RANGE_PROFILES: Record<string, { scale: number; labels: string[] }> = {
@@ -335,11 +367,16 @@ export function EfficiencyDoraPage() {
   const [mttrDrillPage, setMttrDrillPage] = useState(1)
   const [mttrDrillPageSize, setMttrDrillPageSize] = useState(5)
   const [expandedPrRows, setExpandedPrRows] = useState<Set<string>>(new Set())
+  const [expandedBuildRows, setExpandedBuildRows] = useState<Set<string>>(new Set())
   const [expandedCommitRows, setExpandedCommitRows] = useState<Set<string>>(new Set())
   const [showLeadTimeBreakdown, setShowLeadTimeBreakdown] = useState(false)
   const [showDeployBreakdown, setShowDeployBreakdown] = useState(false)
   const [showCfrBreakdown, setShowCfrBreakdown] = useState(false)
   const [showMttrBreakdown, setShowMttrBreakdown] = useState(false)
+  const [issueTypeFilter, setIssueTypeFilter] = useState('all')
+  const [leadTimeComputation, setLeadTimeComputation] = useState('p50')
+  const [expandedSubStages, setExpandedSubStages] = useState<Set<string>>(new Set())
+  const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set())
 
   const profile = TIME_RANGE_PROFILES[timeRange] ?? TIME_RANGE_PROFILES['6M']
 
@@ -515,26 +552,26 @@ export function EfficiencyDoraPage() {
   ]
 
   const STAGE_TICKET_POOL = useMemo(() => [
-    { workId: 'CCM-28146', summary: 'feat: [CCM-28146]: Add new recommendations api for azure & gcp', prs: 1, pipelines: 3, startDate: '2025-12-02 08:32:54', endDate: '2026-02-11 12:45:21', leadTimeDays: 72, planningTotal: '4d 0h', codingTotal: '3d 14h', reviewTotal: '2d 8h', buildTotal: '1d 16h', deployTotal: '5d 2h', needsSpecs: '2d 4h', designReview: '1d 8h', readyForDev: '12h', timeToFirstComment: '4h 20m', timeToFirstApproval: '1d 2h', timeToMerge: '2d 8h' },
-    { workId: 'CCM-28119', summary: 'fix: [CCM-28119]: Recommendations API not returning updated data', prs: 0, pipelines: 2, startDate: '2025-12-02 08:38:02', endDate: '2026-02-11 08:15:39', leadTimeDays: 71.98, planningTotal: '2d 2h', codingTotal: '2d 13h', reviewTotal: '1d 18h', buildTotal: '1d 4h', deployTotal: '4d 8h', needsSpecs: '1d 12h', designReview: '8h', readyForDev: '6h', timeToFirstComment: '3h 15m', timeToFirstApproval: '18h', timeToMerge: '1d 4h' },
-    { workId: 'CCM-27898', summary: 'feat: [CCM-27898]: Add cost anomaly detection for K8s workloads', prs: 4, pipelines: 5, startDate: '2025-11-15 10:12:33', endDate: '2026-01-28 14:50:12', leadTimeDays: 74.19, planningTotal: '5d 12h', codingTotal: '4d 17h', reviewTotal: '3d 6h', buildTotal: '2d 2h', deployTotal: '6d 10h', needsSpecs: '3d 6h', designReview: '2d 4h', readyForDev: '1d 2h', timeToFirstComment: '6h 45m', timeToFirstApproval: '1d 8h', timeToMerge: '3d 12h' },
-    { workId: 'CCM-27654', summary: 'chore: [CCM-27654]: Migrate cloud cost dashboards to new viz framework', prs: 8, pipelines: 12, startDate: '2025-11-08 09:45:17', endDate: '2026-01-22 11:30:45', leadTimeDays: 75.07, planningTotal: '5d 10h', codingTotal: '4d 22h', reviewTotal: '3d 8h', buildTotal: '2d 4h', deployTotal: '6d 14h', needsSpecs: '2d 18h', designReview: '1d 16h', readyForDev: '20h', timeToFirstComment: '5h 30m', timeToFirstApproval: '1d 6h', timeToMerge: '2d 22h' },
-    { workId: 'CCM-28201', summary: 'fix: [CCM-28201]: Budget alert thresholds not triggering notifications', prs: 1, pipelines: 2, startDate: '2025-12-10 14:22:08', endDate: '2026-02-15 09:18:33', leadTimeDays: 66.79, planningTotal: '1d 22h', codingTotal: '2d 9h', reviewTotal: '1d 14h', buildTotal: '20h', deployTotal: '3d 18h', needsSpecs: '1d 8h', designReview: '10h', readyForDev: '4h', timeToFirstComment: '2h 45m', timeToFirstApproval: '14h', timeToMerge: '1d 6h' },
-    { workId: 'CCM-27990', summary: 'feat: [CCM-27990]: Implement shared cost allocation rules engine', prs: 3, pipelines: 4, startDate: '2025-11-22 11:05:42', endDate: '2026-02-03 16:42:19', leadTimeDays: 73.23, planningTotal: '4d 18h', codingTotal: '4d 9h', reviewTotal: '2d 22h', buildTotal: '1d 20h', deployTotal: '5d 16h', needsSpecs: '2d 12h', designReview: '1d 14h', readyForDev: '16h', timeToFirstComment: '5h 15m', timeToFirstApproval: '1d 4h', timeToMerge: '2d 18h' },
-    { workId: 'CCM-28055', summary: 'fix: [CCM-28055]: AWS connector sync failing for gov-cloud regions', prs: 2, pipelines: 3, startDate: '2025-11-28 07:55:31', endDate: '2026-02-08 10:20:15', leadTimeDays: 72.1, planningTotal: '2d 12h', codingTotal: '3d 6h', reviewTotal: '2d 4h', buildTotal: '1d 12h', deployTotal: '5d 0h', needsSpecs: '1d 16h', designReview: '12h', readyForDev: '8h', timeToFirstComment: '4h 10m', timeToFirstApproval: '20h', timeToMerge: '2d 2h' },
-    { workId: 'CCM-27801', summary: 'feat: [CCM-27801]: Add perspective drill-down by namespace and label', prs: 5, pipelines: 7, startDate: '2025-11-12 13:18:44', endDate: '2026-01-25 08:55:02', leadTimeDays: 73.82, planningTotal: '5d 14h', codingTotal: '4d 20h', reviewTotal: '3d 10h', buildTotal: '2d 6h', deployTotal: '6d 16h', needsSpecs: '2d 20h', designReview: '2d', readyForDev: '18h', timeToFirstComment: '6h 20m', timeToFirstApproval: '1d 10h', timeToMerge: '3d 6h' },
-    { workId: 'CCM-28310', summary: 'chore: [CCM-28310]: Upgrade BigQuery client library to v3.x', prs: 1, pipelines: 2, startDate: '2025-12-18 09:30:00', endDate: '2026-02-18 15:12:47', leadTimeDays: 62.24, planningTotal: '1d 17h', codingTotal: '2d 3h', reviewTotal: '1d 10h', buildTotal: '18h', deployTotal: '3d 12h', needsSpecs: '1d 4h', designReview: '8h', readyForDev: '5h', timeToFirstComment: '3h', timeToFirstApproval: '16h', timeToMerge: '1d 8h' },
-    { workId: 'CCM-27745', summary: 'feat: [CCM-27745]: Multi-cloud cost comparison report builder', prs: 6, pipelines: 9, startDate: '2025-11-05 16:42:11', endDate: '2026-01-20 12:08:33', leadTimeDays: 75.81, planningTotal: '5d 20h', codingTotal: '5d 2h', reviewTotal: '3d 14h', buildTotal: '2d 8h', deployTotal: '7d 0h', needsSpecs: '3d 2h', designReview: '2d 8h', readyForDev: '1d 4h', timeToFirstComment: '6h 50m', timeToFirstApproval: '1d 12h', timeToMerge: '3d 18h' },
-    { workId: 'CCM-28088', summary: 'fix: [CCM-28088]: Idle cost calculation incorrect for spot instances', prs: 2, pipelines: 3, startDate: '2025-11-30 10:15:22', endDate: '2026-02-09 14:38:50', leadTimeDays: 71.18, planningTotal: '2d 18h', codingTotal: '3d 10h', reviewTotal: '2d 6h', buildTotal: '1d 14h', deployTotal: '5d 4h', needsSpecs: '1d 18h', designReview: '14h', readyForDev: '10h', timeToFirstComment: '4h 30m', timeToFirstApproval: '22h', timeToMerge: '2d 6h' },
-    { workId: 'CCM-27922', summary: 'feat: [CCM-27922]: Add tag-based cost allocation for ECS services', prs: 3, pipelines: 4, startDate: '2025-11-18 08:20:15', endDate: '2026-01-30 11:45:30', leadTimeDays: 73.14, planningTotal: '4d 12h', codingTotal: '4d 3h', reviewTotal: '2d 20h', buildTotal: '1d 18h', deployTotal: '5d 14h', needsSpecs: '2d 10h', designReview: '1d 12h', readyForDev: '14h', timeToFirstComment: '5h 5m', timeToFirstApproval: '1d 2h', timeToMerge: '2d 16h' },
-    { workId: 'CCM-28175', summary: 'fix: [CCM-28175]: Currency conversion rates not updating daily', prs: 1, pipelines: 2, startDate: '2025-12-05 15:48:33', endDate: '2026-02-13 09:22:17', leadTimeDays: 69.73, planningTotal: '2d 2h', codingTotal: '2d 21h', reviewTotal: '1d 20h', buildTotal: '1d 2h', deployTotal: '4d 12h', needsSpecs: '1d 10h', designReview: '10h', readyForDev: '6h', timeToFirstComment: '3h 30m', timeToFirstApproval: '17h', timeToMerge: '1d 10h' },
-    { workId: 'CCM-27855', summary: 'feat: [CCM-27855]: Implement FinOps scorecard with maturity metrics', prs: 7, pipelines: 10, startDate: '2025-11-14 11:30:05', endDate: '2026-01-27 16:15:42', leadTimeDays: 74.2, planningTotal: '5d 18h', codingTotal: '4d 23h', reviewTotal: '3d 12h', buildTotal: '2d 7h', deployTotal: '6d 18h', needsSpecs: '2d 22h', designReview: '2d 6h', readyForDev: '22h', timeToFirstComment: '6h 40m', timeToFirstApproval: '1d 11h', timeToMerge: '3d 10h' },
-    { workId: 'CCM-28260', summary: 'chore: [CCM-28260]: Optimize cost data ingestion pipeline throughput', prs: 2, pipelines: 3, startDate: '2025-12-14 07:10:48', endDate: '2026-02-16 13:55:20', leadTimeDays: 64.28, planningTotal: '2d 8h', codingTotal: '2d 17h', reviewTotal: '1d 16h', buildTotal: '22h', deployTotal: '3d 22h', needsSpecs: '1d 14h', designReview: '11h', readyForDev: '7h', timeToFirstComment: '3h 50m', timeToFirstApproval: '19h', timeToMerge: '2d 4h' },
-    { workId: 'CCM-27968', summary: 'feat: [CCM-27968]: Add Databricks cost tracking integration', prs: 4, pipelines: 6, startDate: '2025-11-20 14:55:30', endDate: '2026-02-01 10:30:18', leadTimeDays: 72.82, planningTotal: '5d 3h', codingTotal: '4d 15h', reviewTotal: '3d 2h', buildTotal: '1d 22h', deployTotal: '6d 6h', needsSpecs: '2d 16h', designReview: '1d 18h', readyForDev: '17h', timeToFirstComment: '5h 40m', timeToFirstApproval: '1d 7h', timeToMerge: '2d 20h' },
-    { workId: 'CCM-28222', summary: 'fix: [CCM-28222]: Autostopping rules not applying to new instances', prs: 1, pipelines: 2, startDate: '2025-12-12 09:42:15', endDate: '2026-02-14 08:10:55', leadTimeDays: 63.94, planningTotal: '1d 20h', codingTotal: '2d 6h', reviewTotal: '1d 12h', buildTotal: '19h', deployTotal: '3d 15h', needsSpecs: '1d 6h', designReview: '9h', readyForDev: '5h', timeToFirstComment: '2h 55m', timeToFirstApproval: '15h', timeToMerge: '1d 7h' },
-    { workId: 'CCM-27700', summary: 'feat: [CCM-27700]: Real-time cost anomaly Slack/Teams notifications', prs: 3, pipelines: 4, startDate: '2025-11-02 12:25:40', endDate: '2026-01-18 15:48:22', leadTimeDays: 77.14, planningTotal: '6d 20h', codingTotal: '5d 16h', reviewTotal: '3d 22h', buildTotal: '2d 12h', deployTotal: '7d 10h', needsSpecs: '3d 4h', designReview: '2d 10h', readyForDev: '1d 6h', timeToFirstComment: '7h 10m', timeToFirstApproval: '1d 14h', timeToMerge: '3d 22h' },
-    { workId: 'CCM-28130', summary: 'fix: [CCM-28130]: GCP billing export missing committed use discounts', prs: 2, pipelines: 3, startDate: '2025-12-03 16:05:18', endDate: '2026-02-12 11:30:45', leadTimeDays: 70.81, planningTotal: '2d 18h', codingTotal: '3d 13h', reviewTotal: '2d 8h', buildTotal: '1d 16h', deployTotal: '5d 6h', needsSpecs: '1d 20h', designReview: '13h', readyForDev: '9h', timeToFirstComment: '4h 40m', timeToFirstApproval: '21h', timeToMerge: '2d 8h' },
-    { workId: 'CCM-27830', summary: 'feat: [CCM-27830]: Budget forecast accuracy improvement with ML model', prs: 5, pipelines: 8, startDate: '2025-11-13 10:48:22', endDate: '2026-01-26 14:22:08', leadTimeDays: 74.15, planningTotal: '5d 11h', codingTotal: '4d 18h', reviewTotal: '3d 7h', buildTotal: '2d 5h', deployTotal: '6d 12h', needsSpecs: '2d 14h', designReview: '2d 2h', readyForDev: '19h', timeToFirstComment: '6h 25m', timeToFirstApproval: '1d 9h', timeToMerge: '3d 8h' },
+    { workId: 'CCM-28146', summary: 'feat: [CCM-28146]: Add new recommendations api for azure & gcp', prs: 1, pipelines: 3, startDate: '2025-12-02 08:32:54', endDate: '2026-02-11 12:45:21', leadTimeDays: 72, planningTotal: '4d 0h', codingTotal: '3d 14h', reviewTotal: '2d 8h', buildTotal: '1d 16h', deployTotal: '5d 2h', needsSpecs: '2d 4h', designReview: '1d 8h', readyForDev: '12h', timeToFirstComment: '4h 20m', timeToFirstApproval: '1d 2h', timeToMerge: '2d 8h', buildTime: '3h 10m', approveScans: '45m', pushImage: '22m', deployDev: '1d 2h', deployQA: '1d 6h', deployCert: '1d 4h', deployProd: '1d 14h' },
+    { workId: 'CCM-28119', summary: 'fix: [CCM-28119]: Recommendations API not returning updated data', prs: 0, pipelines: 2, startDate: '2025-12-02 08:38:02', endDate: '2026-02-11 08:15:39', leadTimeDays: 71.98, planningTotal: '2d 2h', codingTotal: '2d 13h', reviewTotal: '1d 18h', buildTotal: '1d 4h', deployTotal: '4d 8h', needsSpecs: '1d 12h', designReview: '8h', readyForDev: '6h', timeToFirstComment: '3h 15m', timeToFirstApproval: '18h', timeToMerge: '1d 4h', buildTime: '2h 45m', approveScans: '30m', pushImage: '18m', deployDev: '18h', deployQA: '1d 2h', deployCert: '22h', deployProd: '1d 10h' },
+    { workId: 'CCM-27898', summary: 'feat: [CCM-27898]: Add cost anomaly detection for K8s workloads', prs: 4, pipelines: 5, startDate: '2025-11-15 10:12:33', endDate: '2026-01-28 14:50:12', leadTimeDays: 74.19, planningTotal: '5d 12h', codingTotal: '4d 17h', reviewTotal: '3d 6h', buildTotal: '2d 2h', deployTotal: '6d 10h', needsSpecs: '3d 6h', designReview: '2d 4h', readyForDev: '1d 2h', timeToFirstComment: '6h 45m', timeToFirstApproval: '1d 8h', timeToMerge: '3d 12h', buildTime: '4h 20m', approveScans: '1h 10m', pushImage: '35m', deployDev: '1d 8h', deployQA: '1d 14h', deployCert: '1d 10h', deployProd: '2d 2h' },
+    { workId: 'CCM-27654', summary: 'chore: [CCM-27654]: Migrate cloud cost dashboards to new viz framework', prs: 8, pipelines: 12, startDate: '2025-11-08 09:45:17', endDate: '2026-01-22 11:30:45', leadTimeDays: 75.07, planningTotal: '5d 10h', codingTotal: '4d 22h', reviewTotal: '3d 8h', buildTotal: '2d 4h', deployTotal: '6d 14h', needsSpecs: '2d 18h', designReview: '1d 16h', readyForDev: '20h', timeToFirstComment: '5h 30m', timeToFirstApproval: '1d 6h', timeToMerge: '2d 22h', buildTime: '3h 50m', approveScans: '55m', pushImage: '28m', deployDev: '1d 6h', deployQA: '1d 12h', deployCert: '1d 8h', deployProd: '2d 0h' },
+    { workId: 'CCM-28201', summary: 'fix: [CCM-28201]: Budget alert thresholds not triggering notifications', prs: 1, pipelines: 2, startDate: '2025-12-10 14:22:08', endDate: '2026-02-15 09:18:33', leadTimeDays: 66.79, planningTotal: '1d 22h', codingTotal: '2d 9h', reviewTotal: '1d 14h', buildTotal: '20h', deployTotal: '3d 18h', needsSpecs: '1d 8h', designReview: '10h', readyForDev: '4h', timeToFirstComment: '2h 45m', timeToFirstApproval: '14h', timeToMerge: '1d 6h', buildTime: '2h 10m', approveScans: '25m', pushImage: '15m', deployDev: '16h', deployQA: '1d 0h', deployCert: '18h', deployProd: '1d 8h' },
+    { workId: 'CCM-27990', summary: 'feat: [CCM-27990]: Implement shared cost allocation rules engine', prs: 3, pipelines: 4, startDate: '2025-11-22 11:05:42', endDate: '2026-02-03 16:42:19', leadTimeDays: 73.23, planningTotal: '4d 18h', codingTotal: '4d 9h', reviewTotal: '2d 22h', buildTotal: '1d 20h', deployTotal: '5d 16h', needsSpecs: '2d 12h', designReview: '1d 14h', readyForDev: '16h', timeToFirstComment: '5h 15m', timeToFirstApproval: '1d 4h', timeToMerge: '2d 18h', buildTime: '3h 30m', approveScans: '50m', pushImage: '25m', deployDev: '1d 4h', deployQA: '1d 10h', deployCert: '1d 6h', deployProd: '1d 20h' },
+    { workId: 'CCM-28055', summary: 'fix: [CCM-28055]: AWS connector sync failing for gov-cloud regions', prs: 2, pipelines: 3, startDate: '2025-11-28 07:55:31', endDate: '2026-02-08 10:20:15', leadTimeDays: 72.1, planningTotal: '2d 12h', codingTotal: '3d 6h', reviewTotal: '2d 4h', buildTotal: '1d 12h', deployTotal: '5d 0h', needsSpecs: '1d 16h', designReview: '12h', readyForDev: '8h', timeToFirstComment: '4h 10m', timeToFirstApproval: '20h', timeToMerge: '2d 2h', buildTime: '2h 55m', approveScans: '40m', pushImage: '20m', deployDev: '1d 0h', deployQA: '1d 4h', deployCert: '1d 2h', deployProd: '1d 18h' },
+    { workId: 'CCM-27801', summary: 'feat: [CCM-27801]: Add perspective drill-down by namespace and label', prs: 5, pipelines: 7, startDate: '2025-11-12 13:18:44', endDate: '2026-01-25 08:55:02', leadTimeDays: 73.82, planningTotal: '5d 14h', codingTotal: '4d 20h', reviewTotal: '3d 10h', buildTotal: '2d 6h', deployTotal: '6d 16h', needsSpecs: '2d 20h', designReview: '2d', readyForDev: '18h', timeToFirstComment: '6h 20m', timeToFirstApproval: '1d 10h', timeToMerge: '3d 6h', buildTime: '4h 5m', approveScans: '1h 5m', pushImage: '32m', deployDev: '1d 10h', deployQA: '1d 16h', deployCert: '1d 12h', deployProd: '2d 4h' },
+    { workId: 'CCM-28310', summary: 'chore: [CCM-28310]: Upgrade BigQuery client library to v3.x', prs: 1, pipelines: 2, startDate: '2025-12-18 09:30:00', endDate: '2026-02-18 15:12:47', leadTimeDays: 62.24, planningTotal: '1d 17h', codingTotal: '2d 3h', reviewTotal: '1d 10h', buildTotal: '18h', deployTotal: '3d 12h', needsSpecs: '1d 4h', designReview: '8h', readyForDev: '5h', timeToFirstComment: '3h', timeToFirstApproval: '16h', timeToMerge: '1d 8h', buildTime: '1h 50m', approveScans: '20m', pushImage: '12m', deployDev: '14h', deployQA: '20h', deployCert: '16h', deployProd: '1d 6h' },
+    { workId: 'CCM-27745', summary: 'feat: [CCM-27745]: Multi-cloud cost comparison report builder', prs: 6, pipelines: 9, startDate: '2025-11-05 16:42:11', endDate: '2026-01-20 12:08:33', leadTimeDays: 75.81, planningTotal: '5d 20h', codingTotal: '5d 2h', reviewTotal: '3d 14h', buildTotal: '2d 8h', deployTotal: '7d 0h', needsSpecs: '3d 2h', designReview: '2d 8h', readyForDev: '1d 4h', timeToFirstComment: '6h 50m', timeToFirstApproval: '1d 12h', timeToMerge: '3d 18h', buildTime: '4h 30m', approveScans: '1h 15m', pushImage: '38m', deployDev: '1d 12h', deployQA: '1d 18h', deployCert: '1d 14h', deployProd: '2d 6h' },
+    { workId: 'CCM-28088', summary: 'fix: [CCM-28088]: Idle cost calculation incorrect for spot instances', prs: 2, pipelines: 3, startDate: '2025-11-30 10:15:22', endDate: '2026-02-09 14:38:50', leadTimeDays: 71.18, planningTotal: '2d 18h', codingTotal: '3d 10h', reviewTotal: '2d 6h', buildTotal: '1d 14h', deployTotal: '5d 4h', needsSpecs: '1d 18h', designReview: '14h', readyForDev: '10h', timeToFirstComment: '4h 30m', timeToFirstApproval: '22h', timeToMerge: '2d 6h', buildTime: '3h 0m', approveScans: '42m', pushImage: '21m', deployDev: '1d 2h', deployQA: '1d 6h', deployCert: '1d 4h', deployProd: '1d 16h' },
+    { workId: 'CCM-27922', summary: 'feat: [CCM-27922]: Add tag-based cost allocation for ECS services', prs: 3, pipelines: 4, startDate: '2025-11-18 08:20:15', endDate: '2026-01-30 11:45:30', leadTimeDays: 73.14, planningTotal: '4d 12h', codingTotal: '4d 3h', reviewTotal: '2d 20h', buildTotal: '1d 18h', deployTotal: '5d 14h', needsSpecs: '2d 10h', designReview: '1d 12h', readyForDev: '14h', timeToFirstComment: '5h 5m', timeToFirstApproval: '1d 2h', timeToMerge: '2d 16h', buildTime: '3h 25m', approveScans: '48m', pushImage: '24m', deployDev: '1d 4h', deployQA: '1d 10h', deployCert: '1d 6h', deployProd: '1d 22h' },
+    { workId: 'CCM-28175', summary: 'fix: [CCM-28175]: Currency conversion rates not updating daily', prs: 1, pipelines: 2, startDate: '2025-12-05 15:48:33', endDate: '2026-02-13 09:22:17', leadTimeDays: 69.73, planningTotal: '2d 2h', codingTotal: '2d 21h', reviewTotal: '1d 20h', buildTotal: '1d 2h', deployTotal: '4d 12h', needsSpecs: '1d 10h', designReview: '10h', readyForDev: '6h', timeToFirstComment: '3h 30m', timeToFirstApproval: '17h', timeToMerge: '1d 10h', buildTime: '2h 20m', approveScans: '32m', pushImage: '16m', deployDev: '18h', deployQA: '1d 2h', deployCert: '20h', deployProd: '1d 12h' },
+    { workId: 'CCM-27855', summary: 'feat: [CCM-27855]: Implement FinOps scorecard with maturity metrics', prs: 7, pipelines: 10, startDate: '2025-11-14 11:30:05', endDate: '2026-01-27 16:15:42', leadTimeDays: 74.2, planningTotal: '5d 18h', codingTotal: '4d 23h', reviewTotal: '3d 12h', buildTotal: '2d 7h', deployTotal: '6d 18h', needsSpecs: '2d 22h', designReview: '2d 6h', readyForDev: '22h', timeToFirstComment: '6h 40m', timeToFirstApproval: '1d 11h', timeToMerge: '3d 10h', buildTime: '4h 15m', approveScans: '1h 8m', pushImage: '34m', deployDev: '1d 10h', deployQA: '1d 16h', deployCert: '1d 12h', deployProd: '2d 4h' },
+    { workId: 'CCM-28260', summary: 'chore: [CCM-28260]: Optimize cost data ingestion pipeline throughput', prs: 2, pipelines: 3, startDate: '2025-12-14 07:10:48', endDate: '2026-02-16 13:55:20', leadTimeDays: 64.28, planningTotal: '2d 8h', codingTotal: '2d 17h', reviewTotal: '1d 16h', buildTotal: '22h', deployTotal: '3d 22h', needsSpecs: '1d 14h', designReview: '11h', readyForDev: '7h', timeToFirstComment: '3h 50m', timeToFirstApproval: '19h', timeToMerge: '2d 4h', buildTime: '2h 5m', approveScans: '28m', pushImage: '14m', deployDev: '16h', deployQA: '22h', deployCert: '18h', deployProd: '1d 10h' },
+    { workId: 'CCM-27968', summary: 'feat: [CCM-27968]: Add Databricks cost tracking integration', prs: 4, pipelines: 6, startDate: '2025-11-20 14:55:30', endDate: '2026-02-01 10:30:18', leadTimeDays: 72.82, planningTotal: '5d 3h', codingTotal: '4d 15h', reviewTotal: '3d 2h', buildTotal: '1d 22h', deployTotal: '6d 6h', needsSpecs: '2d 16h', designReview: '1d 18h', readyForDev: '17h', timeToFirstComment: '5h 40m', timeToFirstApproval: '1d 7h', timeToMerge: '2d 20h', buildTime: '3h 40m', approveScans: '52m', pushImage: '26m', deployDev: '1d 6h', deployQA: '1d 12h', deployCert: '1d 8h', deployProd: '2d 0h' },
+    { workId: 'CCM-28222', summary: 'fix: [CCM-28222]: Autostopping rules not applying to new instances', prs: 1, pipelines: 2, startDate: '2025-12-12 09:42:15', endDate: '2026-02-14 08:10:55', leadTimeDays: 63.94, planningTotal: '1d 20h', codingTotal: '2d 6h', reviewTotal: '1d 12h', buildTotal: '19h', deployTotal: '3d 15h', needsSpecs: '1d 6h', designReview: '9h', readyForDev: '5h', timeToFirstComment: '2h 55m', timeToFirstApproval: '15h', timeToMerge: '1d 7h', buildTime: '1h 55m', approveScans: '22m', pushImage: '13m', deployDev: '15h', deployQA: '20h', deployCert: '16h', deployProd: '1d 8h' },
+    { workId: 'CCM-27700', summary: 'feat: [CCM-27700]: Real-time cost anomaly Slack/Teams notifications', prs: 3, pipelines: 4, startDate: '2025-11-02 12:25:40', endDate: '2026-01-18 15:48:22', leadTimeDays: 77.14, planningTotal: '6d 20h', codingTotal: '5d 16h', reviewTotal: '3d 22h', buildTotal: '2d 12h', deployTotal: '7d 10h', needsSpecs: '3d 4h', designReview: '2d 10h', readyForDev: '1d 6h', timeToFirstComment: '7h 10m', timeToFirstApproval: '1d 14h', timeToMerge: '3d 22h', buildTime: '4h 40m', approveScans: '1h 18m', pushImage: '40m', deployDev: '1d 14h', deployQA: '1d 20h', deployCert: '1d 16h', deployProd: '2d 8h' },
+    { workId: 'CCM-28130', summary: 'fix: [CCM-28130]: GCP billing export missing committed use discounts', prs: 2, pipelines: 3, startDate: '2025-12-03 16:05:18', endDate: '2026-02-12 11:30:45', leadTimeDays: 70.81, planningTotal: '2d 18h', codingTotal: '3d 13h', reviewTotal: '2d 8h', buildTotal: '1d 16h', deployTotal: '5d 6h', needsSpecs: '1d 20h', designReview: '13h', readyForDev: '9h', timeToFirstComment: '4h 40m', timeToFirstApproval: '21h', timeToMerge: '2d 8h', buildTime: '3h 5m', approveScans: '44m', pushImage: '22m', deployDev: '1d 2h', deployQA: '1d 8h', deployCert: '1d 4h', deployProd: '1d 16h' },
+    { workId: 'CCM-27830', summary: 'feat: [CCM-27830]: Budget forecast accuracy improvement with ML model', prs: 5, pipelines: 8, startDate: '2025-11-13 10:48:22', endDate: '2026-01-26 14:22:08', leadTimeDays: 74.15, planningTotal: '5d 11h', codingTotal: '4d 18h', reviewTotal: '3d 7h', buildTotal: '2d 5h', deployTotal: '6d 12h', needsSpecs: '2d 14h', designReview: '2d 2h', readyForDev: '19h', timeToFirstComment: '6h 25m', timeToFirstApproval: '1d 9h', timeToMerge: '3d 8h', buildTime: '4h 10m', approveScans: '1h 2m', pushImage: '30m', deployDev: '1d 8h', deployQA: '1d 14h', deployCert: '1d 10h', deployProd: '2d 2h' },
   ], [])
 
   const stageDrilldownData = useMemo(
@@ -554,6 +591,45 @@ export function EfficiencyDoraPage() {
       else next.add(workId)
       return next
     })
+  }
+
+  const toggleBuildRow = (workId: string) => {
+    setExpandedBuildRows(prev => {
+      const next = new Set(prev)
+      if (next.has(workId)) next.delete(workId)
+      else next.add(workId)
+      return next
+    })
+  }
+
+  const PIPELINE_NAMES = ['PROD/Harness_Split_Golden', 'PROD/Harness_Deploy_Main', 'PROD/Harness_Build_CI', 'PROD/Harness_Release_CD', 'QA/Harness_Verify', 'STAGE/Harness_Integration']
+  const PIPELINE_STATUSES: ('Completed' | 'Failed' | 'Running')[] = ['Completed', 'Completed', 'Completed', 'Completed', 'Completed', 'Failed', 'Completed', 'Completed', 'Running', 'Completed']
+  const ENVIRONMENTS = ['dev', 'qa', 'cert', 'prod', 'staging']
+
+  function generateBuildDetails(workId: string, pipelineCount: number) {
+    const details = []
+    for (let p = 0; p < pipelineCount; p++) {
+      const execId = Math.abs(jitter(`${workId}-exec-${p}`, 20000, 15000))
+      const pipeIdx = Math.abs(jitter(`${workId}-pipe-${p}`, 0, 100)) % PIPELINE_NAMES.length
+      const statusIdx = Math.abs(jitter(`${workId}-stat-${p}`, 0, 100)) % PIPELINE_STATUSES.length
+      const envIdx = Math.abs(jitter(`${workId}-env-${p}`, 0, 100)) % ENVIRONMENTS.length
+      const startDay = Math.min(28, Math.max(1, Math.abs(jitter(`${workId}-bsd-${p}`, 15, 12))))
+      const startHour = Math.abs(jitter(`${workId}-bsh-${p}`, 14, 8))
+      const startMin = Math.abs(jitter(`${workId}-bsm-${p}`, 30, 28))
+      const durationMins = Math.abs(jitter(`${workId}-bdur-${p}`, 45, 40))
+      const endMin = startMin + durationMins
+      const endHour = startHour + Math.floor(endMin / 60)
+      details.push({
+        executionId: `exec-${execId}`,
+        pipelineName: PIPELINE_NAMES[pipeIdx],
+        status: PIPELINE_STATUSES[statusIdx],
+        environment: ENVIRONMENTS[envIdx],
+        startTime: `2025-12-${String(startDay).padStart(2, '0')} ${String(startHour).padStart(2, '0')}:${String(startMin % 60).padStart(2, '0')}`,
+        endTime: `2025-12-${String(startDay).padStart(2, '0')} ${String(endHour % 24).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}`,
+        duration: `${durationMins}m`,
+      })
+    }
+    return details
   }
 
   const PR_AUTHORS = ['Arvind S.', 'Abdul A.', 'David W.', 'Conor M.', 'Matthew S.', 'Harsh S.', 'Alex C.', 'Sarah K.']
@@ -629,19 +705,24 @@ export function EfficiencyDoraPage() {
     if (!showDrilldown) {
       // If drilldown not open, open it first with default view
       setShowDrilldown(true)
+      setExpandedStages(new Set())
+      setExpandedSubStages(new Set())
     } else {
-      // If drilldown already open, toggle the stage expansion
+      // Only one stage can be expanded at a time
       setExpandedStages(prev => {
-        const next = new Set(prev)
-        if (next.has(index)) {
-          next.delete(index)
+        if (prev.has(index)) {
+          // Clicking the same stage collapses it
+          return new Set()
         } else {
-          next.add(index)
+          // Clicking a different stage replaces the previous selection
+          return new Set([index])
         }
-        return next
       })
+      // Clear sub-stage selections when changing stages
+      setExpandedSubStages(new Set())
     }
     setExpandedPrRows(new Set())
+    setExpandedBuildRows(new Set())
     setExpandedCommitRows(new Set())
     setStagedrillPage(1)
   }
@@ -652,6 +733,7 @@ export function EfficiencyDoraPage() {
     setExpandedStages(new Set())
     setSelectedStage(null)
     setExpandedPrRows(new Set())
+    setExpandedBuildRows(new Set())
     setExpandedCommitRows(new Set())
     setStagedrillPage(1)
   }
@@ -747,6 +829,27 @@ export function EfficiencyDoraPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Select
+                value={issueTypeFilter}
+                options={[
+                  { label: 'All Issues', value: 'all' },
+                  { label: 'Features', value: 'features' },
+                  { label: 'Bugs', value: 'bugs' },
+                  { label: 'Technical Debt', value: 'tech-debt' },
+                ]}
+                onChange={(val) => setIssueTypeFilter(val)}
+              />
+              <Select
+                value={leadTimeComputation}
+                options={[
+                  { label: 'Mean', value: 'mean' },
+                  { label: 'Median', value: 'median' },
+                  { label: 'P50', value: 'p50' },
+                  { label: 'P90', value: 'p90' },
+                  { label: 'P95', value: 'p95' },
+                ]}
+                onChange={(val) => setLeadTimeComputation(val)}
+              />
               <Button variant="outline" size="sm" onClick={() => setShowLeadTimeBreakdown(v => !v)}>Breakdown</Button>
               <ExportMenu />
             </div>
@@ -841,90 +944,119 @@ export function EfficiencyDoraPage() {
             </div>
           </div>
 
-          {/* Development stages visualization */}
-          <div className="mx-5 mb-5 mt-3 rounded-lg bg-cn-2 p-5">
-            <Text variant="body-strong" color="foreground-1">Lead time by stages</Text>
-            <Tabs.Root defaultValue="marcus" className="mb-6 mt-2">
-              <Tabs.List variant="underlined">
-                <Tabs.Trigger value="marcus">Marcus Thompson</Tabs.Trigger>
-                <Tabs.Trigger value="direct-reports">Direct Reports of Marcus Thompson</Tabs.Trigger>
-                <Tabs.Trigger value="samantha">Samantha Wright</Tabs.Trigger>
-              </Tabs.List>
-            </Tabs.Root>
-            {(() => {
-              const stages = stageData.filter(s => s.stageName)
-              const tipSize = 16
-              const clipFirst = `polygon(0 0, calc(100% - ${tipSize}px) 0, 100% 50%, calc(100% - ${tipSize}px) 100%, 0 100%)`
-              const clipMiddle = `polygon(0 0, calc(100% - ${tipSize}px) 0, 100% 50%, calc(100% - ${tipSize}px) 100%, 0 100%, ${tipSize}px 50%)`
-              const stageTiers = ['Medium', 'Elite', 'High', 'High', 'Medium']
-              return (
-                <div className="flex items-stretch gap-1">
-                  {stages.map((stage, i) => {
-                    const isFirst = i === 0
-                    const phase = stageData[i]
-                    // Left edge of the arrow content area
-                    const edgeOffset = isFirst ? 7 : tipSize
-                    const stageTier = stageTiers[i] ?? 'Medium'
-                    const stageTierTheme = TIER_THEMES[stageTier] ?? TIER_THEMES.Medium
-                    return (
-                      <div key={`${stage.stageName}-${i}`} className="relative flex flex-1 flex-col">
-                        {/* Vertical line from icon to bottom of arrow */}
-                        <div className="absolute top-0 bottom-0 border-l border-cn-2" style={{ left: 1 }} />
-                        {/* Phase icon + label */}
-                        <div className="relative z-10" style={{ marginLeft: edgeOffset }}>
-                          <div className="flex items-center gap-1.5">
-                            <PhaseIcon type={phase.iconType} />
-                            <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap" style={{ fontSize: 11 }}>
-                              {phase.label}
-                            </Text>
-                          </div>
-                        </div>
-                        {/* Spacer */}
-                        <div className="h-3" />
-                        {/* Chevron arrow */}
-                        <div
-                          className="relative z-10 cursor-pointer"
-                          style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))', marginLeft: 7 }}
-                          onClick={() => handleStageClick(i)}
-                        >
+          {/* Timeline-based stages visualization */}
+          <div className="mx-5 mb-5 mt-3">
+            <div className="flex items-center justify-between mb-4">
+              <Text variant="body-strong" color="foreground-1">Lead Time by Stages</Text>
+            </div>
+
+            {/* Stage boxes */}
+            <div className="relative">
+              <div className="flex items-start gap-3">
+                {[
+                  { idx: 0, name: 'Planning', time: '4d 23h', color: STAGE_COLORS.planning, bgActive: '#EFF6FF' },
+                  { idx: 1, name: 'Coding', time: '22d 20h', color: STAGE_COLORS.coding, bgActive: '#F3E8FF' },
+                  { idx: 2, name: 'Review', time: '2d', color: STAGE_COLORS.review, bgActive: '#FDF2F8' },
+                  { idx: 3, name: 'Build', time: '6d 3h', color: STAGE_COLORS.build, bgActive: '#F0FDF4' },
+                  { idx: 4, name: 'Deploy', time: '12h', color: STAGE_COLORS.deploy, bgActive: '#EFF6FF' },
+                ].map(stage => (
+                  <div
+                    key={stage.idx}
+                    className={`flex-1 cursor-pointer rounded-lg border-2 px-4 py-3 hover:shadow-md transition-all ${expandedStages.has(stage.idx) ? '' : 'bg-white'}`}
+                    style={{
+                      borderColor: expandedStages.has(stage.idx) ? stage.color : '#E5E7EB',
+                      backgroundColor: expandedStages.has(stage.idx) ? stage.bgActive : undefined
+                    }}
+                    onClick={() => handleStageClick(stage.idx)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: stage.color }} />
+                      <Text variant="caption-strong" color="foreground-1">{stage.name}</Text>
+                    </div>
+                    <Text variant="caption-normal" color="foreground-3" className="text-xs mt-1">{stage.time}</Text>
+                  </div>
+                ))}
+              </div>
+
+              {/* Available sub-stages (sub-stages) */}
+              {Array.from(expandedStages).map((stageIdx) => {
+                const subStages = stageIdx === 0 ? [{ label: 'To Do', time: '3d' }, { label: 'Needs Spec', time: '2d' }, { label: 'Ready for Dev', time: '1d' }] :
+                                stageIdx === 1 ? [{ label: 'PR Creation', time: '1d' }, { label: 'First Review', time: '2h' }, { label: 'First Approval', time: '12h' }, { label: 'Last Approval', time: '6h' }, { label: 'PR Merge', time: '4h' }] :
+                                stageIdx === 2 ? [{ label: 'Code Review', time: '1d' }, { label: 'Approval', time: '1d' }] :
+                                stageIdx === 3 ? [{ label: 'Build', time: '3h' }, { label: 'Approve Failed Scans', time: '1h' }, { label: 'Push Image', time: '30m' }] :
+                                stageIdx === 4 ? [{ label: 'Deploy Dev', time: '2h' }, { label: 'Deploy QA', time: '3h' }, { label: 'Deploy Cert', time: '2h' }, { label: 'Deploy Prod', time: '4h' }] :
+                                []
+
+                return (
+                  <div key={stageIdx} className="mt-4 px-4 py-3 bg-cn-05 rounded-lg">
+                    <Text variant="caption-strong" color="foreground-2" className="mb-2 block">Available sub-stages</Text>
+                    {subStages.length === 0 ? (
+                      <div className="py-3 text-center">
+                        <Text variant="caption-normal" color="foreground-3" className="italic">
+                          No sub-stages available for {stageData[stageIdx]?.stageName || 'this stage'}
+                        </Text>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {subStages.map((subStage, si) => {
+                        const subStageKey = `${stageIdx}-${si}`
+                        const isSelected = expandedSubStages.has(subStageKey)
+                        const isBuildOrDeploy = stageIdx === 3 || stageIdx === 4
+                        const wr = isBuildOrDeploy ? splitWaitRun(`pill-${subStage.label}`, subStage.time) : null
+                        return (
                           <div
-                            className="flex flex-col justify-center gap-0.5 py-3 transition-colors"
-                            style={{
-                              backgroundColor: selectedStage === i ? '#EFF6FF' : '#fff',
-                              clipPath: isFirst ? clipFirst : clipMiddle,
-                              paddingLeft: isFirst ? 16 : tipSize + 12,
-                              paddingRight: tipSize + 8,
+                            key={subStageKey}
+                            className={`px-3 py-1.5 rounded-lg border cursor-pointer transition-all ${
+                              isSelected
+                                ? 'border-primary bg-primary text-white'
+                                : 'border-borders-2 bg-white hover:border-borders-3'
+                            }`}
+                            onClick={() => {
+                              setExpandedSubStages(prev => {
+                                // Single-select: clicking the same deselects, clicking a different one replaces
+                                if (prev.has(subStageKey)) {
+                                  return new Set()
+                                }
+                                return new Set([subStageKey])
+                              })
                             }}
                           >
-                            <div className="flex items-center gap-2">
-                              <span className="inline-block shrink-0 rounded-sm" style={{ width: 8, height: 8, backgroundColor: stage.stageColor }} />
-                              <Text variant="caption-normal" color="foreground-3">{stage.stageName}</Text>
-                            </div>
-                            <Text variant="body-normal" color="foreground-1" className="pl-4 font-semibold">{stage.time}</Text>
-                            <span
-                              className="ml-4 mt-0.5 inline-flex w-fit items-center rounded-full px-2 py-0.5 text-xs font-medium"
-                              style={{ backgroundColor: stageTierTheme.bg, color: stageTierTheme.text }}
-                            >
-                              {stageTier}
-                            </span>
+                            <Text variant="caption-normal" color={isSelected ? 'white' : 'foreground-2'} className="text-xs font-medium">
+                              {subStage.label} <span className="opacity-70">{subStage.time}</span>
+                            </Text>
+                            {isBuildOrDeploy && wr && (
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <div className="flex h-1.5 w-16 overflow-hidden rounded-full" style={{ backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : '#F2F4F7' }}>
+                                  <div style={{ width: `${wr.waitPct}%`, backgroundColor: isSelected ? 'rgba(255,255,255,0.6)' : '#F59E0B', borderRadius: 9999 }} />
+                                  <div style={{ width: `${100 - wr.waitPct}%`, backgroundColor: isSelected ? 'rgba(255,255,255,0.9)' : '#10B981', borderRadius: 9999 }} />
+                                </div>
+                                <span className={`text-[10px] ${isSelected ? 'text-white/70' : 'text-foreground-4'}`}>
+                                  wait {wr.wait} · run {wr.run}
+                                </span>
+                              </div>
+                            )}
                           </div>
+                        )
+                      })}
+                      </div>
+                    )}
+                    {(stageIdx === 3 || stageIdx === 4) && (
+                      <div className="flex items-center gap-4 mt-2 pt-2 border-t border-borders-1">
+                        <Text variant="caption-normal" color="foreground-4" className="text-[11px]">Pipeline step timing:</Text>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#F59E0B' }} />
+                          <Text variant="caption-normal" color="foreground-4" className="text-[11px]">Wait (time to reach step)</Text>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#10B981' }} />
+                          <Text variant="caption-normal" color="foreground-4" className="text-[11px]">Run (step execution time)</Text>
                         </div>
                       </div>
-                    )
-                  })}
-                  {/* Done phase — no arrow, just the icon/label with line */}
-                  <div className="relative flex flex-col">
-                    <div className="absolute top-0 bottom-0 border-l border-cn-2" style={{ left: 1 }} />
-                    <div className="relative z-10 flex items-center gap-1.5" style={{ marginLeft: 16 }}>
-                      <PhaseIcon type="flag" />
-                      <Text variant="caption-normal" color="foreground-3" className="whitespace-nowrap" style={{ fontSize: 11 }}>
-                        Done
-                      </Text>
-                    </div>
+                    )}
                   </div>
-                </div>
-              )
-            })()}
+                )
+              })}
+            </div>
           </div>
 
           {/* Stage drilldown table */}
@@ -932,18 +1064,110 @@ export function EfficiencyDoraPage() {
             const maxLeadTime = Math.max(...stageDrilldownData.map(r => r.leadTimeDays))
             return (
             <div className="px-5 pb-5 pt-2">
-              <div className="flex items-center pb-2">
-                <div className="flex items-center gap-1.5">
-                  <Text variant="body-strong" color="foreground-1">
-                    Ticket Breakdown
-                  </Text>
-                  {expandedStages.size > 0 && (
-                    <Text variant="caption-normal" color="foreground-3">
-                      ({Array.from(expandedStages).map(i => stageData[i]?.stageName).join(', ')} expanded)
-                    </Text>
-                  )}
+              {(() => {
+                // Build list of available columns for the column selector
+                const availableColumns: { id: string; label: string; required?: boolean }[] = []
+                if (expandedStages.has(1)) availableColumns.push({ id: 'pr-id', label: 'PR ID' })
+                if (expandedStages.has(3) || expandedStages.has(4)) {
+                  availableColumns.push({ id: 'execution-id', label: 'Execution ID' })
+                  availableColumns.push({ id: 'pipeline-name', label: 'Pipeline Name' })
+                }
+                availableColumns.push({ id: 'work-item-id', label: 'Work Item ID', required: true })
+                if (expandedStages.size === 0) {
+                  availableColumns.push({ id: 'summary', label: 'Work Item Summary' })
+                  availableColumns.push({ id: 'pr-count', label: 'PR' })
+                  availableColumns.push({ id: 'build-count', label: 'Build' })
+                  availableColumns.push({ id: 'start-time', label: 'Start Time' })
+                  availableColumns.push({ id: 'end-time', label: 'End Time' })
+                }
+                if (expandedStages.has(1)) availableColumns.push({ id: 'pr-summary', label: 'PR Summary' })
+                availableColumns.push({ id: 'total-lead-time', label: 'Total Lead Time', required: true })
+                if (expandedStages.has(0)) availableColumns.push({ id: 'stage-planning', label: 'Planning' })
+                if (expandedStages.has(1)) availableColumns.push({ id: 'stage-development', label: 'Development' })
+                if (expandedStages.has(2)) availableColumns.push({ id: 'stage-review', label: 'Review' })
+                if (expandedStages.has(3)) availableColumns.push({ id: 'stage-build', label: 'Build' })
+                if (expandedStages.has(4)) availableColumns.push({ id: 'stage-deploy', label: 'Deploy' })
+                // Sub-stage columns
+                const subStageLabelsMap = [
+                  ['To Do', 'Needs Spec', 'Ready for Dev'],
+                  ['PR Creation', 'First Review', 'First Approval', 'Last Approval', 'PR Merge'],
+                  ['Code Review', 'Approval'],
+                  ['Build', 'Approve Failed Scans', 'Push Image'],
+                  ['Deploy Dev', 'Deploy QA', 'Deploy Cert', 'Deploy Prod']
+                ]
+                Array.from(expandedSubStages).forEach((subStageKey) => {
+                  const [sIdx, sSubIdx] = subStageKey.split('-').map(Number)
+                  const label = subStageLabelsMap[sIdx]?.[sSubIdx] || ''
+                  const isBD = sIdx === 3 || sIdx === 4
+                  availableColumns.push({ id: `sub-${subStageKey}-total`, label: isBD ? `${label}` : label })
+                  if (isBD) {
+                    availableColumns.push({ id: `sub-${subStageKey}-wait`, label: `${label} (Wait)` })
+                    availableColumns.push({ id: `sub-${subStageKey}-run`, label: `${label} (Run)` })
+                  }
+                })
+                const isColVisible = (id: string) => !hiddenColumns.has(id)
+                const toggleCol = (id: string) => {
+                  setHiddenColumns(prev => {
+                    const next = new Set(prev)
+                    if (next.has(id)) next.delete(id)
+                    else next.add(id)
+                    return next
+                  })
+                }
+                const visibleCount = availableColumns.filter(c => isColVisible(c.id)).length
+                return (<>
+              <div className="flex items-center gap-3 pb-2">
+                {/* Search */}
+                <div className="relative">
+                  <IconV2 name="search" size="xs" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground-4" />
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    className="h-8 w-56 rounded-md border border-borders-2 bg-white pl-8 pr-3 text-xs text-foreground-1 placeholder:text-foreground-4 focus:border-primary focus:outline-none"
+                  />
                 </div>
-                <div className="ml-auto">
+
+                <div className="ml-auto flex items-center gap-2">
+                  {expandedSubStages.size > 0 && (
+                    <Button variant="ghost" size="sm" onClick={() => setExpandedSubStages(new Set())}>
+                      Clear Sub-stage
+                    </Button>
+                  )}
+                  {/* Column selector */}
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <button className="flex items-center gap-1 rounded-md border border-borders-2 bg-white px-3 h-8 text-xs text-foreground-1 hover:bg-cn-2 transition-colors">
+                        Columns <span className="text-foreground-3">{visibleCount}/{availableColumns.length}</span>
+                        <IconV2 name="nav-arrow-down" size="xs" className="text-foreground-4 ml-0.5" />
+                      </button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content align="end" className="max-h-64 overflow-y-auto">
+                      {availableColumns.map(col => (
+                        <DropdownMenu.Item
+                          key={col.id}
+                          title={col.label}
+                          disabled={col.required}
+                          onSelect={(e) => { e.preventDefault(); if (!col.required) toggleCol(col.id) }}
+                        >
+                          <div className="flex items-center gap-2 w-full">
+                            <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center ${
+                              isColVisible(col.id)
+                                ? 'bg-primary border-primary'
+                                : 'border-borders-3 bg-white'
+                            }`}>
+                              {isColVisible(col.id) && (
+                                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                  <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </div>
+                            <span className="text-xs text-foreground-1">{col.label}</span>
+                            {col.required && <span className="text-[10px] text-foreground-4 ml-auto">Required</span>}
+                          </div>
+                        </DropdownMenu.Item>
+                      ))}
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
                   <Button variant="ghost" size="sm" iconOnly ignoreIconOnlyTooltip onClick={() => setShowDrilldown(false)}>
                     <IconV2 name="xmark" size="sm" />
                   </Button>
@@ -953,27 +1177,52 @@ export function EfficiencyDoraPage() {
                 <Table.Root variant="default" size="normal">
                   <Table.Header>
                     <Table.Row>
-                      <Table.Head>Work-ID</Table.Head>
-                      <Table.Head>Ticket Summary</Table.Head>
-                      <Table.Head>Pull Requests</Table.Head>
-                      <Table.Head>Pipelines</Table.Head>
-                      {expandedStages.has(0) && (
+                      {expandedStages.has(1) && isColVisible('pr-id') && <Table.Head>PR ID</Table.Head>}
+                      {(expandedStages.has(3) || expandedStages.has(4)) && isColVisible('execution-id') && <Table.Head>Execution ID</Table.Head>}
+                      {(expandedStages.has(3) || expandedStages.has(4)) && isColVisible('pipeline-name') && <Table.Head>Pipeline Name</Table.Head>}
+
+                      {isColVisible('work-item-id') && <Table.Head>Work Item ID</Table.Head>}
+                      {expandedStages.size === 0 && isColVisible('summary') && <Table.Head>Work Item Summary</Table.Head>}
+                      {expandedStages.has(1) && isColVisible('pr-summary') && <Table.Head>PR Summary</Table.Head>}
+
+                      {expandedStages.size === 0 && (
                         <>
-                          <Table.Head>Needs Specs</Table.Head>
-                          <Table.Head>Design Review</Table.Head>
-                          <Table.Head>Ready for Dev</Table.Head>
+                          {isColVisible('pr-count') && <Table.Head>PR</Table.Head>}
+                          {isColVisible('build-count') && <Table.Head>Build</Table.Head>}
+                          {isColVisible('start-time') && <Table.Head>Start Time</Table.Head>}
+                          {isColVisible('end-time') && <Table.Head>End Time</Table.Head>}
                         </>
                       )}
-                      {expandedStages.has(1) && (
-                        <>
-                          <Table.Head>First Comment</Table.Head>
-                          <Table.Head>First Approval</Table.Head>
-                          <Table.Head>Time to Merge</Table.Head>
-                        </>
-                      )}
-                      <Table.Head>Start Date</Table.Head>
-                      <Table.Head>End Date</Table.Head>
-                      <Table.Head>Total Lead Time</Table.Head>
+
+                      {isColVisible('total-lead-time') && <Table.Head>Total Lead Time</Table.Head>}
+
+                      {expandedStages.has(0) && isColVisible('stage-planning') && <Table.Head className="bg-cn-2">Planning</Table.Head>}
+                      {expandedStages.has(1) && isColVisible('stage-development') && <Table.Head className="bg-cn-2">Development</Table.Head>}
+                      {expandedStages.has(2) && isColVisible('stage-review') && <Table.Head className="bg-cn-2">Review</Table.Head>}
+                      {expandedStages.has(3) && isColVisible('stage-build') && <Table.Head className="bg-cn-2">Build</Table.Head>}
+                      {expandedStages.has(4) && isColVisible('stage-deploy') && <Table.Head className="bg-cn-2">Deploy</Table.Head>}
+
+                      {/* Sub-stage columns */}
+                      {Array.from(expandedSubStages).map((subStageKey) => {
+                        const [stageIdx, subIdx] = subStageKey.split('-').map(Number)
+                        const subStageLabelsArr = [
+                          ['To Do', 'Needs Spec', 'Ready for Dev'],
+                          ['PR Creation', 'First Review', 'First Approval', 'Last Approval', 'PR Merge'],
+                          ['Code Review', 'Approval'],
+                          ['Build', 'Approve Failed Scans', 'Push Image'],
+                          ['Deploy Dev', 'Deploy QA', 'Deploy Cert', 'Deploy Prod']
+                        ]
+                        const label = subStageLabelsArr[stageIdx]?.[subIdx] || ''
+                        const isBuildOrDeploy = stageIdx === 3 || stageIdx === 4
+                        if (isBuildOrDeploy) {
+                          return (<>
+                            {isColVisible(`sub-${subStageKey}-total`) && <Table.Head key={`${subStageKey}-total`} className="bg-cn-2">{label}</Table.Head>}
+                            {isColVisible(`sub-${subStageKey}-wait`) && <Table.Head key={`${subStageKey}-wait`} className="bg-amber-50">{label} (Wait)</Table.Head>}
+                            {isColVisible(`sub-${subStageKey}-run`) && <Table.Head key={`${subStageKey}-run`} className="bg-emerald-50">{label} (Run)</Table.Head>}
+                          </>)
+                        }
+                        return isColVisible(`sub-${subStageKey}-total`) ? <Table.Head key={subStageKey} className="bg-cn-2">{label}</Table.Head> : null
+                      })}
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
@@ -982,89 +1231,197 @@ export function EfficiencyDoraPage() {
                       const leadDays = Math.floor(row.leadTimeDays)
                       const leadHours = Math.round((row.leadTimeDays - leadDays) * 24)
                       const leadLabel = leadHours > 0 ? `${leadDays}d ${leadHours}h` : `${leadDays}d`
-                      let colSpan = 7 // Base columns: Work-ID, Summary, PRs, Pipelines, Start, End, Total
-                      if (expandedStages.has(0)) colSpan += 3
-                      if (expandedStages.has(1)) colSpan += 3
+                      // Calculate colspan = count of visible columns
+                      const colSpan = availableColumns.filter(c => isColVisible(c.id)).length
+
                       return (<>
                       <Table.Row key={row.workId}>
-                        <Table.Cell>
-                          <span className="cursor-pointer text-xs" style={{ color: 'var(--cn-brand, #006DEA)', fontFamily: "'Inter', sans-serif" }}>{row.workId}</span>
-                        </Table.Cell>
-                        <Table.Cell className="max-w-[320px]">
-                          <Text variant="body-normal" color="foreground-1" className="truncate">{row.summary}</Text>
-                        </Table.Cell>
-                        <Table.Cell>
-                          {row.prs > 0 ? (
-                            <span
-                              className="cursor-pointer text-sm"
-                              style={{ color: 'var(--cn-brand, #006DEA)' }}
-                              onClick={() => togglePrRow(row.workId)}
-                            >
-                              {row.prs} PRs {expandedPrRows.has(row.workId) ? '▾' : '▸'}
+                        {expandedStages.has(1) && isColVisible('pr-id') && (
+                          <Table.Cell>
+                            <span className="cursor-pointer text-xs" style={{ color: 'var(--cn-brand, #006DEA)', fontFamily: "'Inter', sans-serif" }}>
+                              PR-{Math.abs(jitter(`${row.workId}-prid`, 500, 450))}
                             </span>
-                          ) : (
-                            <Text variant="body-normal" color="foreground-3">0 PRs</Text>
-                          )}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <Text variant="body-normal" color="foreground-1">{row.pipelines}</Text>
-                        </Table.Cell>
-                        {expandedStages.has(0) && (
+                          </Table.Cell>
+                        )}
+                        {(expandedStages.has(3) || expandedStages.has(4)) && isColVisible('execution-id') && (
+                          <Table.Cell>
+                            <span className="cursor-pointer text-xs" style={{ color: 'var(--cn-brand, #006DEA)', fontFamily: "'Inter', sans-serif" }}>
+                              exec-{Math.abs(jitter(`${row.workId}-exec`, 5000, 4500))}
+                            </span>
+                          </Table.Cell>
+                        )}
+                        {(expandedStages.has(3) || expandedStages.has(4)) && isColVisible('pipeline-name') && (
+                          <Table.Cell>
+                            <Text variant="body-normal" color="foreground-1" className="truncate">PROD/Harness_Split...</Text>
+                          </Table.Cell>
+                        )}
+
+                        {isColVisible('work-item-id') && (
+                          <Table.Cell>
+                            <span className="cursor-pointer text-xs" style={{ color: 'var(--cn-brand, #006DEA)', fontFamily: "'Inter', sans-serif" }}>{row.workId}</span>
+                          </Table.Cell>
+                        )}
+
+                        {expandedStages.size === 0 && isColVisible('summary') && (
+                          <Table.Cell className="max-w-[320px]">
+                            <Text variant="body-normal" color="foreground-1" className="truncate">{row.summary}</Text>
+                          </Table.Cell>
+                        )}
+
+                        {expandedStages.has(1) && isColVisible('pr-summary') && (
+                          <Table.Cell className="max-w-[320px]">
+                            <Text variant="body-normal" color="foreground-1" className="truncate">{row.summary}</Text>
+                          </Table.Cell>
+                        )}
+
+                        {expandedStages.size === 0 && (
                           <>
-                            <Table.Cell className="bg-cn-2">
-                              <Text variant="body-normal" color="foreground-3">{row.needsSpecs}</Text>
-                            </Table.Cell>
-                            <Table.Cell className="bg-cn-2">
-                              <Text variant="body-normal" color="foreground-3">{row.designReview}</Text>
-                            </Table.Cell>
-                            <Table.Cell className="bg-cn-2">
-                              <Text variant="body-normal" color="foreground-3">{row.readyForDev}</Text>
-                            </Table.Cell>
+                            {isColVisible('pr-count') && (
+                              <Table.Cell>
+                                {row.prs > 0 ? (
+                                  <span
+                                    className="cursor-pointer text-sm"
+                                    style={{ color: 'var(--cn-brand, #006DEA)' }}
+                                    onClick={() => togglePrRow(row.workId)}
+                                  >
+                                    {row.prs} PRs {expandedPrRows.has(row.workId) ? '▾' : '▸'}
+                                  </span>
+                                ) : (
+                                  <Text variant="body-normal" color="foreground-3">0 PRs</Text>
+                                )}
+                              </Table.Cell>
+                            )}
+                            {isColVisible('build-count') && (
+                              <Table.Cell>
+                                {row.pipelines > 0 ? (
+                                  <span
+                                    className="cursor-pointer text-sm"
+                                    style={{ color: 'var(--cn-brand, #006DEA)' }}
+                                    onClick={() => toggleBuildRow(row.workId)}
+                                  >
+                                    {row.pipelines} Builds {expandedBuildRows.has(row.workId) ? '▾' : '▸'}
+                                  </span>
+                                ) : (
+                                  <Text variant="body-normal" color="foreground-3">0 Builds</Text>
+                                )}
+                              </Table.Cell>
+                            )}
+                            {isColVisible('start-time') && (
+                              <Table.Cell className="whitespace-nowrap">
+                                <Text variant="body-normal" color="foreground-3">{row.startDate}</Text>
+                              </Table.Cell>
+                            )}
+                            {isColVisible('end-time') && (
+                              <Table.Cell className="whitespace-nowrap">
+                                <Text variant="body-normal" color="foreground-3">{row.endDate}</Text>
+                              </Table.Cell>
+                            )}
                           </>
                         )}
-                        {expandedStages.has(1) && (
-                          <>
-                            <Table.Cell className="bg-cn-2">
-                              <Text variant="body-normal" color="foreground-3">{row.timeToFirstComment}</Text>
-                            </Table.Cell>
-                            <Table.Cell className="bg-cn-2">
-                              <Text variant="body-normal" color="foreground-3">{row.timeToFirstApproval}</Text>
-                            </Table.Cell>
-                            <Table.Cell className="bg-cn-2">
-                              <Text variant="body-normal" color="foreground-3">{row.timeToMerge}</Text>
-                            </Table.Cell>
-                          </>
-                        )}
-                        <Table.Cell className="whitespace-nowrap">
-                          <Text variant="body-normal" color="foreground-3">{row.startDate}</Text>
-                        </Table.Cell>
-                        <Table.Cell className="whitespace-nowrap">
-                          <Text variant="body-normal" color="foreground-3">{row.endDate}</Text>
-                        </Table.Cell>
-                        <Table.Cell style={{ minWidth: 160 }}>
-                          {(() => {
-                            const seed = row.workId
-                            const segments = [
-                              jitter(`${seed}-plan`, 25, 15),
-                              jitter(`${seed}-code`, 20, 12),
-                              jitter(`${seed}-rev`, 20, 10),
-                              jitter(`${seed}-bld`, 15, 8),
-                              jitter(`${seed}-dep`, 20, 10),
-                            ]
-                            const total = segments.reduce((a, b) => a + b, 0)
-                            const colors = [STAGE_COLORS.planning, STAGE_COLORS.coding, STAGE_COLORS.review, STAGE_COLORS.build, STAGE_COLORS.deploy]
-                            return (
-                              <div className="flex flex-col gap-1">
-                                <div className="flex h-2.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: '#F2F4F7', gap: 1 }}>
-                                  {segments.map((seg, si) => (
-                                    <div key={si} style={{ width: `${(seg / total) * barPct}%`, backgroundColor: colors[si], borderRadius: 9999 }} />
-                                  ))}
+
+                        {isColVisible('total-lead-time') && (
+                          <Table.Cell style={{ minWidth: 160 }}>
+                            {(() => {
+                              const seed = row.workId
+                              const segments = [
+                                jitter(`${seed}-plan`, 25, 15),
+                                jitter(`${seed}-code`, 20, 12),
+                                jitter(`${seed}-rev`, 20, 10),
+                                jitter(`${seed}-bld`, 15, 8),
+                                jitter(`${seed}-dep`, 20, 10),
+                              ]
+                              const total = segments.reduce((a, b) => a + b, 0)
+                              const colors = [STAGE_COLORS.planning, STAGE_COLORS.coding, STAGE_COLORS.review, STAGE_COLORS.build, STAGE_COLORS.deploy]
+                              return (
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex h-2.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: '#F2F4F7', gap: 1 }}>
+                                    {segments.map((seg, si) => (
+                                      <div key={si} style={{ width: `${(seg / total) * barPct}%`, backgroundColor: colors[si], borderRadius: 9999 }} />
+                                    ))}
+                                  </div>
+                                  <Text variant="caption-normal" color="foreground-3">{leadLabel}</Text>
                                 </div>
-                                <Text variant="caption-normal" color="foreground-3">{leadLabel}</Text>
-                              </div>
-                            )
-                          })()}
-                        </Table.Cell>
+                              )
+                            })()}
+                          </Table.Cell>
+                        )}
+
+                        {expandedStages.has(0) && isColVisible('stage-planning') && (
+                          <Table.Cell className="bg-cn-2">
+                            <Text variant="body-normal" color="foreground-3">{row.planningTotal}</Text>
+                          </Table.Cell>
+                        )}
+                        {expandedStages.has(1) && isColVisible('stage-development') && (
+                          <Table.Cell className="bg-cn-2">
+                            <Text variant="body-normal" color="foreground-3">{row.codingTotal}</Text>
+                          </Table.Cell>
+                        )}
+                        {expandedStages.has(2) && isColVisible('stage-review') && (
+                          <Table.Cell className="bg-cn-2">
+                            <Text variant="body-normal" color="foreground-3">{row.reviewTotal}</Text>
+                          </Table.Cell>
+                        )}
+                        {expandedStages.has(3) && isColVisible('stage-build') && (
+                          <Table.Cell className="bg-cn-2">
+                            <Text variant="body-normal" color="foreground-3">{row.buildTotal}</Text>
+                          </Table.Cell>
+                        )}
+                        {expandedStages.has(4) && isColVisible('stage-deploy') && (
+                          <Table.Cell className="bg-cn-2">
+                            <Text variant="body-normal" color="foreground-3">{row.deployTotal}</Text>
+                          </Table.Cell>
+                        )}
+
+                        {/* Sub-stage columns */}
+                        {Array.from(expandedSubStages).map((subStageKey) => {
+                          const [sIdx, subIdx] = subStageKey.split('-').map(Number)
+                          const subStageDataMap: Record<string, Record<number, string>> = {
+                            '0': { 0: row.needsSpecs, 1: row.designReview, 2: row.readyForDev },
+                            '1': { 0: row.timeToFirstComment, 1: row.timeToFirstComment, 2: row.timeToFirstApproval, 3: row.timeToFirstApproval, 4: row.timeToMerge },
+                            '2': { 0: row.reviewTotal, 1: row.reviewTotal },
+                            '3': { 0: row.buildTime, 1: row.approveScans, 2: row.pushImage },
+                            '4': { 0: row.deployDev, 1: row.deployQA, 2: row.deployCert, 3: row.deployProd },
+                          }
+                          const timeValue = subStageDataMap[String(sIdx)]?.[subIdx] || '—'
+                          const isBuildOrDeploy = sIdx === 3 || sIdx === 4
+                          if (isBuildOrDeploy) {
+                            const wr = splitWaitRun(`${row.workId}-${subStageKey}`, timeValue)
+                            return (<>
+                              {isColVisible(`sub-${subStageKey}-total`) && (
+                                <Table.Cell key={`${subStageKey}-total`} className="bg-cn-2">
+                                  <div className="flex flex-col gap-1">
+                                    <Text variant="body-normal" color="foreground-3">{timeValue}</Text>
+                                    <div className="flex h-1.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: '#F2F4F7', gap: 1 }}>
+                                      <div style={{ width: `${wr.waitPct}%`, backgroundColor: '#F59E0B', borderRadius: 9999 }} />
+                                      <div style={{ width: `${100 - wr.waitPct}%`, backgroundColor: '#10B981', borderRadius: 9999 }} />
+                                    </div>
+                                  </div>
+                                </Table.Cell>
+                              )}
+                              {isColVisible(`sub-${subStageKey}-wait`) && (
+                                <Table.Cell key={`${subStageKey}-wait`} className="bg-amber-50">
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#F59E0B' }} />
+                                    <Text variant="body-normal" color="foreground-3">{wr.wait}</Text>
+                                  </div>
+                                </Table.Cell>
+                              )}
+                              {isColVisible(`sub-${subStageKey}-run`) && (
+                                <Table.Cell key={`${subStageKey}-run`} className="bg-emerald-50">
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#10B981' }} />
+                                    <Text variant="body-normal" color="foreground-3">{wr.run}</Text>
+                                  </div>
+                                </Table.Cell>
+                              )}
+                            </>)
+                          }
+                          return isColVisible(`sub-${subStageKey}-total`) ? (
+                            <Table.Cell key={subStageKey} className="bg-cn-2">
+                              <Text variant="body-normal" color="foreground-3">{timeValue}</Text>
+                            </Table.Cell>
+                          ) : null
+                        })}
                       </Table.Row>
                       {expandedPrRows.has(row.workId) && row.prs > 0 && (
                         <Table.Row>
@@ -1183,6 +1540,61 @@ export function EfficiencyDoraPage() {
                           </Table.Cell>
                         </Table.Row>
                       )}
+                      {expandedBuildRows.has(row.workId) && row.pipelines > 0 && (
+                        <Table.Row>
+                          <Table.Cell colSpan={colSpan} className="!p-0">
+                            <div className="bg-cn-2 px-8 py-3">
+                              <Table.Root variant="default" size="normal">
+                                <Table.Header>
+                                  <Table.Row>
+                                    <Table.Head>Execution ID</Table.Head>
+                                    <Table.Head>Pipeline Name</Table.Head>
+                                    <Table.Head>Environment</Table.Head>
+                                    <Table.Head>Status</Table.Head>
+                                    <Table.Head>Start Time</Table.Head>
+                                    <Table.Head>End Time</Table.Head>
+                                    <Table.Head>Duration</Table.Head>
+                                  </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                  {generateBuildDetails(row.workId, row.pipelines).map((build) => (
+                                    <Table.Row key={build.executionId}>
+                                      <Table.Cell>
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="cursor-pointer text-xs" style={{ color: 'var(--cn-brand, #006DEA)' }}>{build.executionId}</span>
+                                          <CopyButton text={build.executionId} />
+                                        </div>
+                                      </Table.Cell>
+                                      <Table.Cell className="max-w-[250px]">
+                                        <Text variant="body-normal" color="foreground-1" className="truncate">{build.pipelineName}</Text>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <span className="rounded bg-cn-3 px-2 py-0.5 font-mono text-xs text-foreground-2">{build.environment}</span>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <StatusBadge
+                                          variant={build.status === 'Completed' ? 'success' : build.status === 'Failed' ? 'error' : 'warning'}
+                                          label={build.status}
+                                          size="sm"
+                                        />
+                                      </Table.Cell>
+                                      <Table.Cell className="whitespace-nowrap">
+                                        <Text variant="body-normal" color="foreground-3">{build.startTime}</Text>
+                                      </Table.Cell>
+                                      <Table.Cell className="whitespace-nowrap">
+                                        <Text variant="body-normal" color="foreground-3">{build.endTime}</Text>
+                                      </Table.Cell>
+                                      <Table.Cell>
+                                        <Text variant="body-normal" color="foreground-3">{build.duration}</Text>
+                                      </Table.Cell>
+                                    </Table.Row>
+                                  ))}
+                                </Table.Body>
+                              </Table.Root>
+                            </div>
+                          </Table.Cell>
+                        </Table.Row>
+                      )}
                       </>)
                     })}
                   </Table.Body>
@@ -1199,6 +1611,8 @@ export function EfficiencyDoraPage() {
                   className="!mt-cn-sm"
                 />
               </div>
+            </>)
+              })()}
             </div>
             )
           })()}

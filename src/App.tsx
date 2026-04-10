@@ -12,6 +12,7 @@ const pages = [
   { path: '/module/sei/insights/custom/1/widget-builder', icon: 'settings', title: 'Widget Builder', description: 'Query builder with 7 chart types, datasource selection, and criteria config' },
   { path: '/module/sei/insights/harness/business-alignment', icon: 'bar-vertical', title: 'Business Alignment', description: 'Work categorization with stacked bar chart and drilldown table' },
   { path: '/module/sei/insights/harness/efficiency-dora', icon: 'clock', title: 'DORA Metrics', description: 'Lead time, deployment frequency, change failure rate, and MTTR' },
+  { path: '/module/sei/insights/harness/lead-time-drilldown', icon: 'clock', title: 'Lead Time Drilldown 2.0', description: 'Multi-level progressive drilldown with stage expansion and sub-stage filtering' },
   { path: '/module/sei/insights/harness/efficiency-sprint-metrics', icon: 'flag', title: 'Sprint Metrics', description: '15 sprint metric cards with grouped bar chart and drilldown' },
   { path: '/module/sei/insights/harness/productivity', icon: 'code-branch', title: 'Productivity', description: 'PR velocity, cycle time, work completed, coding days, and code rework' },
   { path: '/module/sei/insights/harness/ai-insights', icon: 'sparkle', title: 'AI Insights', description: 'AI-powered engineering insights and recommendations' },
